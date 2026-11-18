@@ -22,3 +22,6 @@ next-env.d.ts
 
 # local env files
 .env*.local
+
+# extracted kit
+public/image-cinematic-hero/

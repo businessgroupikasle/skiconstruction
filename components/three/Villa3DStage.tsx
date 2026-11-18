@@ -4,7 +4,6 @@ import { Suspense, useEffect, useRef, useState, type MutableRefObject } from "re
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import { WebGLFallback } from "@/components/three/WebGLFallback";
 import { Villa3DScene } from "@/components/three/Villa3DScene";
-import type { CameraPresetKey } from "@/components/three/scene-config";
 import { useIsCoarsePointer, useIsDesktop, usePrefersReducedMotion, useWebGLSupport } from "@/lib/hooks";
 
 export interface Villa3DStageProps {
@@ -15,15 +14,14 @@ export interface Villa3DStageProps {
   className?: string;
   priority?: boolean;
   autoRotate?: boolean;
-  activePreset?: CameraPresetKey;
-  lightingMode?: "day" | "sunset" | "blueprint";
-  onReady?: () => void;
 }
 
 /**
- * Client boundary for the 3D villa stage.
- * Handles WebGL capability, fallback poster, performance quality scaling,
- * and passes scroll progress directly to the WebGL Canvas for 60 FPS animation.
+ * Client boundary for the 3D villa. It decides what to show:
+ *  - WebGL unknown (first client render): static poster, so the layout is already sized
+ *  - WebGL unsupported, context lost or scene error: static poster with a note
+ *  - Otherwise: the live canvas, which fades in once the first frame renders
+ * Offscreen, rendering is paused. Reduced-motion users get a static, still-orbitable view.
  */
 export default function Villa3DStage({
   progressRef,
@@ -32,9 +30,6 @@ export default function Villa3DStage({
   className = "",
   priority = false,
   autoRotate = false,
-  activePreset = "hero",
-  lightingMode = "day",
-  onReady: externalOnReady,
 }: Villa3DStageProps) {
   const support = useWebGLSupport();
   const reducedMotion = usePrefersReducedMotion();
@@ -61,17 +56,12 @@ export default function Villa3DStage({
   const showUnsupported = support === "unsupported" || failed;
   const showCanvas = support === "supported" && !failed;
 
-  const handleReady = () => {
-    setReady(true);
-    externalOnReady?.();
-  };
-
   return (
     <div
       ref={containerRef}
       role="group"
       aria-label={label}
-      className={`relative size-full overflow-hidden ${className}`}
+      className={`relative size-full overflow-hidden rounded-[2rem] ${className}`}
     >
       <WebGLFallback variant={showUnsupported ? "unsupported" : "loading"} priority={priority} />
 
@@ -88,9 +78,7 @@ export default function Villa3DStage({
                 touch={coarsePointer}
                 label={label}
                 autoRotate={autoRotate}
-                activePreset={activePreset}
-                lightingMode={lightingMode}
-                onReady={handleReady}
+                onReady={() => setReady(true)}
                 onError={() => setFailed(true)}
               />
             </Suspense>

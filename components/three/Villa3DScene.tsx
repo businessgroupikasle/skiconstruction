@@ -8,7 +8,6 @@ import { VillaModel } from "@/components/three/VillaModel";
 import {
   CAMERA_BASE,
   CAMERA_LIMITS,
-  CAMERA_PRESETS,
   CAMERA_SCROLL_DELTA,
   COVERED_WIDTH_METRES,
   ORBIT_LIMITS,
@@ -17,7 +16,6 @@ import {
   SCENE_TARGET,
   SHADOW_MAP_SIZE,
   SUN_POSITION,
-  type CameraPresetKey,
 } from "@/components/three/scene-config";
 
 export interface Villa3DSceneProps {
@@ -27,11 +25,10 @@ export interface Villa3DSceneProps {
   quality: "high" | "low";
   reducedMotion: boolean;
   interactive: boolean;
+  /** Touch devices: let vertical page scrolling pass through the canvas */
   touch: boolean;
   label: string;
   autoRotate?: boolean;
-  activePreset?: CameraPresetKey;
-  lightingMode?: "day" | "sunset" | "blueprint";
   onReady?: () => void;
   onError?: () => void;
 }
@@ -90,38 +87,11 @@ interface CameraRigProps {
   parallaxEnabled: boolean;
   pointerRef: MutableRefObject<PointerState>;
   worldRef: MutableRefObject<THREE.Group | null>;
-  activePreset?: CameraPresetKey;
 }
 
-function CameraRig({
-  progressRef,
-  reducedMotion,
-  parallaxEnabled,
-  pointerRef,
-  worldRef,
-  activePreset = "hero",
-}: CameraRigProps) {
+function CameraRig({ progressRef, reducedMotion, parallaxEnabled, pointerRef, worldRef }: CameraRigProps) {
   const applied = useRef({ azimuth: 0, polar: 0, radius: 0 });
   const framed = useRef(false);
-  const lastPresetRef = useRef<CameraPresetKey | null>(null);
-  const targetCameraPos = useRef(new THREE.Vector3());
-  const targetLookAt = useRef(new THREE.Vector3());
-  const isTransitioning = useRef(false);
-
-  useEffect(() => {
-    if (!activePreset) return;
-    const preset = CAMERA_PRESETS[activePreset] ?? CAMERA_PRESETS.hero;
-    const target = new THREE.Vector3(...preset.target);
-    const offset = new THREE.Vector3().setFromSpherical(
-      new THREE.Spherical(preset.radius, preset.polar, preset.azimuth)
-    );
-    targetCameraPos.current.copy(target).add(offset);
-    targetLookAt.current.copy(target);
-    if (lastPresetRef.current !== null && lastPresetRef.current !== activePreset) {
-      isTransitioning.current = true;
-    }
-    lastPresetRef.current = activePreset;
-  }, [activePreset]);
 
   useFrame((state, delta) => {
     if (!framed.current) {
@@ -130,28 +100,10 @@ function CameraRig({
       if (extra > 0.01) orbitCamera(state.camera, 0, 0, extra);
     }
 
-    const controls = state.controls as unknown as OrbitControlsLike | null;
-
-    // Smooth preset transition
-    if (isTransitioning.current && !reducedMotion) {
-      const blend = 1 - Math.exp(-delta * 3.5);
-      state.camera.position.lerp(targetCameraPos.current, blend);
-      if (controls && controls.target) {
-        controls.target.lerp(targetLookAt.current, blend);
-      } else {
-        state.camera.lookAt(targetLookAt.current);
-      }
-      if (state.camera.position.distanceTo(targetCameraPos.current) < 0.08) {
-        isTransitioning.current = false;
-      }
-    }
-
-    // Scroll progress camera interpolation with multi-stage cinematic path
-    const rawProgress = reducedMotion || !progressRef ? 0 : clamp(progressRef.current, 0, 1);
-    const progress = smoothstep(rawProgress);
+    // Scroll progress camera interpolation
+    const progress = reducedMotion || !progressRef ? 0 : smoothstep(clamp(progressRef.current, 0, 1));
     const ease = 1 - Math.exp(-delta * 3.5);
     const current = applied.current;
-
     const stepAzimuth = (CAMERA_SCROLL_DELTA.azimuth * progress - current.azimuth) * ease;
     const stepPolar = (CAMERA_SCROLL_DELTA.polar * progress - current.polar) * ease;
     const stepRadius = (CAMERA_SCROLL_DELTA.radius * progress - current.radius) * ease;
@@ -192,8 +144,6 @@ interface SceneContentProps {
   interactive: boolean;
   touch: boolean;
   autoRotate?: boolean;
-  activePreset?: CameraPresetKey;
-  lightingMode?: "day" | "sunset" | "blueprint";
   onReady?: () => void;
   worldRef: MutableRefObject<THREE.Group | null>;
   pointerRef: MutableRefObject<PointerState>;
@@ -207,8 +157,6 @@ function SceneContent({
   interactive,
   touch,
   autoRotate = false,
-  activePreset = "hero",
-  lightingMode = "day",
   onReady,
   worldRef,
   pointerRef,
@@ -218,31 +166,14 @@ function SceneContent({
   const controls = useThree((state) => state.controls) as unknown as OrbitControlsLike | null;
   const shadowSize = SHADOW_MAP_SIZE[quality];
 
-  const isSunset = lightingMode === "sunset";
-  const isBlueprint = lightingMode === "blueprint";
-
-  const sunPos: [number, number, number] = isSunset
-    ? [-18, 4.8, 12]
-    : isBlueprint
-      ? [-20, 3.2, 10]
-      : SUN_POSITION;
-
-  const sunColor = isSunset ? "#FFA352" : isBlueprint ? "#38BDF8" : "#FFF4E0";
-  const sunIntensity = isSunset ? 3.5 : isBlueprint ? 2.2 : 2.8;
-
-  const hemiSky = isSunset ? "#FFD3A3" : isBlueprint ? "#1E3A5F" : "#FFF3E2";
-  const hemiGround = isSunset ? "#3C3220" : isBlueprint ? "#0B1E28" : "#7A8A62";
-  const hemiIntensity = isSunset ? 1.0 : isBlueprint ? 1.4 : 1.2;
-
-  const fillColor = isSunset ? "#FF8C42" : isBlueprint ? "#4ADE80" : "#E8D2B0";
-  const fillIntensity = isSunset ? 1.2 : isBlueprint ? 0.95 : 0.65;
-
+  // Arrow keys rotate the view when the canvas has focus
   useEffect(() => {
     if (!controls?.listenToKeyEvents) return;
     controls.listenToKeyEvents(gl.domElement);
     return () => controls.stopListenToKeyEvents?.();
   }, [controls, gl]);
 
+  // Touch screen: allow vertical swipes to scroll the page
   useEffect(() => {
     if (touch) setTouchAction(gl.domElement, "pan-y");
   }, [gl, touch]);
@@ -251,19 +182,19 @@ function SceneContent({
     <>
       <Sky
         distance={450000}
-        sunPosition={sunPos}
-        inclination={isSunset ? 0.6 : isBlueprint ? 0.8 : 0.48}
-        azimuth={isSunset ? 0.4 : isBlueprint ? 0.5 : 0.28}
-        turbidity={isSunset ? 8.0 : isBlueprint ? 12.0 : 4.0}
-        rayleigh={isSunset ? 2.5 : isBlueprint ? 0.2 : 0.8}
+        sunPosition={SUN_POSITION}
+        inclination={0.48}
+        azimuth={0.28}
+        turbidity={4.0}
+        rayleigh={0.8}
         mieCoefficient={0.005}
         mieDirectionalG={0.82}
       />
-      <hemisphereLight args={[hemiSky, hemiGround, hemiIntensity]} />
+      <hemisphereLight args={["#FFF3E2", "#7A8A62", 1.2]} />
       <directionalLight
-        position={sunPos}
-        intensity={sunIntensity}
-        color={sunColor}
+        position={SUN_POSITION}
+        intensity={2.8}
+        color="#FFF4E0"
         castShadow
         shadow-mapSize={[shadowSize, shadowSize]}
         shadow-camera-near={1}
@@ -276,15 +207,16 @@ function SceneContent({
         shadow-normalBias={0.025}
       />
 
-      <directionalLight position={[10, 6, -10]} intensity={fillIntensity} color={fillColor} />
+      {/* Warm fill light simulating sunset bounce off the courtyard */}
+      <directionalLight position={[10, 6, -10]} intensity={0.65} color="#E8D2B0" />
 
       <group ref={worldRef}>
-        <VillaModel instantReveal={reducedMotion} progressRef={progressRef} />
+        <VillaModel instantReveal={reducedMotion} />
       </group>
 
       <ContactShadows
         position={[0, 0.01, 0]}
-        opacity={isBlueprint ? 0.35 : 0.55}
+        opacity={0.55}
         scale={42}
         blur={2.4}
         far={10}
@@ -317,7 +249,6 @@ function SceneContent({
         parallaxEnabled={parallaxEnabled}
         pointerRef={pointerRef}
         worldRef={worldRef}
-        activePreset={activePreset}
       />
       <ReadySignal onReady={onReady} />
     </>
@@ -333,8 +264,6 @@ export function Villa3DScene({
   touch,
   label,
   autoRotate = false,
-  activePreset = "hero",
-  lightingMode = "day",
   onReady,
   onError,
 }: Villa3DSceneProps) {
@@ -385,8 +314,6 @@ export function Villa3DScene({
         interactive={interactive}
         touch={touch}
         autoRotate={autoRotate}
-        activePreset={activePreset}
-        lightingMode={lightingMode}
         onReady={onReady}
         worldRef={worldRef}
         pointerRef={pointerRef}
