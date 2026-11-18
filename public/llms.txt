@@ -1,0 +1,48 @@
+# SKI Construction
+> Build With Quality
+
+SKI Construction is a premier construction and engineering company located in Kinathukadavu, Coimbatore, Tamil Nadu, India. Led by Er. D. Satheeshkumar (DCE., BE., Registered LBS Engineer), the firm provides end-to-end residential and commercial building construction, architectural 3D elevation design, structural planning, and statutory government approval services.
+
+## Contact Information
+- Address: Near MLA Office, Krishnasamypuram, Kinathukadavu, Coimbatore - 642109, Tamil Nadu, India
+- Phone: +91 8526 224354
+- WhatsApp: +91 8526 224354
+- Email: skiconstruction.cbe@gmail.com
+- GSTIN: 33ECHPS1610H1ZT
+- Leadership: Er. D. Satheeshkumar, DCE., BE. (Registered LBS Engineer)
+
+## Main Pages
+- Home: /
+- About Us: /about
+- Services: /services
+- Project Gallery: /gallery
+- Contact: /contact
+
+## Core Services
+1. Building Construction (/services/building-construction)
+   Complete turnkey residential and commercial building construction with supervised engineering, quality materials, and transparent stage-wise delivery.
+
+2. 3D Elevation Design (/services/3d-elevation-design)
+   Photorealistic exterior 3D elevations, architectural facades, material selections, and daylight simulations before on-site execution.
+
+3. Construction Consulting (/services/construction-consulting)
+   Independent structural guidance, plan assessments, material quality vetting, and contractor workflow scheduling.
+
+4. Bank Loan Estimate (/services/bank-loan-estimate)
+   Bank-format construction estimates, stage valuation documentation, and civil engineering verification for smooth loan sanctions.
+
+5. LBS Plan Approval (/services/lbs-plan-approval)
+   Coimbatore Corporation registered Licensed Building Surveyor (LBS) building plan drafting, submission, and statutory approvals.
+
+6. DTCP / LPA Approval (/services/dtcp-lpa-approval)
+   Directorate of Town and Country Planning (DTCP) and Local Planning Authority (LPA) layout sanction drawings and documentation.
+
+7. Vastu Plan (/services/vastu-plan)
+   Traditional Vastu Shastra principles integrated with modern architectural floor plans for optimal natural lighting, airflow, and spatial harmony.
+
+8. Real Estate (/services/real-estate)
+   Clear-title residential plots, agricultural lands, and development properties evaluated with legal and developmental scrutiny across Coimbatore.
+
+9. Property Buying & Selling (/services/property-buying-selling)
+   Transparent real estate brokering and property transaction services connecting verified buyers and property owners in the Kinathukadavu and Coimbatore regions.
+
