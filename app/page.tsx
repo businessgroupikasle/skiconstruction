@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { ArchitecturalHero } from "@/components/home/ArchitecturalHero";
-import { ServiceQuickLinks } from "@/components/home/ServiceQuickLinks";
 import { AboutPreview } from "@/components/home/AboutPreview";
 import { ContactBanner } from "@/components/home/ContactBanner";
 import { GalleryPreview } from "@/components/home/GalleryPreview";
@@ -24,7 +23,6 @@ export default function HomePage() {
   return (
     <>
       <ArchitecturalHero />
-      <ServiceQuickLinks />
       <AboutPreview />
       <ServicesShowcase />
       <HomeJourneySection />
