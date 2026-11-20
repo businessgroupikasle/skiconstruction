@@ -30,7 +30,21 @@ function AboutVisual() {
 /** About SKI Construction: visual, introduction, features and the founder card. */
 export function AboutPreview() {
   return (
-    <section aria-labelledby="about-heading" className="bg-white py-16 sm:py-20">
+    <section aria-labelledby="about-heading" className="relative isolate overflow-hidden bg-white py-16 sm:py-20">
+      {/* Background decorative team helmet graphic in top-right corner */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-0 right-0 -z-10 w-44 sm:w-56 md:w-64 lg:w-72 aspect-square select-none"
+      >
+        <Image
+          src="/images/background/team-helmate.png"
+          alt=""
+          fill
+          sizes="(min-width: 1024px) 288px, (min-width: 768px) 256px, 176px"
+          className="object-contain object-top-right"
+        />
+      </div>
+
       <Container className="grid items-center gap-10 lg:grid-cols-[1.05fr_1fr_0.72fr] lg:gap-10">
         <AboutVisual />
 

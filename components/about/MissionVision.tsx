@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Check } from "lucide-react";
 
 type TabType = "mission" | "vision" | "values";
 
@@ -15,10 +15,10 @@ interface TabContent {
 const tabContents: Record<TabType, TabContent> = {
   mission: {
     description:
-      "SKI Construction delivers tailored architectural design, structural management & precision execution services across Coimbatore. We operate with strict IS 456 engineering oversight, transparent milestone BOQ schedules, and personal supervision by Registered LBS Engineer Er. D. Satheeshkumar.",
+      "SKI Construction delivers tailored architectural design, statutory plan approvals, structural consulting, and turnkey construction execution across Coimbatore. We operate with strict IS 456 engineering oversight, transparent milestone BOQ schedules, and direct on-site supervision by Registered LBS Engineer Er. D. Satheeshkumar.",
     points: [
       "Precision Structural Design",
-      "IS 456 Concrete Testing",
+      "IS 456 Concrete Standards",
       "Transparent Milestone BOQ",
       "Direct LBS Site Supervision",
       "Certified Primary Materials",
@@ -27,38 +27,39 @@ const tabContents: Record<TabType, TabContent> = {
   },
   vision: {
     description:
-      "To be the leading and most trusted civil engineering and construction firm in Coimbatore, recognized for architectural craftsmanship, sustainable innovation, 3D photorealistic elevations, and generational value creation for every homeowner.",
+      "To be the foremost and most trusted civil engineering and construction firm in Coimbatore, recognized for architectural craftsmanship, statutory municipal compliance, 3D photorealistic elevations, and lasting generational quality for every homeowner.",
     points: [
       "Photorealistic 3D Elevations",
       "Bylaw-Compliant Blueprints",
       "DTCP & LPA Fast Approvals",
-      "Sustainable Green Methods",
-      "Zero Subcontracting Dilution",
+      "Sustainable Eco Methods",
+      "Zero Brokerage / Direct Engineering",
       "Generational Durability",
     ],
   },
   values: {
     description:
-      "Construction tailored design, management & support services building business agency elit, sed do eiusmod tempor majority have this best in some we form, by injected humour solution.",
+      "Our core principles are rooted in engineering integrity, statutory transparency, and unwavering material quality. We treat every residential and commercial project as a lasting milestone, ensuring complete client peace of mind from initial soil testing to final key handover.",
     points: [
-      "Innovation Design Technology.",
-      "Innovation Design Technology.",
-      "Innovation Design Technology.",
-      "Innovation Design Technology.",
-      "Innovation Design Technology.",
-      "Innovation Design Technology.",
+      "Structural Safety First",
+      "100% Transparent Quotations",
+      "No Subcontractor Dilution",
+      "Strict Statutory Compliance",
+      "Certified Premium Materials",
+      "Direct Engineer Supervision",
     ],
   },
 };
 
 /**
- * Exact 100% 2-Column Mission, Vision & Values Section
- * Matching the reference construction layout:
- * - Left: Eyebrow + Heading + Large Photo with Chamfered Angled Top-Right Corner
- * - Right: Top Experience Badge Card with Chamfer Cut + Ribbon Tabs with Folded Ears + 2-Column Checklist + Read More Button
+ * SKI Construction Mission, Vision & Values Section
+ * - Brand Theme Colors: Primary Green (#367c08), Accent Green (#65b516), Deep Forest (#0d3822)
+ * - 100% Authentic Content (Zero dummy / placeholder text)
+ * - Left: Eyebrow + Heading + Chamfered Project Construction Visual
+ * - Right: Experience Badge Card + Folded Ribbon Tabs + 2-Column Checklist + CTA
  */
 export function MissionVision() {
-  const [activeTab, setActiveTab] = useState<TabType>("values");
+  const [activeTab, setActiveTab] = useState<TabType>("mission");
   const current = tabContents[activeTab];
 
   return (
@@ -68,23 +69,23 @@ export function MissionVision() {
             LEFT COLUMN: Eyebrow + Heading + Chamfered Image
            ======================================================= */}
         <div className="lg:col-span-6 flex flex-col">
-          {/* Eyebrow: —o MISSION VISION & VALUES */}
+          {/* Eyebrow: —o MISSION VISION & VALUES in Brand Theme Green */}
           <div className="flex items-center gap-2 mb-3">
-            <span className="h-[2px] w-6 bg-[#e65c00]" />
-            <span className="size-2 rounded-full border-2 border-[#e65c00]" />
-            <span className="text-xs sm:text-sm font-bold uppercase tracking-[0.18em] text-[#e65c00]">
-              MISSION VISION & VALUES
+            <span className="h-[2px] w-6 bg-brand-primary" />
+            <span className="size-2 rounded-full border-2 border-brand-accent bg-white" />
+            <span className="text-xs sm:text-sm font-bold uppercase tracking-[0.2em] text-brand-primary">
+              MISSION, VISION & VALUES
             </span>
           </div>
 
-          {/* Heading */}
-          <h2 className="text-2xl sm:text-3xl lg:text-[2.35rem] font-extrabold text-[#111827] tracking-tight leading-[1.2] mb-6 sm:mb-8">
-            We Deliver Lasting Quality Using The Best Materials Skilled.
+          {/* Heading in Brand Dark */}
+          <h2 className="text-2xl sm:text-3xl lg:text-[2.35rem] font-extrabold text-brand-dark tracking-tight leading-[1.2] mb-6 sm:mb-8">
+            We Deliver Lasting Quality Using The Best Skilled Engineering.
           </h2>
 
           {/* Big Photo with Diagonal Chamfered Top-Right Corner */}
           <div
-            className="relative h-[340px] sm:h-[400px] lg:h-[450px] w-full overflow-hidden shadow-xl bg-gray-100"
+            className="relative h-[340px] sm:h-[400px] lg:h-[450px] w-full overflow-hidden shadow-card rounded-2xl bg-brand-soft border border-brand-line/60"
             style={{
               clipPath:
                 "polygon(0 0, calc(100% - 48px) 0, 100% 48px, 100% 100%, 0 100%)",
@@ -92,7 +93,7 @@ export function MissionVision() {
           >
             <Image
               src="/images/services/building-construction.png"
-              alt="Construction engineers on site supervising structural building works"
+              alt="SKI Construction engineers on site supervising structural building works"
               fill
               sizes="(min-width: 1024px) 50vw, 100vw"
               className="object-cover object-center transition-transform duration-700 hover:scale-105"
@@ -104,19 +105,19 @@ export function MissionVision() {
             RIGHT COLUMN: Experience Card + Tabs + Checklist + CTA
            ======================================================= */}
         <div className="lg:col-span-6 flex flex-col gap-7 sm:gap-8">
-          {/* 1. Top Experience Badge Card with Chamfered Top-Right Corner */}
+          {/* 1. Top Experience Badge Card with Chamfered Top-Right Corner in Forest Green Theme */}
           <div
-            className="flex items-stretch overflow-hidden bg-[#111827] shadow-lg"
+            className="flex items-stretch overflow-hidden bg-gradient-to-r from-[#072415] via-[#0d3822] to-[#12452a] shadow-card rounded-xl border border-white/10"
             style={{
               clipPath:
                 "polygon(0 0, calc(100% - 32px) 0, 100% 32px, 100% 100%, 0 100%)",
             }}
           >
-            {/* Left Photo with Orange Border */}
-            <div className="relative w-24 sm:w-28 shrink-0 border-l-4 border-[#e65c00] bg-white">
+            {/* Left Photo with Brand Accent Border */}
+            <div className="relative w-24 sm:w-28 shrink-0 border-l-4 border-brand-accent bg-white">
               <Image
                 src="/images/about/ref/helmet-blueprint.png"
-                alt="Construction engineer work experience"
+                alt="Construction engineering leadership"
                 fill
                 sizes="120px"
                 className="object-cover object-center"
@@ -127,38 +128,38 @@ export function MissionVision() {
             <div className="p-4 sm:p-5 flex flex-col justify-center text-white">
               <h3 className="text-sm sm:text-base lg:text-lg font-black uppercase tracking-tight text-white leading-snug">
                 CONSTRUCTION WORK EXPERIENCE AND BUILDING{" "}
-                <span className="text-[#e65c00]">QUALITY.</span>
+                <span className="text-brand-accent">QUALITY.</span>
               </h3>
-              <div className="flex items-center gap-2 mt-2 text-xs text-gray-300">
-                <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-[#e65c00] text-white text-[10px] font-bold">
+              <div className="flex items-center gap-2 mt-2 text-xs text-white/80">
+                <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-brand-accent text-[#072415] text-[10px] font-black">
                   ✓
                 </span>
-                <span>Building steps to ensure control.</span>
+                <span className="font-medium">Direct engineering steps to ensure 100% quality control.</span>
               </div>
             </div>
           </div>
 
-          {/* 2. Ribbon Tabs with Folded Corner Ears */}
-          <div className="flex items-end gap-3 sm:gap-4 pb-2">
+          {/* 2. Ribbon Tabs with Brand Theme Styling */}
+          <div className="flex items-end gap-2.5 sm:gap-3 pb-2">
             {/* Tab 1: OUR MISSION */}
             <div className="relative inline-block">
               <button
                 type="button"
                 onClick={() => setActiveTab("mission")}
-                className={`relative px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-colors duration-200 cursor-pointer ${
+                className={`relative px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 cursor-pointer rounded-t-lg ${
                   activeTab === "mission"
-                    ? "bg-[#111827] text-white"
-                    : "bg-[#f3f4f6] text-[#374151] hover:bg-[#e5e7eb]"
+                    ? "bg-brand-primary text-white shadow-button"
+                    : "bg-brand-soft text-brand-dark hover:bg-brand-mist/70 border border-brand-line/60"
                 }`}
               >
                 OUR MISSION
               </button>
               {/* Ribbon fold triangle */}
               <div
-                className={`absolute top-full right-0 w-0 h-0 border-t-[8px] border-r-[8px] border-r-transparent ${
+                className={`absolute top-full right-0 w-0 h-0 border-t-[7px] border-r-[7px] border-r-transparent ${
                   activeTab === "mission"
-                    ? "border-t-[#e65c00]"
-                    : "border-t-[#111827]"
+                    ? "border-t-brand-dark"
+                    : "border-t-brand-line"
                 }`}
               />
             </div>
@@ -168,20 +169,20 @@ export function MissionVision() {
               <button
                 type="button"
                 onClick={() => setActiveTab("vision")}
-                className={`relative px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-colors duration-200 cursor-pointer ${
+                className={`relative px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 cursor-pointer rounded-t-lg ${
                   activeTab === "vision"
-                    ? "bg-[#111827] text-white"
-                    : "bg-[#f3f4f6] text-[#374151] hover:bg-[#e5e7eb]"
+                    ? "bg-brand-primary text-white shadow-button"
+                    : "bg-brand-soft text-brand-dark hover:bg-brand-mist/70 border border-brand-line/60"
                 }`}
               >
                 OUR VISION
               </button>
               {/* Ribbon fold triangle */}
               <div
-                className={`absolute top-full right-0 w-0 h-0 border-t-[8px] border-r-[8px] border-r-transparent ${
+                className={`absolute top-full right-0 w-0 h-0 border-t-[7px] border-r-[7px] border-r-transparent ${
                   activeTab === "vision"
-                    ? "border-t-[#e65c00]"
-                    : "border-t-[#111827]"
+                    ? "border-t-brand-dark"
+                    : "border-t-brand-line"
                 }`}
               />
             </div>
@@ -191,98 +192,98 @@ export function MissionVision() {
               <button
                 type="button"
                 onClick={() => setActiveTab("values")}
-                className={`relative px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-colors duration-200 cursor-pointer ${
+                className={`relative px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 cursor-pointer rounded-t-lg ${
                   activeTab === "values"
-                    ? "bg-[#111827] text-white"
-                    : "bg-[#f3f4f6] text-[#374151] hover:bg-[#e5e7eb]"
+                    ? "bg-brand-primary text-white shadow-button"
+                    : "bg-brand-soft text-brand-dark hover:bg-brand-mist/70 border border-brand-line/60"
                 }`}
               >
                 OUR VALUES
               </button>
               {/* Ribbon fold triangle */}
               <div
-                className={`absolute top-full right-0 w-0 h-0 border-t-[8px] border-r-[8px] border-r-transparent ${
+                className={`absolute top-full right-0 w-0 h-0 border-t-[7px] border-r-[7px] border-r-transparent ${
                   activeTab === "values"
-                    ? "border-t-[#e65c00]"
-                    : "border-t-[#111827]"
+                    ? "border-t-brand-dark"
+                    : "border-t-brand-line"
                 }`}
               />
             </div>
           </div>
 
-          {/* 3. Tab Narrative Paragraph */}
-          <p className="text-xs sm:text-sm text-[#4b5563] leading-relaxed">
+          {/* 3. Tab Narrative Paragraph in Brand Typography */}
+          <p className="text-sm sm:text-[0.95rem] text-brand-dark/85 leading-relaxed font-medium">
             {current.description}
           </p>
 
-          {/* 4. 2-Column Checklist Grid (2 columns x 3 rows with thin dividers) */}
-          <div className="border-t border-[#e5e7eb]">
+          {/* 4. 2-Column Checklist Grid in Brand Green Theme */}
+          <div className="border-t border-brand-line">
             <div className="grid grid-cols-1 sm:grid-cols-2">
               {/* Row 1 */}
-              <div className="flex items-center gap-2.5 py-3 pr-4 border-b border-[#e5e7eb] sm:border-r">
-                <span className="flex size-3.5 shrink-0 items-center justify-center border border-[#111827]">
-                  <span className="size-1.5 bg-[#111827]" />
+              <div className="flex items-center gap-3 py-3 pr-4 border-b border-brand-line sm:border-r">
+                <span className="flex size-4 shrink-0 items-center justify-center rounded-xs bg-brand-primary text-white shadow-2xs">
+                  <Check className="size-3 text-white" strokeWidth={3} />
                 </span>
-                <span className="text-xs sm:text-sm font-medium text-[#1f2937]">
+                <span className="text-xs sm:text-sm font-semibold text-brand-ink">
                   {current.points[0]}
                 </span>
               </div>
-              <div className="flex items-center gap-2.5 py-3 sm:pl-4 border-b border-[#e5e7eb]">
-                <span className="flex size-3.5 shrink-0 items-center justify-center border border-[#111827]">
-                  <span className="size-1.5 bg-[#111827]" />
+              <div className="flex items-center gap-3 py-3 sm:pl-4 border-b border-brand-line">
+                <span className="flex size-4 shrink-0 items-center justify-center rounded-xs bg-brand-primary text-white shadow-2xs">
+                  <Check className="size-3 text-white" strokeWidth={3} />
                 </span>
-                <span className="text-xs sm:text-sm font-medium text-[#1f2937]">
+                <span className="text-xs sm:text-sm font-semibold text-brand-ink">
                   {current.points[1]}
                 </span>
               </div>
 
               {/* Row 2 */}
-              <div className="flex items-center gap-2.5 py-3 pr-4 border-b border-[#e5e7eb] sm:border-r">
-                <span className="flex size-3.5 shrink-0 items-center justify-center border border-[#111827]">
-                  <span className="size-1.5 bg-[#111827]" />
+              <div className="flex items-center gap-3 py-3 pr-4 border-b border-brand-line sm:border-r">
+                <span className="flex size-4 shrink-0 items-center justify-center rounded-xs bg-brand-primary text-white shadow-2xs">
+                  <Check className="size-3 text-white" strokeWidth={3} />
                 </span>
-                <span className="text-xs sm:text-sm font-medium text-[#1f2937]">
+                <span className="text-xs sm:text-sm font-semibold text-brand-ink">
                   {current.points[2]}
                 </span>
               </div>
-              <div className="flex items-center gap-2.5 py-3 sm:pl-4 border-b border-[#e5e7eb]">
-                <span className="flex size-3.5 shrink-0 items-center justify-center border border-[#111827]">
-                  <span className="size-1.5 bg-[#111827]" />
+              <div className="flex items-center gap-3 py-3 sm:pl-4 border-b border-brand-line">
+                <span className="flex size-4 shrink-0 items-center justify-center rounded-xs bg-brand-primary text-white shadow-2xs">
+                  <Check className="size-3 text-white" strokeWidth={3} />
                 </span>
-                <span className="text-xs sm:text-sm font-medium text-[#1f2937]">
+                <span className="text-xs sm:text-sm font-semibold text-brand-ink">
                   {current.points[3]}
                 </span>
               </div>
 
               {/* Row 3 */}
-              <div className="flex items-center gap-2.5 py-3 pr-4 border-b border-[#e5e7eb] sm:border-r">
-                <span className="flex size-3.5 shrink-0 items-center justify-center border border-[#111827]">
-                  <span className="size-1.5 bg-[#111827]" />
+              <div className="flex items-center gap-3 py-3 pr-4 border-b border-brand-line sm:border-r">
+                <span className="flex size-4 shrink-0 items-center justify-center rounded-xs bg-brand-primary text-white shadow-2xs">
+                  <Check className="size-3 text-white" strokeWidth={3} />
                 </span>
-                <span className="text-xs sm:text-sm font-medium text-[#1f2937]">
+                <span className="text-xs sm:text-sm font-semibold text-brand-ink">
                   {current.points[4]}
                 </span>
               </div>
-              <div className="flex items-center gap-2.5 py-3 sm:pl-4 border-b border-[#e5e7eb]">
-                <span className="flex size-3.5 shrink-0 items-center justify-center border border-[#111827]">
-                  <span className="size-1.5 bg-[#111827]" />
+              <div className="flex items-center gap-3 py-3 sm:pl-4 border-b border-brand-line">
+                <span className="flex size-4 shrink-0 items-center justify-center rounded-xs bg-brand-primary text-white shadow-2xs">
+                  <Check className="size-3 text-white" strokeWidth={3} />
                 </span>
-                <span className="text-xs sm:text-sm font-medium text-[#1f2937]">
+                <span className="text-xs sm:text-sm font-semibold text-brand-ink">
                   {current.points[5]}
                 </span>
               </div>
             </div>
           </div>
 
-          {/* 5. [ READ MORE | ↗ ] Button */}
+          {/* 5. [ READ MORE | ↗ ] Button in Brand Green Theme */}
           <div>
             <Link
               href="/contact"
-              className="group inline-flex items-center bg-[#111827] hover:bg-brand-primary transition-colors duration-200 text-white font-bold text-xs sm:text-sm tracking-wider uppercase pl-6 pr-1 py-1 shadow-sm"
+              className="group inline-flex items-center rounded-full bg-brand-primary hover:bg-brand-dark transition-all duration-300 text-white font-bold text-xs sm:text-sm tracking-wider uppercase pl-6 pr-1.5 py-1.5 shadow-button"
             >
               <span>READ MORE</span>
-              <span className="ml-5 bg-white text-[#e65c00] p-2 flex items-center justify-center transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
-                <ArrowUpRight className="size-4 text-[#e65c00]" strokeWidth={2.5} />
+              <span className="ml-5 size-8 rounded-full bg-white text-brand-primary flex items-center justify-center transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 shadow-xs">
+                <ArrowUpRight className="size-4 text-brand-primary" strokeWidth={2.5} />
               </span>
             </Link>
           </div>

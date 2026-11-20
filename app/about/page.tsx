@@ -4,7 +4,6 @@ import { WhoWeAre } from "@/components/about/WhoWeAre";
 import { CompanyHighlights } from "@/components/about/CompanyHighlights";
 import { MissionVision } from "@/components/about/MissionVision";
 import { AboutStory } from "@/components/about/AboutStory";
-import { AboutExpertise } from "@/components/about/AboutExpertise";
 import { CoreValues } from "@/components/about/CoreValues";
 import { AboutApproach } from "@/components/about/AboutApproach";
 import { AboutFaqs } from "@/components/about/AboutFaqs";
@@ -115,9 +114,6 @@ export default function AboutPage() {
 
       {/* 6. Our Story & Company Milestones */}
       <AboutStory />
-
-      {/* 7. Core Disciplines & Industries We Serve */}
-      <AboutExpertise />
 
       {/* 8. Our Core Values */}
       <CoreValues />

@@ -1,29 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ShieldCheck, HardHat, PhoneCall, ChevronDown } from "lucide-react";
-import { Container } from "@/components/ui/Container";
-import { GreenCTAButton } from "@/components/ui/GreenCTAButton";
+import Link from "next/link";
+import { ShieldCheck, HardHat, PhoneCall, ArrowRight } from "lucide-react";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 
-gsap.registerPlugin(ScrollTrigger);
-
-const TOTAL_FRAMES = 72;
+const TOTAL_FRAMES = 200;
 const FRAME_DIRECTORY = "/images/bannerimages";
 
 /**
  * Builds the URL for any 0-based frame index:
- * index 0  -> /images/bannerimages/ezgif-frame-001.jpg
- * index 71 -> /images/bannerimages/ezgif-frame-072.jpg
+ * index 0   -> /images/bannerimages/ezgif-frame-001.jpg
+ * index 199 -> /images/bannerimages/ezgif-frame-200.jpg
  */
 function getFrameUrl(index: number): string {
   const frameNumber = String(index + 1).padStart(3, "0");
   return `${FRAME_DIRECTORY}/ezgif-frame-${frameNumber}.jpg`;
 }
-
-type FrameAsset = ImageBitmap | HTMLImageElement;
 
 export function ArchitecturalHero() {
   const containerRef = useRef<HTMLElement>(null);
@@ -37,22 +30,23 @@ export function ArchitecturalHero() {
   const [firstFrameLoaded, setFirstFrameLoaded] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
 
-  // Cache and state stored in refs to prevent unnecessary React re-renders during 60/120fps scrolling
-  const framesCacheRef = useRef<(FrameAsset | null)[]>(new Array(TOTAL_FRAMES).fill(null));
-  const targetIndexRef = useRef(0);
-  const lastDrawnIndexRef = useRef(-1);
+  // Cache of preloaded HTMLImageElements (2560x1440 native resolution)
+  const imagesCacheRef = useRef<(HTMLImageElement | null)[]>(new Array(TOTAL_FRAMES).fill(null));
+  const inflightRef = useRef<Set<number>>(new Set());
+  const lastDrawnFrameRef = useRef<HTMLImageElement | null>(null);
+  const targetProgressRef = useRef(0);
   const rafIdRef = useRef<number | null>(null);
   const isMountedRef = useRef(false);
 
   /**
    * Retrieves the closest loaded frame to the requested target index.
-   * Eliminates black or blank flashes if a frame is still decoding.
+   * Guarantees zero blank flashes while intermediate frames are decoding.
    */
-  const getBestAvailableFrame = useCallback((index: number): FrameAsset | null => {
-    const cache = framesCacheRef.current;
+  const getBestLoadedFrame = useCallback((index: number): HTMLImageElement | null => {
+    const cache = imagesCacheRef.current;
     if (cache[index]) return cache[index];
 
-    // Search outwards for the closest loaded frame
+    // Search outwards for closest loaded frame
     for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
       const prev = index - offset;
       if (prev >= 0 && cache[prev]) return cache[prev];
@@ -63,280 +57,291 @@ export function ArchitecturalHero() {
   }, []);
 
   /**
-   * High-performance canvas drawing with high-definition aspect-ratio preservation.
-   * Supports ultra-crisp 4K/8K display output.
+   * Adjusts canvas resolution to match container dimensions and high-DPI displays.
+   * Supports up to 2.5x devicePixelRatio for crisp 4K/Retina rendering.
    */
-  const renderCanvasFrame = useCallback((index: number) => {
+  const updateCanvasSize = useCallback(() => {
+    const canvas = canvasRef.current;
+    const stickyEl = stickyRef.current;
+    if (!canvas || !stickyEl) return;
+
+    const rect = stickyEl.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    const targetWidth = Math.round(rect.width * dpr);
+    const targetHeight = Math.round(rect.height * dpr);
+
+    if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+      canvas.style.width = `${rect.width}px`;
+      canvas.style.height = `${rect.height}px`;
+      lastDrawnFrameRef.current = null;
+    }
+  }, []);
+
+  /**
+   * Renders the current frame and updates visual elements corresponding to scroll progress.
+   */
+  const renderFrameAtProgress = useCallback((progress: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
-    const frame = getBestAvailableFrame(index);
-    if (!frame) return;
+    const frameFloat = progress * (TOTAL_FRAMES - 1);
+    const targetFrameIndex = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.round(frameFloat)));
 
-    const cw = canvas.width;
-    const ch = canvas.height;
-    if (cw === 0 || ch === 0) return;
-
-    const iw = frame.width || 3840;
-    const ih = frame.height || 2160;
-
-    // Cinematic cover algorithm
-    const scale = Math.max(cw / iw, ch / ih);
-    const dw = iw * scale;
-    const dh = ih * scale;
-    const dx = (cw - dw) / 2;
-    const dy = (ch - dh) / 2;
-
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(frame, dx, dy, dw, dh);
-    lastDrawnIndexRef.current = index;
-  }, [getBestAvailableFrame]);
-
-  /**
-   * Loads an individual frame asset, preferring off-thread ImageBitmap decoding
-   * with a graceful fallback to HTMLImageElement.
-   */
-  const loadSingleFrame = useCallback(async (index: number): Promise<FrameAsset | null> => {
-    if (framesCacheRef.current[index]) {
-      return framesCacheRef.current[index];
+    // Update bottom progress bar
+    if (progressBarRef.current) {
+      progressBarRef.current.style.transform = `scaleX(${progress.toFixed(4)})`;
     }
 
+    // Editorial text gently fades out across the first 25% of scroll
+    if (contentRef.current) {
+      let opacity = 1;
+      let translateY = 0;
+      if (progress > 0.03) {
+        const fade = Math.min(1, (progress - 0.03) / 0.22);
+        opacity = 1 - fade;
+        translateY = -28 * fade;
+      }
+      contentRef.current.style.opacity = opacity.toFixed(3);
+      contentRef.current.style.transform = `translate3d(0, ${translateY.toFixed(1)}px, 0)`;
+      contentRef.current.style.pointerEvents = opacity < 0.1 ? "none" : "auto";
+    }
+
+    // Soft gradient overlay gently clears as the building construction progresses
+    if (overlayRef.current) {
+      let overlayOpacity = 1;
+      if (progress > 0.05) {
+        overlayOpacity = Math.max(0, 1 - (progress - 0.05) / 0.25);
+      }
+      overlayRef.current.style.opacity = (overlayOpacity * 0.95).toFixed(3);
+    }
+
+    // Fade scroll hint early
+    if (scrollHintRef.current) {
+      const hintOpacity = Math.max(0, 1 - progress * 6);
+      scrollHintRef.current.style.opacity = hintOpacity.toFixed(3);
+    }
+
+    // Draw canvas frame at ultra-high quality
+    if (canvas.width > 0 && canvas.height > 0) {
+      const frame = getBestLoadedFrame(targetFrameIndex);
+      if (frame && frame !== lastDrawnFrameRef.current) {
+        const cw = canvas.width;
+        const ch = canvas.height;
+        const iw = frame.naturalWidth || 2560;
+        const ih = frame.naturalHeight || 1440;
+
+        // Cinematic 1.05x framing optimization: subtly shifts edge foliage to eliminate bottom-right watermark blur
+        const scale = Math.max(cw / iw, ch / ih) * 1.05;
+        const dw = iw * scale;
+        const dh = ih * scale;
+        const dx = (cw - dw) * 0.44;
+        const dy = (ch - dh) * 0.45;
+
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+        ctx.drawImage(frame, dx, dy, dw, dh);
+        lastDrawnFrameRef.current = frame;
+      }
+    }
+  }, [getBestLoadedFrame]);
+
+  /**
+   * Loads an individual image and caches it once fully decoded.
+   * Immediately triggers a crisp re-render when the active frame arrives.
+   */
+  const loadSingleImage = useCallback((index: number): Promise<HTMLImageElement | null> => {
+    if (index < 0 || index >= TOTAL_FRAMES) return Promise.resolve(null);
+    if (imagesCacheRef.current[index]) return Promise.resolve(imagesCacheRef.current[index]);
+    if (inflightRef.current.has(index)) return Promise.resolve(null);
+
+    inflightRef.current.add(index);
     const url = getFrameUrl(index);
 
     return new Promise((resolve) => {
       const img = new Image();
-      img.decoding = "async";
       img.src = url;
 
-      const finishLoad = async () => {
-        try {
-          if (typeof window !== "undefined" && "createImageBitmap" in window) {
-            const bitmap = await createImageBitmap(img);
-            if (isMountedRef.current) {
-              framesCacheRef.current[index] = bitmap;
-            }
-            resolve(bitmap);
-            return;
-          }
-        } catch {
-          // If createImageBitmap fails for any reason, fall back to standard HTMLImageElement
-        }
-
+      const onDone = () => {
+        inflightRef.current.delete(index);
         if (isMountedRef.current) {
-          framesCacheRef.current[index] = img;
+          imagesCacheRef.current[index] = img;
+
+          // If this frame corresponds to the user's current scroll position, immediately re-draw in high definition!
+          const currentTargetIdx = Math.round(targetProgressRef.current * (TOTAL_FRAMES - 1));
+          if (Math.abs(currentTargetIdx - index) <= 1) {
+            lastDrawnFrameRef.current = null;
+            if (rafIdRef.current === null) {
+              rafIdRef.current = requestAnimationFrame(() => {
+                rafIdRef.current = null;
+                renderFrameAtProgress(targetProgressRef.current);
+              });
+            }
+          }
         }
         resolve(img);
       };
 
       if (img.complete && img.naturalWidth > 0) {
-        finishLoad();
+        onDone();
       } else {
         img.onload = () => {
           if ("decode" in img) {
-            img.decode().then(finishLoad).catch(finishLoad);
+            img.decode().then(onDone).catch(onDone);
           } else {
-            finishLoad();
+            onDone();
           }
         };
         img.onerror = () => {
+          inflightRef.current.delete(index);
           resolve(null);
         };
       }
     });
-  }, []);
+  }, [renderFrameAtProgress]);
 
-  /**
-   * Resizes the canvas buffer according to container client bounds and device pixel ratio.
-   * Scales resolution up to full 4K / high-DPI capability for ultra-sharp rendering.
-   */
-  const resizeCanvasBuffer = useCallback(() => {
-    const canvas = canvasRef.current;
-    const stickyEl = stickyRef.current;
-    if (!canvas || !stickyEl) return;
-
-    const rect = stickyEl.getBoundingClientRect();
-    const dpr = Math.min(Math.max(window.devicePixelRatio || 1, 2), 3);
-
-    // Maximize resolution up to 3840x2160 native frames
-    const targetWidth = Math.min(3840, Math.floor(rect.width * dpr));
-    const targetHeight = Math.min(2160, Math.floor(rect.height * dpr));
-
-    if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
-      canvas.width = targetWidth;
-      canvas.height = targetHeight;
-    }
-
-    renderCanvasFrame(targetIndexRef.current);
-  }, [renderCanvasFrame]);
-
-  // Main Effect: Preload sequence, setup ScrollTrigger, and handle resize
   useEffect(() => {
     isMountedRef.current = true;
 
-    // Initial subtle text entrance animation
-    const textRevealAnimation = gsap.from(".hero-reveal", {
-      y: 20,
-      opacity: 0,
-      duration: 0.8,
-      ease: "power3.out",
-      stagger: 0.08,
-    });
-
-    // 1. Immediately preload the first frame
-    loadSingleFrame(0).then((firstFrame) => {
-      if (firstFrame && isMountedRef.current) {
+    // 1. Immediately preload frame 0 and set initial canvas size
+    updateCanvasSize();
+    loadSingleImage(0).then((firstImg) => {
+      if (firstImg && isMountedRef.current) {
         setFirstFrameLoaded(true);
-        resizeCanvasBuffer();
-        renderCanvasFrame(0);
+        updateCanvasSize();
+        renderFrameAtProgress(0);
       }
 
-      // 2. Progressively preload remaining frames with controlled fast batch concurrency
+      // 2. High-Priority Preloading Pipeline:
+      // Preload the first 20 consecutive frames immediately for instantaneous crisp response
       if (!reducedMotion) {
-        let activeLoads = 0;
-        let nextIndex = 1;
-        const maxConcurrency = 6;
+        for (let i = 1; i <= 20; i++) {
+          loadSingleImage(i);
+        }
 
-        const pumpQueue = () => {
+        // Preload keyframe milestones across the entire 200-frame sequence
+        const keyframeIndices: number[] = [];
+        for (let i = 24; i < TOTAL_FRAMES; i += 4) {
+          keyframeIndices.push(i);
+        }
+        if (!keyframeIndices.includes(TOTAL_FRAMES - 1)) {
+          keyframeIndices.push(TOTAL_FRAMES - 1);
+        }
+
+        let kfIndex = 0;
+        const loadKeyframesBatch = () => {
           if (!isMountedRef.current) return;
-          while (activeLoads < maxConcurrency && nextIndex < TOTAL_FRAMES) {
-            const idx = nextIndex++;
-            activeLoads++;
-            loadSingleFrame(idx).then(() => {
-              activeLoads--;
-              if (idx === targetIndexRef.current) {
-                renderCanvasFrame(idx);
-              }
-              pumpQueue();
-            });
+          const end = Math.min(keyframeIndices.length, kfIndex + 12);
+          for (; kfIndex < end; kfIndex++) {
+            const idx = keyframeIndices[kfIndex];
+            if (typeof idx === "number") {
+              loadSingleImage(idx);
+            }
+          }
+          if (kfIndex < keyframeIndices.length) {
+            setTimeout(loadKeyframesBatch, 35);
           }
         };
+        setTimeout(loadKeyframesBatch, 60);
 
-        pumpQueue();
+        // Progressively fill all remaining frames in rapid batches
+        let fillIndex = 21;
+        const loadRemainingBatch = () => {
+          if (!isMountedRef.current) return;
+          const end = Math.min(TOTAL_FRAMES, fillIndex + 10);
+          for (; fillIndex < end; fillIndex++) {
+            if (!imagesCacheRef.current[fillIndex]) {
+              loadSingleImage(fillIndex);
+            }
+          }
+          if (fillIndex < TOTAL_FRAMES) {
+            setTimeout(loadRemainingBatch, 40);
+          }
+        };
+        setTimeout(loadRemainingBatch, 200);
       }
     });
 
-    // 3. Set up responsive ResizeObserver
+    // High-DPI Resize handling
     const resizeObserver = new ResizeObserver(() => {
-      resizeCanvasBuffer();
+      updateCanvasSize();
+      lastDrawnFrameRef.current = null;
+      renderFrameAtProgress(targetProgressRef.current);
     });
-
     if (stickyRef.current) {
       resizeObserver.observe(stickyRef.current);
     }
 
-    // If reduced motion is requested, do not configure sticky scroll scrubbing
     if (reducedMotion) {
       return () => {
         isMountedRef.current = false;
-        textRevealAnimation.kill();
         resizeObserver.disconnect();
       };
     }
 
-    // 4. Scroll-controlled animation using GSAP ScrollTrigger
+    // 3. Sticky Scroll Handler:
+    // Hero remains locked sticky top-0 while the 200-frame animation plays.
+    // ONLY AFTER the animation finishes (progress reaches 1.0), the page continues into the next section.
     const container = containerRef.current;
     if (!container) return;
 
-    const st = ScrollTrigger.create({
-      trigger: container,
-      start: "top top",
-      end: "bottom bottom",
-      scrub: 0.06, // Smooth micro-damped responsiveness
-      onUpdate: (self) => {
-        const progress = Math.min(1, Math.max(0, self.progress));
-        const targetFrame = Math.min(
-          TOTAL_FRAMES - 1,
-          Math.max(0, Math.round(progress * (TOTAL_FRAMES - 1)))
-        );
+    const onScroll = () => {
+      const scrollY = window.scrollY;
+      const scrollableDistance = container.offsetHeight - window.innerHeight;
+      if (scrollableDistance <= 0) return;
 
-        targetIndexRef.current = targetFrame;
+      const progress = Math.min(1, Math.max(0, scrollY / scrollableDistance));
+      targetProgressRef.current = progress;
 
-        // If target frame is not yet loaded, trigger immediate load
-        if (!framesCacheRef.current[targetFrame]) {
-          loadSingleFrame(targetFrame).then(() => {
-            if (targetIndexRef.current === targetFrame) {
-              renderCanvasFrame(targetFrame);
-            }
-          });
+      // Dynamic proximity preloading: prioritize ±6 frames around current scroll
+      const targetIdx = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.round(progress * (TOTAL_FRAMES - 1))));
+      for (let offset = -6; offset <= 6; offset++) {
+        const idx = targetIdx + offset;
+        if (idx >= 0 && idx < TOTAL_FRAMES && !imagesCacheRef.current[idx]) {
+          loadSingleImage(idx);
         }
+      }
 
-        // Schedule canvas draw via requestAnimationFrame
-        if (rafIdRef.current === null) {
-          rafIdRef.current = requestAnimationFrame(() => {
-            rafIdRef.current = null;
-            renderCanvasFrame(targetIndexRef.current);
-          });
-        }
+      // Schedule frame render in next animation frame
+      if (rafIdRef.current === null) {
+        rafIdRef.current = requestAnimationFrame(() => {
+          rafIdRef.current = null;
+          renderFrameAtProgress(targetProgressRef.current);
+        });
+      }
+    };
 
-        // Update progress bar
-        if (progressBarRef.current) {
-          progressBarRef.current.style.transform = `scaleX(${progress.toFixed(4)})`;
-        }
-
-        // Fade scroll hint early
-        if (scrollHintRef.current) {
-          const hintOpacity = Math.max(0, 1 - progress * 8);
-          scrollHintRef.current.style.opacity = hintOpacity.toFixed(3);
-        }
-
-        // Subtle editorial text transition: stays clear initially, then gracefully yields to the visual
-        if (contentRef.current) {
-          let textOpacity = 1;
-          let textTranslateY = 0;
-          if (progress > 0.12) {
-            const fade = Math.min(1, (progress - 0.12) / 0.38);
-            textOpacity = 1 - fade;
-            textTranslateY = -24 * fade;
-          }
-          contentRef.current.style.opacity = textOpacity.toFixed(3);
-          contentRef.current.style.transform = `translate3d(0, ${textTranslateY.toFixed(1)}px, 0)`;
-          contentRef.current.style.pointerEvents = textOpacity < 0.1 ? "none" : "auto";
-        }
-
-        // Soft gradient overlay gently clears as the sequence progresses
-        if (overlayRef.current) {
-          let overlayOpacity = 1;
-          if (progress > 0.15) {
-            overlayOpacity = Math.max(0, 1 - (progress - 0.15) / 0.35);
-          }
-          overlayRef.current.style.opacity = (overlayOpacity * 0.95).toFixed(3);
-        }
-      },
-    });
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    onScroll();
 
     return () => {
       isMountedRef.current = false;
-      textRevealAnimation.kill();
-      st.kill();
       resizeObserver.disconnect();
-
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
       if (rafIdRef.current !== null) {
         cancelAnimationFrame(rafIdRef.current);
         rafIdRef.current = null;
       }
-
-      // Memory cleanup: close GPU ImageBitmaps
-      framesCacheRef.current.forEach((frame) => {
-        if (frame && "close" in frame && typeof frame.close === "function") {
-          frame.close();
-        }
-      });
     };
-  }, [reducedMotion, loadSingleFrame, resizeCanvasBuffer, renderCanvasFrame]);
+  }, [reducedMotion, loadSingleImage, updateCanvasSize, renderFrameAtProgress]);
 
   return (
     <section
       ref={containerRef}
       aria-labelledby="hero-title"
       className={`relative w-full ${
-        reducedMotion ? "min-h-[580px] sm:min-h-[640px] lg:h-screen" : "h-[420vh] sm:h-[480vh] lg:h-[500vh]"
+        reducedMotion ? "min-h-[580px] sm:min-h-[640px] lg:h-screen" : "h-[220vh] sm:h-[240vh] lg:h-[250vh]"
       } bg-brand-soft`}
     >
-      {/* Sticky Hero Viewport */}
+      {/* Sticky Hero Viewport: Stays locked at top while 200-frame animation plays */}
       <div
         ref={stickyRef}
         className={`${
@@ -349,44 +354,74 @@ export function ArchitecturalHero() {
             src={getFrameUrl(0)}
             alt="SKI Construction Architectural Project Hero"
             fetchPriority="high"
-            className="absolute inset-0 h-full w-full object-cover object-center pointer-events-none"
+            className="absolute inset-0 h-full w-full object-cover pointer-events-none contrast-[1.04] saturate-[1.03] scale-[1.05] origin-[44%_45%]"
           />
         )}
 
-        {/* High-Performance High-Resolution Canvas for Scroll-Controlled Frame Playback */}
+        {/* High-Performance High-DPI Canvas with Enhanced Contrast and Sharpness */}
         <canvas
           ref={canvasRef}
           aria-hidden="true"
-          className="absolute inset-0 h-full w-full block pointer-events-none"
+          className="absolute inset-0 block pointer-events-none contrast-[1.04] saturate-[1.03]"
+          style={{ imageRendering: "auto" }}
         />
 
-        {/* Left Gradient Overlay: Ensures 100% crisp text readability without blocking the center building */}
+        {/* Balanced Left Gradient Overlay: Cinematic deep scrim that guarantees ultra-sharp contrast for text against bright or dark scenery */}
         <div
           ref={overlayRef}
           aria-hidden="true"
-          className="absolute inset-y-0 left-0 w-full sm:w-[65%] lg:w-[48%] xl:w-[42%] bg-gradient-to-r from-white/95 via-white/70 to-transparent pointer-events-none transition-opacity duration-200"
+          className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-transparent pointer-events-none transition-opacity duration-300"
         />
 
-        {/* Subtle Bottom Ambient Gradient for Depth */}
+        {/* Bottom Ambient Gradient for Depth */}
         <div
           aria-hidden="true"
-          className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/30 via-black/10 to-transparent pointer-events-none"
+          className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/40 via-black/15 to-transparent pointer-events-none"
         />
 
+        {/* Bottom-Right Soft Botanical Vignette (smoothly conceals corner watermark blur) */}
+        <div
+          aria-hidden="true"
+          className="absolute -right-10 -bottom-10 w-[420px] h-80 bg-gradient-to-tl from-black/70 via-black/25 to-transparent blur-2xl pointer-events-none z-10"
+        />
+
+        {/* Bottom-Right Floating Engineering Accreditation Badge (elegantly covers lower-right foliage area) */}
+        <div
+          className="absolute right-6 sm:right-10 lg:right-14 bottom-14 sm:bottom-18 lg:bottom-20 z-20 hidden md:flex items-center gap-3.5 rounded-2xl bg-black/65 backdrop-blur-md border border-white/20 p-3.5 sm:p-4 text-white shadow-2xl transition-all duration-300 hover:bg-black/80 hover:border-brand-primary/50"
+        >
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-white shadow-md">
+            <ShieldCheck className="size-6 text-white" />
+          </div>
+          <div className="pr-1 text-left">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <span className="size-1.5 rounded-full bg-brand-accent animate-pulse" />
+              <span className="text-[0.62rem] font-bold uppercase tracking-widest text-brand-accent">
+                Registered LBS Engineer
+              </span>
+            </div>
+            <span className="block text-sm sm:text-base font-bold text-white leading-snug">
+              Er. D. Satheeshkumar, DCE., BE.
+            </span>
+            <span className="block text-[0.68rem] text-white/75 font-medium">
+              Kinathukadavu & Coimbatore
+            </span>
+          </div>
+        </div>
+
         {/* Hero Editorial Content Layer */}
-        <Container className="relative z-10 pt-[calc(var(--header-height,76px)+1.5rem)] sm:pt-[calc(var(--header-height,76px)+2.5rem)] pb-8 sm:pb-12 lg:pb-14">
+        <div className="relative z-10 flex w-full items-center px-6 sm:px-10 lg:pl-[12vw] lg:pr-10 pt-[calc(var(--header-height,76px)+1.5rem)] pb-24 sm:pb-28 lg:pb-32">
           <div
             ref={contentRef}
-            className="w-full max-w-[390px] sm:max-w-[420px] lg:max-w-[420px] xl:max-w-[460px] flex flex-col gap-3.5 sm:gap-4 lg:gap-3.5 xl:gap-4 transition-all duration-150 will-change-transform"
+            className="flex w-full max-w-[880px] flex-col gap-5 sm:gap-6 text-white will-change-transform"
           >
-            {/* Eyebrow & Credential Badge */}
-            <div className="hero-reveal flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-primary px-3 py-1 text-[0.68rem] sm:text-xs font-bold tracking-wider text-white uppercase shadow-sm">
-                <ShieldCheck className="size-3" />
+            {/* Eyebrow & Credential Badges */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-primary/95 px-3 py-1 text-[0.68rem] sm:text-xs font-bold tracking-wider text-white uppercase shadow-sm">
+                <ShieldCheck className="size-3" aria-hidden="true" />
                 SKI Construction
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 backdrop-blur-xs px-3 py-1 text-[0.68rem] sm:text-xs font-semibold text-brand-dark border border-brand-line/60 shadow-xs">
-                <HardHat className="size-3 text-brand-primary" />
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[0.68rem] sm:text-xs font-semibold text-white backdrop-blur-sm">
+                <HardHat className="size-3 text-white" aria-hidden="true" />
                 Er. D. Satheeshkumar, DCE., BE.
               </span>
             </div>
@@ -394,62 +429,79 @@ export function ArchitecturalHero() {
             {/* Main Headline */}
             <h1
               id="hero-title"
-              className="hero-reveal text-[1.7rem] xs:text-[1.95rem] sm:text-[2.25rem] lg:text-[2.2rem] xl:text-[2.65rem] leading-[1.08] font-extrabold tracking-tight text-brand-ink drop-shadow-xs"
+              className="font-serif text-[2.75rem] sm:text-[3.75rem] lg:text-[4.75rem] xl:text-[5.5rem] leading-[1.03] font-normal tracking-[-0.02em] !text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]"
+              style={{ color: "#ffffff" }}
             >
-              <span className="block">WE DON&apos;T JUST</span>
-              <span className="block">BUILD STRUCTURES.</span>
-              <span className="text-brand-gradient block">WE BUILD YOUR FUTURE.</span>
+              <span className="block !text-white" style={{ color: "#ffffff" }}>We don&apos;t just</span>
+              <span className="block !text-white" style={{ color: "#ffffff" }}>build structures.</span>
+              <span className="block !text-white" style={{ color: "#ffffff" }}>
+                We build{" "}
+                <span
+                  className="italic font-semibold drop-shadow-[0_2px_14px_rgba(0,0,0,0.95)]"
+                  style={{ color: "#9df028" }}
+                >
+                  your future.
+                </span>
+              </span>
             </h1>
 
             {/* Brand Tagline Divider */}
-            <div className="hero-reveal flex items-center gap-2.5" aria-hidden="true">
-              <span className="h-0.5 w-8 bg-brand-primary" />
-              <span className="text-[0.68rem] sm:text-[0.72rem] font-extrabold tracking-[0.28em] text-brand-primary uppercase">
+            <div className="flex items-center gap-2.5" aria-hidden="true">
+              <span className="h-0.5 w-8 bg-brand-accent shadow-sm" />
+              <span
+                className="text-[0.68rem] sm:text-[0.72rem] font-bold tracking-[0.28em] !text-white uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+                style={{ color: "#ffffff" }}
+              >
                 BUILD WITH QUALITY
               </span>
-              <span className="h-px flex-1 max-w-[120px] bg-brand-line" />
+              <span className="h-px flex-1 max-w-[120px] bg-white/40" />
             </div>
 
             {/* Lead Paragraph */}
-            <p className="hero-reveal text-[0.88rem] sm:text-[0.96rem] lg:text-[0.92rem] xl:text-[0.98rem] leading-relaxed text-brand-dark/90 font-medium">
-              From concept 3D elevations and statutory DTCP/LBS approvals to bank-ready estimates and turnkey construction, we deliver end-to-end building excellence across Coimbatore and Kinathukadavu.
+            <p
+              className="max-w-[560px] text-[0.95rem] sm:text-base lg:text-[1.05rem] leading-relaxed !text-white/95 font-normal drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)]"
+              style={{ color: "#f3f4f6" }}
+            >
+              3D elevation design, DTCP/LBS approvals and turnkey construction across Coimbatore and Kinathukadavu.
             </p>
 
             {/* Action Buttons */}
-            <div className="hero-reveal flex flex-wrap items-center gap-2.5 pt-1">
-              <GreenCTAButton href="/services" size="md">
-                Explore Our Services
-              </GreenCTAButton>
-              <GreenCTAButton
-                href="/contact"
-                variant="outline"
-                size="md"
-                icon="none"
-                className="bg-white/85 backdrop-blur-xs"
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <Link
+                href="/services"
+                className="group inline-flex items-center gap-3 rounded-full bg-white py-1.5 pl-6 pr-1.5 text-[0.95rem] font-semibold text-brand-ink shadow-soft transition-all duration-300 hover:bg-brand-soft hover:shadow-lg"
               >
-                <PhoneCall aria-hidden="true" className="size-3.5 text-brand-primary" />
+                Explore Our Services
+                <span className="flex size-10 items-center justify-center rounded-full bg-brand-ink text-white transition-transform duration-300 group-hover:translate-x-0.5">
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </span>
+              </Link>
+              <Link
+                href="/contact"
+                className="group inline-flex items-center gap-3 rounded-full border border-white/50 bg-white/10 py-1.5 pl-1.5 pr-6 text-[0.95rem] font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20"
+              >
+                <span className="flex size-10 items-center justify-center rounded-full bg-brand-primary text-white">
+                  <PhoneCall className="size-4" aria-hidden="true" />
+                </span>
                 Get a Free Quote
-              </GreenCTAButton>
+              </Link>
             </div>
           </div>
-        </Container>
+        </div>
 
         {/* Scroll Hint Cue (Visible at 0 scroll, fades immediately on scroll) */}
         {!reducedMotion && (
           <div
             ref={scrollHintRef}
             aria-hidden="true"
-            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1 text-brand-dark/80 transition-opacity duration-300 pointer-events-none"
+            className="absolute bottom-7 left-1/2 -translate-x-1/2 z-20 text-[0.68rem] font-medium tracking-[0.3em] text-white/85 uppercase pointer-events-none drop-shadow-sm"
           >
-            <span className="text-[0.65rem] sm:text-[0.68rem] font-bold tracking-[0.2em] text-brand-dark/70 uppercase">
-              Scroll to explore
-            </span>
-            <ChevronDown className="size-3.5 text-brand-primary animate-bounce" />
+            Scroll to explore
           </div>
         )}
 
         {/* Bottom Scroll Progress Bar */}
-        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-black/15 z-30">
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-black/20 z-30">
           <span
             ref={progressBarRef}
             className="block h-full origin-left scale-x-0 bg-brand-primary will-change-transform"

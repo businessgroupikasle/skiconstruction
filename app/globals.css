@@ -7,6 +7,7 @@
  */
 @theme {
   --font-sans: var(--font-montserrat), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
 
   --color-brand-primary: #367c08;
   --color-brand-accent: #65b516;
@@ -51,7 +52,6 @@ body {
 /* Global Typography & Font Consistency */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-sans);
-  color: var(--color-brand-dark);
   font-weight: 700;
   letter-spacing: -0.02em;
 }
