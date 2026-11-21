@@ -71,6 +71,8 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
   // Active folder selection state
   const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
   const [openSubFolder, setOpenSubFolder] = useState<"photos" | "videos" | null>(null);
+  const [visiblePhotosCount, setVisiblePhotosCount] = useState(24);
+  const [visibleVideosCount, setVisibleVideosCount] = useState(12);
   const [folderMediaFilter, setFolderMediaFilter] = useState<"all" | "photos" | "videos">("all");
 
   // Video modal player state
@@ -384,7 +386,7 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5">
-                    {activeFolder.photos.map((photo, idx) => (
+                    {activeFolder.photos.slice(0, visiblePhotosCount).map((photo, idx) => (
                       <div
                         key={`photo-${idx}`}
                         onClick={() =>
@@ -413,6 +415,19 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
                       </div>
                     ))}
                   </div>
+
+                  {activeFolder.photos.length > visiblePhotosCount && (
+                    <div className="flex justify-center pt-4">
+                      <button
+                        type="button"
+                        onClick={() => setVisiblePhotosCount((prev) => prev + 24)}
+                        className="inline-flex items-center gap-2 rounded-full border border-brand-line bg-white px-7 py-3 text-xs sm:text-sm font-bold text-brand-dark shadow-xs hover:border-brand-primary hover:text-brand-primary cursor-pointer transition-colors"
+                      >
+                        <Camera className="size-4 text-brand-primary" />
+                        <span>Load More Photos ({activeFolder.photos.length - visiblePhotosCount} remaining)</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -442,7 +457,7 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                    {activeFolder.videos.map((vid, idx) => (
+                    {activeFolder.videos.slice(0, visibleVideosCount).map((vid, idx) => (
                       <div
                         key={`vid-${idx}`}
                         onClick={() =>
@@ -478,6 +493,19 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
                       </div>
                     ))}
                   </div>
+
+                  {activeFolder.videos.length > visibleVideosCount && (
+                    <div className="flex justify-center pt-4">
+                      <button
+                        type="button"
+                        onClick={() => setVisibleVideosCount((prev) => prev + 12)}
+                        className="inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-7 py-3 text-xs sm:text-sm font-bold text-amber-900 shadow-xs hover:bg-amber-100 cursor-pointer transition-colors"
+                      >
+                        <Film className="size-4 text-amber-600" />
+                        <span>Load More Videos ({activeFolder.videos.length - visibleVideosCount} remaining)</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -821,7 +849,7 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
               </button>
             </div>
 
-            {activeVideoModal.src.endsWith(".mp4") || activeVideoModal.src.endsWith(".webm") ? (
+            {/\.(mp4|webm|mov|m4v|ogg)$/i.test(activeVideoModal.src) ? (
               <div className="relative aspect-video w-full bg-black flex items-center justify-center">
                 <video
                   src={activeVideoModal.src}

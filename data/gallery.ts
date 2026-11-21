@@ -194,7 +194,6 @@ export interface GalleryVideo {
   /** Still frame shown before the video plays, in /public */
   poster: string;
 }
-
 /**
  * Videos under "Videos and images". None are added yet. To add one, put the .mp4 in
  * /public/videos, add a poster image, and add an entry here.

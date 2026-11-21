@@ -26,7 +26,7 @@ next-env.d.ts
 # extracted kit
 public/image-cinematic-hero/
 
-# large unused video dump & 100MB+ media
+# large raw video dump & 100MB+ media files
 public/videos/
 public/images/luxury_villa_assembly_15s_4k_landscape_clean.mp4
 *.zip
