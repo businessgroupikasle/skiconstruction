@@ -88,18 +88,6 @@ export function ServicesShowcase() {
             </li>
           ))}
         </ul>
-
-        {/* Bottom Enquiry Link */}
-        <p className="text-sm text-brand-muted">
-          Need something specific?{" "}
-          <Link
-            href="/contact"
-            className="inline-flex items-center gap-1 font-bold text-brand-primary hover:text-brand-dark transition-colors hover:underline"
-          >
-            Send us an enquiry
-            <ArrowRight aria-hidden="true" className="size-3.5" />
-          </Link>
-        </p>
       </Container>
     </section>
   );

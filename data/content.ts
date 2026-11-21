@@ -165,10 +165,10 @@ export const processSteps: readonly ProcessStep[] = [
  * them with verified company numbers before publishing. See the footnote in StatisticsBand.
  */
 export const stats: readonly Stat[] = [
-  { id: "projects", value: 150, suffix: "+", label: "Projects Completed" },
-  { id: "experience", value: 12, suffix: "+", label: "Years of Experience" },
-  { id: "clients", value: 100, suffix: "+", label: "Happy Clients" },
-  { id: "quality", value: 100, suffix: "%", label: "Quality Commitment" },
+  { id: "experience", value: 10, suffix: "+", label: "Years of Experience" },
+  { id: "projects", value: 100, suffix: "+", label: "Projects Completed" },
+  { id: "clients", value: 500, suffix: "+", label: "Happy Clients" },
+  { id: "base", value: "Coimbatore", label: "Our Base" },
 ];
 
 export const testimonials: readonly Testimonial[] = [

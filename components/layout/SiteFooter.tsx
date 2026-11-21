@@ -25,13 +25,14 @@ import {
 } from "@/lib/links";
 
 const featuredServices = [
-  { name: "Building Construction", href: "/services/building-construction" },
-  { name: "3D Elevation Design", href: "/services/3d-elevation-design" },
-  { name: "Construction Consulting", href: "/services/construction-consulting" },
+  { name: "Construction", href: "/services/building-construction" },
+  { name: "Consulting", href: "/services/construction-consulting" },
+  { name: "LBS – Plan Approval", href: "/services/lbs-plan-approval" },
+  { name: "Vastu Plan", href: "/services/vastu-plan" },
+  { name: "3D Elevation", href: "/services/3d-elevation-design" },
   { name: "Bank Loan Estimate", href: "/services/bank-loan-estimate" },
-  { name: "LBS Plan Approval", href: "/services/lbs-plan-approval" },
-  { name: "DTCP / LPA Approval", href: "/services/dtcp-lpa-approval" },
-  { name: "Vastu Compliant Plans", href: "/services/vastu-plan" },
+  { name: "DTCP / LPA", href: "/services/dtcp-lpa-approval" },
+  { name: "Real Estate", href: "/services/real-estate" },
 ];
 
 export function SiteFooter() {
@@ -275,7 +276,7 @@ export function SiteFooter() {
             {/* Verified Compliance Badge */}
             <div className="flex items-center gap-2 pt-1 text-[11px] text-gray-400">
               <ShieldCheck className="size-4 text-emerald-400 shrink-0" />
-              <span>GSTIN: {contact.gstin} · IS 456 Compliant</span>
+              <span>GSTIN: {contact.gstin}</span>
             </div>
           </div>
         </div>

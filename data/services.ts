@@ -1,60 +1,113 @@
 import type { Service } from "@/data/types";
 
-/** All nine services, in the order shown on the homepage strip. */
+/**
+ * The 8 Verified Core Services of SKI Construction:
+ * 1. Construction
+ * 2. Consulting
+ * 3. LBS – Plan Approval
+ * 4. Vastu Plan
+ * 5. 3D Elevation
+ * 6. Bank Loan Estimate
+ * 7. DTCP / LPA
+ * 8. Real Estate
+ */
 export const services: readonly Service[] = [
   {
     slug: "building-construction",
-    name: "Building Construction",
-    summary: "Residential and commercial construction, from structure to finishing.",
+    name: "Construction",
+    summary:
+      "Turnkey residential and commercial building construction with supervised engineering quality, IS 456 compliance, and transparent stage-wise schedules.",
     description:
-      "Complete construction for homes and commercial buildings: site preparation, structural work, masonry, finishing and handover, run with clear milestones and a single point of contact.",
+      "End-to-end turnkey building construction for individual houses, modern duplex villas, and commercial premises across Coimbatore and Kinathukadavu. We manage site preparation, structural RCC framework, masonry, services integration, and premium interior-exterior finishes with scheduled milestone oversight.",
     benefits: [
-      "Structural planning with clear milestones",
-      "Quality materials and supervised workmanship",
-      "Transparent cost tracking and progress updates",
-      "Finishing and handover-ready inspection",
+      "Supervised directly by Er. D. Satheeshkumar, Registered LBS Engineer",
+      "Reinforced concrete casting compliant with IS 456 standards",
+      "Transparent stage-wise BOQ billing and zero hidden costs",
+      "Quality certified raw materials and verified concrete testing",
     ],
     image: {
       src: "/images/services/building-construction.png",
-      alt: "Construction site with reinforcement steel and workers on a concrete slab",
-      width: 1754,
-      height: 896,
-    },
-  },
-  {
-    slug: "3d-elevation-design",
-    name: "3D Elevation Design",
-    summary: "See the exterior of your home in 3D before construction begins.",
-    description:
-      "Realistic 3D elevation views that settle the facade, balconies, materials and colours early, so changes happen on screen rather than on site.",
-    benefits: [
-      "Realistic 3D exterior views",
-      "Facade, material and colour options",
-      "Revisions before construction starts",
-      "Helps with budgeting and approval drawings",
-    ],
-    image: {
-      src: "/images/services/3d-elevation-design.png",
-      alt: "Modern house exterior with warm lighting at dusk",
+      alt: "Building construction site with reinforced concrete framework in Coimbatore",
       width: 1754,
       height: 896,
     },
   },
   {
     slug: "construction-consulting",
-    name: "Construction Consulting",
-    summary: "Practical guidance on plans, contractors, materials and sequencing.",
+    name: "Consulting",
+    summary:
+      "Independent civil engineering guidance on architectural plans, contractor scopes, material quality audits, and structural safety.",
     description:
-      "Independent advice at each stage: choosing the right plan, defining scope for contractors, comparing materials and sequencing the work so decisions are informed.",
+      "Independent technical civil engineering consultation for property owners and builders. We evaluate soil reports, review structural drawings, audit contractor estimates, and conduct stage-wise site inspections so your capital is protected and construction quality is assured.",
     benefits: [
-      "Plan and scope review before you commit",
-      "Contractor and material comparison",
-      "Stage-wise site guidance",
-      "A single point of advice throughout",
+      "Independent plan and structural drawing evaluation",
+      "Contractor quote and itemized BOQ rate comparison",
+      "Stage-wise on-site concrete and structural quality audits",
+      "Direct technical advice from a Registered LBS Engineer",
     ],
     image: {
       src: "/images/services/construction-consulting.png",
-      alt: "Aerial view of a construction site with engineers in safety helmets",
+      alt: "Civil engineering consultant reviewing architectural blueprints on site",
+      width: 1754,
+      height: 896,
+    },
+  },
+  {
+    slug: "lbs-plan-approval",
+    name: "LBS – Plan Approval",
+    summary:
+      "Statutory building plan preparation and municipal submission led directly by a Registered LBS Engineer in full compliance with TNCDBR bylaws.",
+    description:
+      "Statutory architectural drawing preparation and building permit documentation led by Er. D. Satheeshkumar, Registered LBS Engineer. We handle boundary verification, municipal setback rules, FSI calculations, and portal submissions for swift town panchayat and municipal corporation clearances.",
+    benefits: [
+      "Direct certification by authorized Registered LBS Engineer",
+      "Full compliance with Tamil Nadu Combined Building Rules (TNCDBR)",
+      "Accurate boundary, setback, and FSI calculations",
+      "End-to-end documentation coordination for municipal permits",
+    ],
+    image: {
+      src: "/images/services/lbs-plan-approval.png",
+      alt: "Registered LBS engineer preparing building plan approval drawings",
+      width: 1754,
+      height: 896,
+    },
+  },
+  {
+    slug: "vastu-plan",
+    name: "Vastu Plan",
+    summary:
+      "Scientifically oriented residential house plans harmonizing traditional Vastu principles with natural daylight, ventilation, and modern functional living.",
+    description:
+      "Practical, scientifically balanced architectural floor plans that integrate authentic Vastu principles with contemporary functional design. We analyze cardinal orientations to align entrance doors, kitchens, master bedrooms, and living spaces while preserving excellent daylight, privacy, and airflow.",
+    benefits: [
+      "Accurate cardinal orientation and compass alignment for your plot",
+      "Harmonious room placement (Kuber, Agni, and Vayu quadrants)",
+      "Optimized natural daylighting, ventilation, and spatial efficiency",
+      "Fully buildable drawings aligned with municipal setback bylaws",
+    ],
+    image: {
+      src: "/images/services/vastu-plan.png",
+      alt: "Vastu compliant residential house floor plan layout with natural lighting",
+      width: 1754,
+      height: 896,
+    },
+  },
+  {
+    slug: "3d-elevation-design",
+    name: "3D Elevation",
+    summary:
+      "High-definition photorealistic 3D exterior visualization, contemporary facade concepts, lighting simulations, and material selection before site work.",
+    description:
+      "Photorealistic 3D building exterior visualization that helps you finalize facades, balcony railings, roof lines, color palettes, and exterior textures before construction begins. Experience your modern villa in realistic daylight and evening lighting simulations.",
+    benefits: [
+      "Photorealistic 3D daytime and dusk architectural renders",
+      "Contemporary facade styling, texture, and stone cladding options",
+      "Easy design revisions on screen before casting site concrete",
+      "Directly coordinates with working drawings and approval submissions",
+    ],
+    image: {
+      src: "/images/services/3d-elevation-design.png",
+      alt: "Photorealistic 3D elevation design for modern luxury villa in Coimbatore",
       width: 1754,
       height: 896,
     },
@@ -62,120 +115,70 @@ export const services: readonly Service[] = [
   {
     slug: "bank-loan-estimate",
     name: "Bank Loan Estimate",
-    summary: "Organised cost estimates to support your home loan discussions.",
+    summary:
+      "Bank-compliant itemized civil engineering estimates and stage-wise Bill of Quantities (BOQ) prepared for fast housing loan approvals.",
     description:
-      "Itemised construction estimates and a stage-wise cost breakdown, organised so you can take a clear budget into your home loan conversations.",
+      "Comprehensive, bank-approved civil engineering construction estimates and stage-wise Bill of Quantities (BOQ). Formatted strictly to the valuation standards of nationalized and private banks (SBI, HDFC, Canara Bank, and housing finance companies) for residential construction loans.",
     benefits: [
-      "Itemised construction estimate",
-      "Stage-wise cost breakdown",
-      "Document checklist for loan discussions",
-      "Easy to revise as the design changes",
+      "Detailed stage-wise construction cost estimation",
+      "Itemized Bill of Quantities (BOQ) in standardized bank formats",
+      "Aligned with prevailing market rates and structural specifications",
+      "Prompt revisions if architectural floor plans or loan terms change",
     ],
     image: {
       src: "/images/services/bank-loan-estimate.png",
-      alt: "Two people signing paperwork at a desk",
-      width: 1754,
-      height: 896,
-    },
-  },
-  {
-    slug: "lbs-plan-approval",
-    name: "LBS Plan Approval",
-    summary: "Plan documentation and approval support led by a registered LBS engineer.",
-    description:
-      "Preparation and coordination of plan documentation for LBS approval, led by a registered LBS engineer who keeps the paperwork and drawings aligned.",
-    benefits: [
-      "Plan documentation prepared for approval",
-      "Coordinated drawings and checklists",
-      "Led by a registered LBS engineer",
-      "Clear status updates at each step",
-    ],
-    image: {
-      src: "/images/services/lbs-plan-approval.png",
-      alt: "Architect drafting plans on a table with a scale ruler",
+      alt: "Civil engineer preparing bank loan estimate and stage wise BOQ documents",
       width: 1754,
       height: 896,
     },
   },
   {
     slug: "dtcp-lpa-approval",
-    name: "DTCP / LPA Approval",
-    summary: "Guidance through DTCP and LPA approval requirements.",
+    name: "DTCP / LPA",
+    summary:
+      "Technical layout planning, open space reservations, documentation coordination, and procedural guidance for DTCP and LPA approvals.",
     description:
-      "Support understanding and completing the Directorate of Town and Country Planning (DTCP) and Local Planning Authority (LPA) requirements for layouts and building plans.",
+      "Technical layout planning, zoning verification, and procedural guidance for Directorate of Town and Country Planning (DTCP) and Local Planning Authority (LPA) approvals. We assist land promoters, developers, and builders with layout master plans, OSR reservations, and document readiness.",
     benefits: [
-      "Requirement checklist for DTCP / LPA",
-      "Help assembling application documents",
-      "Follow-up on queries and revisions",
-      "Plain-language explanation at every step",
+      "Zoning verification and master plan land-use feasibility checks",
+      "Comprehensive layout master planning and OSR demarcation",
+      "Preparation of required CAD drawings and revenue survey files",
+      "Technical assistance for departmental queries and compliance",
     ],
     image: {
       src: "/images/services/dtcp-lpa-approval.png",
-      alt: "Approval checklist on a clipboard next to a laptop",
+      alt: "DTCP and LPA layout approval master plan and technical survey documentation",
       width: 1755,
-      height: 896,
-    },
-  },
-  {
-    slug: "vastu-plan",
-    name: "Vastu Plan",
-    summary: "Layouts that respect Vastu principles alongside everyday practicality.",
-    description:
-      "Layout planning that considers Vastu principles together with light, ventilation, circulation and privacy, so the home feels right and works well day to day.",
-    benefits: [
-      "Room placement guided by Vastu principles",
-      "Light and ventilation considered",
-      "Practical circulation and privacy",
-      "Adjusted to your family's preferences",
-    ],
-    image: {
-      src: "/images/services/vastu-plan.png",
-      alt: "Bright living room with indoor plants and warm wooden furniture",
-      width: 1754,
       height: 896,
     },
   },
   {
     slug: "real-estate",
     name: "Real Estate",
-    summary: "Local property guidance for plots, houses and developments.",
+    summary:
+      "Trusted local property guidance for buying and selling residential plots, villas, and commercial lands across Kinathukadavu and Coimbatore.",
     description:
-      "Practical guidance on plots, houses and developments in and around Kinathukadavu and Coimbatore, including site visits and location advice.",
+      "Professional real estate advisory for buyers and sellers across Kinathukadavu, Coimbatore, and Pollachi. We conduct on-site physical inspections, verify DTCP/LPA approval status, assess soil and foundation buildability, and assist with clear-title documentation from enquiry to property registration.",
     benefits: [
-      "Local area guidance",
-      "Site visits arranged on request",
-      "Honest, practical advice on options",
-      "Support from enquiry to decision",
+      "Technical site inspection evaluating soil, road access, and buildability",
+      "Verification of DTCP / LPA layout approvals and revenue records",
+      "Property buying assistance with fair market valuation insights",
+      "Property selling support and coordinated transaction documentation",
     ],
     image: {
       src: "/images/services/real-estate.png",
-      alt: "White family house with a covered porch and a green lawn",
+      alt: "Residential property plot and modern villa real estate in Kinathukadavu",
       width: 1754,
-      height: 896,
-    },
-  },
-  {
-    slug: "property-buying-selling",
-    name: "Property Buying & Selling",
-    summary: "Personal support for buyers and sellers, from documents to handover.",
-    description:
-      "Support for buyers and sellers: document checks, discussion of value and coordinated next steps so each transaction is clear and organised.",
-    benefits: [
-      "Document checklist for buyers and sellers",
-      "Coordinated next steps",
-      "Practical local market guidance",
-      "Personal support throughout",
-    ],
-    image: {
-      src: "/images/services/property-buying-selling.png",
-      alt: "Model house resting on a table beside a set of house keys",
-      width: 1755,
       height: 896,
     },
   },
 ] as const;
 
 export function getServiceBySlug(slug: string): Service | undefined {
+  // Support canonical slugs and legacy alias redirects
+  if (slug === "property-buying-selling") {
+    return services.find((service) => service.slug === "real-estate");
+  }
   return services.find((service) => service.slug === slug);
 }
 

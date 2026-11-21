@@ -56,8 +56,25 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
 }
 
+/* Universal Paragraph Typography Across All Pages */
 p {
   font-family: var(--font-sans);
+  font-size: 0.95rem; /* Exactly 15.2px standard body text */
+  line-height: 1.65;
+  font-weight: 400;
+  letter-spacing: -0.008em;
+}
+
+/* Enforce uniform font size and style for all standard content paragraphs across every page */
+p:not([class*="uppercase"]):not([class*="font-mono"]):not([class*="tracking-"]):not([role="status"]):not([class*="text-xs"]):not([class*="text-[11px]"]) {
+  font-size: 0.95rem !important;
+  line-height: 1.65 !important;
+  font-family: var(--font-sans) !important;
+}
+
+/* Default light-mode body paragraph color consistency */
+p:not([class*="text-white"]):not([class*="text-gray-"]):not([class*="text-emerald-"]):not([class*="text-brand-"]):not([class*="text-red-"]):not([style*="color"]) {
+  color: var(--color-brand-muted);
 }
 
 button, input, select, textarea {
@@ -149,6 +166,20 @@ button, input, select, textarea {
 .animate-flow-col-3 {
   animation: marqueeUp 38s linear infinite;
   will-change: transform;
+}
+
+/* Pause ALL flowing columns whenever hovering anywhere on the showcase container or any card */
+.flowing-showcase-container:hover .animate-flow-col-1,
+.flowing-showcase-container:hover .animate-flow-col-2,
+.flowing-showcase-container:hover .animate-flow-col-3,
+.flowing-showcase-container:hover [class*="animate-flow-col"],
+.flowing-showcase-column:hover .animate-flow-col-1,
+.flowing-showcase-column:hover .animate-flow-col-2,
+.flowing-showcase-column:hover .animate-flow-col-3,
+.animate-flow-col-1:hover,
+.animate-flow-col-2:hover,
+.animate-flow-col-3:hover {
+  animation-play-state: paused !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -20,7 +20,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: route.priority,
   }));
 
-  // 9 individual service detail pages
+  // 8 individual service detail pages
   const serviceDetailPages = services.map((service) => ({
     url: `${siteUrl}/services/${service.slug}`,
     lastModified: now,

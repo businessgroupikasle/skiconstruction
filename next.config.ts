@@ -12,6 +12,40 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ["lucide-react", "@react-three/drei"],
   },
+  async redirects() {
+    return [
+      {
+        source: "/about-us",
+        destination: "/about",
+        permanent: true,
+      },
+      {
+        source: "/services/property-buying-selling",
+        destination: "/services/real-estate",
+        permanent: true,
+      },
+      {
+        source: "/services/construction",
+        destination: "/services/building-construction",
+        permanent: true,
+      },
+      {
+        source: "/services/consulting",
+        destination: "/services/construction-consulting",
+        permanent: true,
+      },
+      {
+        source: "/services/3d-elevation",
+        destination: "/services/3d-elevation-design",
+        permanent: true,
+      },
+      {
+        source: "/services/dtcp-lpa",
+        destination: "/services/dtcp-lpa-approval",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

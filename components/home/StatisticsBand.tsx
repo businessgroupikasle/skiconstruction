@@ -1,103 +1,148 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useRef } from "react";
+import { Building2, Calendar, MapPin, Users } from "lucide-react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Container } from "@/components/ui/Container";
-import { stats } from "@/data/content";
 import type { Stat } from "@/data/types";
 
-/**
- * Flat Solid Vector Icons for High-Contrast Flat Design
- */
-function FlatHardHatIcon({ className = "size-7" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
-      <path d="M12 3a8 8 0 0 0-8 8v1h16v-1a8 8 0 0 0-8-8z" />
-      <path d="M2 13a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-1H2v1z" />
-      <path d="M11 4.05V10h2V4.05a8.1 8.1 0 0 0-2 0z" fill="currentColor" opacity="0.4" />
-      <rect x="7" y="15" width="10" height="2" rx="1" opacity="0.75" />
-    </svg>
-  );
+interface StatItem {
+  value: string;
+  number?: number;
+  suffix?: string;
+  label: string;
+  icon: typeof Calendar;
 }
 
-function FlatCalendarIcon({ className = "size-7" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
-      <path d="M19 4h-1V2h-2v2H8V2H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 16H5V9h14v11z" />
-      <circle cx="8" cy="12.5" r="1.3" />
-      <circle cx="12" cy="12.5" r="1.3" />
-      <circle cx="16" cy="12.5" r="1.3" />
-      <circle cx="8" cy="16.5" r="1.3" />
-      <circle cx="12" cy="16.5" r="1.3" />
-      <circle cx="16" cy="16.5" r="1.3" />
-    </svg>
-  );
-}
-
-function FlatUsersIcon({ className = "size-7" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
-      <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
-    </svg>
-  );
-}
-
-function FlatQualityIcon({ className = "size-7" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
-      <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
-    </svg>
-  );
-}
-
-const flatIconByStat: Record<string, (props: { className?: string }) => React.JSX.Element> = {
-  projects: FlatHardHatIcon,
-  experience: FlatCalendarIcon,
-  clients: FlatUsersIcon,
-  quality: FlatQualityIcon,
-};
+const statsData: StatItem[] = [
+  {
+    value: "10+",
+    number: 10,
+    suffix: "+",
+    label: "Years of Experience",
+    icon: Calendar,
+  },
+  {
+    value: "100+",
+    number: 100,
+    suffix: "+",
+    label: "Projects Completed",
+    icon: Building2,
+  },
+  {
+    value: "500+",
+    number: 500,
+    suffix: "+",
+    label: "Happy Clients",
+    icon: Users,
+  },
+  {
+    value: "Coimbatore",
+    label: "Our Base",
+    icon: MapPin,
+  },
+];
 
 /**
- * Premium Company Statistics Band
- * - Line blueprint building is replaced with authentic photographic architectural background
- * - Modern flat vector icons with flat styled badge containers
+ * Company Highlights Statistics Band
+ * Standardized across both Homepage and About page for visual and data consistency.
  */
-export function StatisticsBand({ items = stats }: { items?: readonly Stat[] }) {
-  return (
-    <section aria-label="Company statistics" className="relative isolate overflow-hidden bg-gradient-to-r from-[#062013] via-[#0d3822] to-[#12452a] text-white py-12 sm:py-16">
-      {/* Background Architectural Artwork with Rich Forest Green Gradient Overlay (Building wireframe removed) */}
-      <div className="absolute inset-0 -z-10 select-none">
-        <Image
-          src="/images/background/breadcrumb-banner.jpg"
-          alt=""
-          fill
-          priority={false}
-          sizes="100vw"
-          className="object-cover object-center opacity-25 mix-blend-luminosity"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#062013]/95 via-[#0d3822]/90 to-[#12452a]/95" />
-      </div>
+export function StatisticsBand({ items }: { items?: readonly Stat[] }) {
+  const containerRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      // Animate stat items entrance
+      gsap.from(containerRef.current?.querySelectorAll(".stat-col") ?? [], {
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top 85%",
+        },
+        y: 25,
+        opacity: 0,
+        duration: 0.7,
+        stagger: 0.12,
+        ease: "power2.out",
+      });
+
+      // Animate counter values
+      const counters = containerRef.current?.querySelectorAll(".counter-value") ?? [];
+      counters.forEach((el) => {
+        const target = parseFloat(el.getAttribute("data-target") ?? "0");
+        if (target > 0) {
+          const obj = { val: 0 };
+          gsap.to(obj, {
+            val: target,
+            duration: 1.8,
+            ease: "power2.out",
+            scrollTrigger: {
+              trigger: containerRef.current,
+              start: "top 85%",
+            },
+            onUpdate: () => {
+              el.textContent = Math.floor(obj.val).toString();
+            },
+          });
+        }
+      });
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <section
+      aria-label="Company statistics"
+      ref={containerRef}
+      className="border-y border-brand-line bg-brand-soft/60 py-8 sm:py-10"
+    >
       <Container>
-        <dl className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-4 lg:divide-x lg:divide-white/20">
-          {items.map((stat) => {
-            const FlatIcon = flatIconByStat[stat.id] ?? FlatQualityIcon;
+        <div className="grid grid-cols-2 md:grid-cols-4 items-center gap-6 sm:gap-8">
+          {statsData.map((stat, idx) => {
+            const Icon = stat.icon;
+            const isLast = idx === statsData.length - 1;
+
             return (
-              <div key={stat.id} className="group flex flex-col-reverse gap-1.5 lg:px-8">
-                <dt className="pl-[3.75rem] sm:pl-[4.75rem] text-xs sm:text-sm font-medium text-white/85 leading-tight">
-                  {stat.label}
-                </dt>
-                <dd className="flex items-center gap-3 sm:gap-5 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight tabular-nums text-white leading-tight">
-                  {/* Flat Icon Container */}
-                  <span className="flex size-12 sm:size-14 shrink-0 items-center justify-center rounded-2xl bg-white/12 border border-white/25 text-[#65b516] backdrop-blur-xs transition-all duration-300 group-hover:scale-105 group-hover:bg-[#65b516]/20 group-hover:border-[#65b516]/50">
-                    <FlatIcon className="size-6 sm:size-7 text-[#65b516] transition-transform duration-300 group-hover:scale-110" />
+              <div
+                key={stat.label}
+                className={`stat-col min-w-0 flex flex-col items-center text-center gap-3 px-2 lg:flex-row lg:items-center lg:justify-start lg:gap-3 lg:px-2 xl:gap-4 xl:px-4 lg:text-left ${
+                  !isLast ? "md:border-r md:border-brand-line" : ""
+                }`}
+              >
+                {/* Brand Green Outline Icon */}
+                <div className="flex size-12 sm:size-14 shrink-0 items-center justify-center rounded-2xl bg-white border border-brand-primary/25 shadow-xs text-brand-primary">
+                  <Icon className="size-6 sm:size-7" strokeWidth={1.8} />
+                </div>
+
+                {/* Content */}
+                <div className="flex min-w-0 flex-col items-center lg:items-start">
+                  <div className="flex flex-wrap items-baseline text-2xl xl:text-[2rem] font-extrabold tracking-tight text-brand-dark leading-none">
+                    {stat.number !== undefined ? (
+                      <>
+                        <span className="counter-value" data-target={stat.number}>
+                          {stat.number}
+                        </span>
+                        <span>{stat.suffix}</span>
+                      </>
+                    ) : (
+                      <span>{stat.value}</span>
+                    )}
+                  </div>
+                  <span className="text-xs sm:text-sm text-brand-muted font-medium mt-1">
+                    {stat.label}
                   </span>
-                  <span>
-                    {stat.value}
-                    <span className="text-[#65b516] pl-0.5">{stat.suffix}</span>
-                  </span>
-                </dd>
+                </div>
               </div>
             );
           })}
-        </dl>
+        </div>
       </Container>
     </section>
   );

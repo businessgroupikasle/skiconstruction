@@ -77,8 +77,8 @@ export interface ProcessStep {
 
 export interface Stat {
   id: string;
-  value: number;
-  suffix: string;
+  value: number | string;
+  suffix?: string;
   label: string;
 }
 

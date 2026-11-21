@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -30,7 +31,8 @@ const serviceIcons: Record<ServiceSlug, LucideIcon> = {
   "property-buying-selling": Handshake,
 };
 
-function ServiceCard({ service }: { service: Service }) {
+function ServiceCard({ service }: { service?: Service }) {
+  if (!service || !service.slug) return null;
   const Icon = serviceIcons[service.slug] ?? Building2;
 
   return (
@@ -86,13 +88,12 @@ function ServiceCard({ service }: { service: Service }) {
  * - Hover any column or card to pause
  */
 export function FlowingServicesShowcase() {
-  // Split 9 services into 3 balanced columns:
-  // Col 1 (Left): Building Construction, Bank Loan Estimate, Vastu Plan
-  const col1: Service[] = [services[0]!, services[3]!, services[6]!];
-  // Col 2 (Center): 3D Elevation Design, LBS Approval, Real Estate
-  const col2: Service[] = [services[1]!, services[4]!, services[7]!];
-  // Col 3 (Right): Construction Consulting, DTCP / LPA Approval, Property Buying & Selling
-  const col3: Service[] = [services[2]!, services[5]!, services[8]!];
+  const [isPaused, setIsPaused] = useState(false);
+
+  // Split 8 verified services across 3 balanced columns with 3 cards each for seamless looping
+  const col1: Service[] = [services[0], services[3], services[6]].filter((s): s is Service => Boolean(s));
+  const col2: Service[] = [services[1], services[4], services[7]].filter((s): s is Service => Boolean(s));
+  const col3: Service[] = [services[2], services[5], services[0]].filter((s): s is Service => Boolean(s));
 
   // Duplicate each column array so the -50% CSS keyframe loops infinitely without gaps
   const col1Doubled = [...col1, ...col1];
@@ -100,15 +101,35 @@ export function FlowingServicesShowcase() {
   const col3Doubled = [...col3, ...col3];
 
   return (
-    <div className="relative w-full">
-      {/* Top Status Pill: Explains the live motion & hover-to-pause */}
+    <div
+      className="flowing-showcase-container relative w-full"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      {/* Top Status Pill: Explains the live motion & dynamic pause state */}
       <div className="flex justify-center mb-6">
-        <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-brand-soft border border-brand-line text-xs font-mono font-semibold text-brand-primary shadow-xs">
+        <span
+          className={`inline-flex items-center gap-2 px-3.5 py-1 rounded-full border text-xs font-mono font-semibold shadow-xs transition-colors duration-200 ${
+            isPaused
+              ? "bg-amber-500/10 border-amber-500/30 text-amber-800"
+              : "bg-brand-soft border-brand-line text-brand-primary"
+          }`}
+        >
           <span className="relative flex size-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-            <span className="relative inline-flex rounded-full size-2 bg-emerald-500" />
+            {isPaused ? (
+              <span className="relative inline-flex rounded-full size-2 bg-amber-500" />
+            ) : (
+              <>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full size-2 bg-emerald-500" />
+              </>
+            )}
           </span>
-          <span>Live Flow Showcase · Hover any card to pause</span>
+          <span>
+            {isPaused
+              ? "Flow Paused · Click any card to explore"
+              : "Live Flow Showcase · Hover any card to pause"}
+          </span>
         </span>
       </div>
 
@@ -126,13 +147,16 @@ export function FlowingServicesShowcase() {
           className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#fcfdfa] via-[#fcfdfa]/80 to-transparent z-20"
         />
 
-        {/* 3-Column Flowing Grid with 3 Distinct Flow Styles */}
+        {/* 3-Column Flowing Grid with Guaranteed Pause on Hover */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-8 xl:gap-10 h-full">
           {/* =====================================================
               COLUMN 1 (LEFT): FLOWS UP (Smooth 30s Pace)
              ===================================================== */}
-          <div className="overflow-hidden h-full">
-            <div className="flex flex-col animate-flow-col-1 hover:[animation-play-state:paused] will-change-transform">
+          <div className="flowing-showcase-column overflow-hidden h-full">
+            <div
+              className="flex flex-col animate-flow-col-1 will-change-transform"
+              style={{ animationPlayState: isPaused ? "paused" : "running" }}
+            >
               {col1Doubled.map((service, idx) => (
                 <ServiceCard key={`col1-${service.slug}-${idx}`} service={service} />
               ))}
@@ -142,8 +166,11 @@ export function FlowingServicesShowcase() {
           {/* =====================================================
               COLUMN 2 (CENTER): FLOWS DOWN (Dynamic 24s Counter-Pace)
              ===================================================== */}
-          <div className="overflow-hidden h-full hidden md:block">
-            <div className="flex flex-col animate-flow-col-2 hover:[animation-play-state:paused] will-change-transform pt-8">
+          <div className="flowing-showcase-column overflow-hidden h-full hidden md:block">
+            <div
+              className="flex flex-col animate-flow-col-2 will-change-transform pt-8"
+              style={{ animationPlayState: isPaused ? "paused" : "running" }}
+            >
               {col2Doubled.map((service, idx) => (
                 <ServiceCard key={`col2-${service.slug}-${idx}`} service={service} />
               ))}
@@ -153,8 +180,11 @@ export function FlowingServicesShowcase() {
           {/* =====================================================
               COLUMN 3 (RIGHT): FLOWS UP (Gentle 38s Staggered Pace)
              ===================================================== */}
-          <div className="overflow-hidden h-full hidden lg:block">
-            <div className="flex flex-col animate-flow-col-3 hover:[animation-play-state:paused] will-change-transform pt-16">
+          <div className="flowing-showcase-column overflow-hidden h-full hidden lg:block">
+            <div
+              className="flex flex-col animate-flow-col-3 will-change-transform pt-16"
+              style={{ animationPlayState: isPaused ? "paused" : "running" }}
+            >
               {col3Doubled.map((service, idx) => (
                 <ServiceCard key={`col3-${service.slug}-${idx}`} service={service} />
               ))}

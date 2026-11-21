@@ -29,7 +29,7 @@ const journeySteps = [
       "Share your plot, lifestyle needs and budget. Er. Satheeshkumar visits the site in person, tests soil conditions, inspects terrain, and listens carefully to your family's requirements.",
     deliverable: "In-Person Site Survey & Soil Test",
     timeline: "Days 1–3",
-    image: "/images/about/founder-workspace.jpg",
+    image: "/images/journey/step-1-consultation.jpg",
     icon: PhoneCall,
     points: [
       "On-site soil & slope evaluation",
@@ -46,7 +46,7 @@ const journeySteps = [
       "Floor plans and elevations rendered in photorealistic 3D, shaped to your daily living patterns, Vastu principles, and adjusted collaboratively until it feels authentically yours.",
     deliverable: "3D Elevation & BIM Blueprint",
     timeline: "Weeks 1–2",
-    image: "/images/services/3d-elevation-design.png",
+    image: "/images/journey/step-2-3d-design.jpg",
     icon: Layers,
     points: [
       "Photorealistic exterior 3D view",
@@ -63,7 +63,7 @@ const journeySteps = [
       "Every single material, brand specification, statutory fee, and stage-wise payment milestone is itemised clearly with zero hidden surprises or sudden price escalations.",
     deliverable: "Fixed Itemised BOQ Quote",
     timeline: "Pre-construction",
-    image: "/images/about/about.png",
+    image: "/images/journey/step-3-quotation.jpg",
     icon: FileSpreadsheet,
     points: [
       "Item-by-item material specifications",
@@ -80,7 +80,7 @@ const journeySteps = [
       "Construction begins under Registered LBS Engineer Satheeshkumar's direct on-site supervision. Receive weekly photo and video progress updates, cube test results, and milestone logs.",
     deliverable: "Live Updates & Quality Checks",
     timeline: "Milestone-based",
-    image: "/images/background/1 (5).jpg",
+    image: "/images/journey/step-4-construction.jpg",
     icon: HardHat,
     points: [
       "Daily on-site engineer oversight",
@@ -97,7 +97,7 @@ const journeySteps = [
       "Rigorous 100-point quality audit, finishing touches, and the ceremonial keys to your dream home delivered on time, backed by comprehensive warranty documentation.",
     deliverable: "Keys & Structural Warranty",
     timeline: "On-time delivery",
-    image: "/images/projects/luxury-villa.jpg",
+    image: "/images/journey/step-5-handover.jpg",
     icon: Key,
     points: [
       "100-point inspection checklist",

@@ -16,10 +16,10 @@ export const brandColors = {
 export const brand = {
   name: "SKI Construction",
   shortName: "SKI",
-  tagline: "BUILD WITH QUALITY",
+  tagline: "Build With Quality",
   locale: "en_IN",
   description:
-    "SKI Construction — build with quality. Construction, 3D elevation design, LBS and DTCP / LPA plan approvals, bank loan estimates and property services in Kinathukadavu, Coimbatore.",
+    "SKI Construction in Kinathukadavu, Coimbatore: building construction, civil engineering consulting, registered LBS plan approval, Vastu plans, 3D elevation design, bank loan estimates, DTCP/LPA approval guidance, and real estate services.",
   themeColor: brandColors.primary,
 } as const;
 
@@ -30,8 +30,8 @@ export const contact = {
   whatsappNumber: "918526224354",
   email: "skiconstruction.cbe@gmail.com",
   addressLine1: "Near MLA Office, Krishnasamypuram",
-  addressLine2: "Kinathukadavu, Coimbatore - 642109",
-  address: "Near MLA Office, Krishnasamypuram, Kinathukadavu, Coimbatore - 642109",
+  addressLine2: "Kinathukadavu, Coimbatore – 642109, Tamil Nadu, India",
+  address: "Near MLA Office, Krishnasamypuram, Kinathukadavu, Coimbatore – 642109, Tamil Nadu, India.",
   gstin: "33ECHPS1610H1ZT",
   /** Query used for Google Maps embeds and search links */
   mapsQuery: "SKI Construction, Near MLA Office, Krishnasamypuram, Kinathukadavu, Coimbatore 642109",
@@ -39,12 +39,14 @@ export const contact = {
 
 export const founder = {
   name: "Er. D. Satheeshkumar",
-  credentials: "DCE., BE.",
+  credentials: "DCE, BE",
   role: "Registered LBS Engineer",
 } as const;
 
 /**
- * Optional social profiles. Leave an entry out (or empty) until the company
- * supplies verified URLs; the footer only renders links that have a value.
+ * Verified social profiles for SKI Construction.
  */
-export const socialProfiles: { label: string; href: string }[] = [];
+export const socialProfiles: { label: string; href: string }[] = [
+  { label: "Instagram", href: "https://www.instagram.com/skiconstruction" },
+  { label: "Facebook", href: "https://www.facebook.com/SkiconstructionCbe" },
+];

@@ -4,6 +4,7 @@ import { Container } from "@/components/ui/Container";
 import { GreenCTAButton } from "@/components/ui/GreenCTAButton";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { FounderCard } from "@/components/home/FounderCard";
+import { ArchitecturalRuler } from "@/components/ui/ArchitecturalRuler";
 
 const features = [
   { label: "Quality Construction", icon: Award },
@@ -27,14 +28,20 @@ function AboutVisual() {
   );
 }
 
-/** About SKI Construction: visual, introduction, features and the founder card. */
+/** About SKI Construction: visual, introduction, features, founder card, and top architectural ruler. */
 export function AboutPreview() {
   return (
-    <section aria-labelledby="about-heading" className="relative isolate overflow-hidden bg-white py-16 sm:py-20">
+    <section
+      aria-labelledby="about-heading"
+      className="relative isolate overflow-hidden bg-white -mt-8 sm:-mt-12 lg:-mt-16 rounded-t-[36px] sm:rounded-t-[48px] lg:rounded-t-[56px] shadow-[0_-16px_40px_rgba(0,0,0,0.12)] border-t border-brand-line/60 z-20 pt-0 pb-16 sm:pb-20"
+    >
+      {/* Precision Architectural Drafting Scale Ruler along the top edge */}
+      <ArchitecturalRuler className="mb-8 sm:mb-12" />
+
       {/* Background decorative team helmet graphic in top-right corner */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-0 right-0 -z-10 w-44 sm:w-56 md:w-64 lg:w-72 aspect-square select-none"
+        className="pointer-events-none absolute top-12 right-0 -z-10 w-44 sm:w-56 md:w-64 lg:w-72 aspect-square select-none opacity-60"
       >
         <Image
           src="/images/background/team-helmate.png"

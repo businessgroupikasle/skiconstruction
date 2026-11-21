@@ -32,12 +32,18 @@ export function SectionHeading({
   return (
     <div className={`flex flex-col gap-3 ${alignment} ${className}`}>
       {eyebrow ? (
-        <p className="text-xs font-bold tracking-[0.22em] text-brand-primary uppercase">{eyebrow}</p>
+        <span className="text-xs font-bold tracking-[0.22em] text-brand-primary uppercase block">
+          {eyebrow}
+        </span>
       ) : null}
       <Heading id={id} className={`text-balance font-extrabold leading-[1.1] text-brand-dark ${titleSize}`}>
         {title}
       </Heading>
-      {description ? <div className="max-w-2xl text-pretty text-[0.97rem] leading-relaxed text-brand-muted">{description}</div> : null}
+      {description ? (
+        <div className="max-w-2xl text-pretty text-[0.95rem] leading-relaxed text-brand-muted">
+          {description}
+        </div>
+      ) : null}
     </div>
   );
 }
