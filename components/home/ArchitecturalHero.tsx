@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
-import { ShieldCheck, HardHat, PhoneCall, ArrowRight, ChevronDown } from "lucide-react";
+import { ShieldCheck, HardHat, PhoneCall, ArrowRight } from "lucide-react";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 
 const TOTAL_FRAMES = 200;
@@ -25,7 +25,7 @@ export function ArchitecturalHero() {
   const contentRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const progressBarRef = useRef<HTMLSpanElement>(null);
-  const scrollHintRef = useRef<HTMLButtonElement>(null);
+  const scrollHintRef = useRef<HTMLDivElement>(null);
 
   const [firstFrameLoaded, setFirstFrameLoaded] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
@@ -94,9 +94,38 @@ export function ArchitecturalHero() {
     const frameFloat = progress * (TOTAL_FRAMES - 1);
     const targetFrameIndex = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.round(frameFloat)));
 
-    // Update bottom progress bar smoothly
+    // Update bottom progress bar
     if (progressBarRef.current) {
       progressBarRef.current.style.transform = `scaleX(${progress.toFixed(4)})`;
+    }
+
+    // Editorial text gently fades out across the first 25% of scroll
+    if (contentRef.current) {
+      let opacity = 1;
+      let translateY = 0;
+      if (progress > 0.03) {
+        const fade = Math.min(1, (progress - 0.03) / 0.22);
+        opacity = 1 - fade;
+        translateY = -28 * fade;
+      }
+      contentRef.current.style.opacity = opacity.toFixed(3);
+      contentRef.current.style.transform = `translate3d(0, ${translateY.toFixed(1)}px, 0)`;
+      contentRef.current.style.pointerEvents = opacity < 0.1 ? "none" : "auto";
+    }
+
+    // Soft gradient overlay gently clears as the building construction progresses
+    if (overlayRef.current) {
+      let overlayOpacity = 1;
+      if (progress > 0.05) {
+        overlayOpacity = Math.max(0, 1 - (progress - 0.05) / 0.25);
+      }
+      overlayRef.current.style.opacity = (overlayOpacity * 0.95).toFixed(3);
+    }
+
+    // Fade scroll hint early
+    if (scrollHintRef.current) {
+      const hintOpacity = Math.max(0, 1 - progress * 6);
+      scrollHintRef.current.style.opacity = hintOpacity.toFixed(3);
     }
 
     // Draw canvas frame at ultra-high quality
@@ -108,7 +137,7 @@ export function ArchitecturalHero() {
         const iw = frame.naturalWidth || 2560;
         const ih = frame.naturalHeight || 1440;
 
-        // Cinematic 1.05x framing optimization: subtly shifts edge foliage
+        // Cinematic 1.05x framing optimization: subtly shifts edge foliage to eliminate bottom-right watermark blur
         const scale = Math.max(cw / iw, ch / ih) * 1.05;
         const dw = iw * scale;
         const dh = ih * scale;
@@ -190,20 +219,52 @@ export function ArchitecturalHero() {
       }
 
       // 2. High-Priority Preloading Pipeline:
-      // Rapidly stream frames sequentially so the 24fps construction animation plays silky-smooth
+      // Preload the first 20 consecutive frames immediately for instantaneous crisp response
       if (!reducedMotion) {
-        let streamIndex = 1;
-        const loadNextBatch = () => {
+        for (let i = 1; i <= 20; i++) {
+          loadSingleImage(i);
+        }
+
+        // Preload keyframe milestones across the entire 200-frame sequence
+        const keyframeIndices: number[] = [];
+        for (let i = 24; i < TOTAL_FRAMES; i += 4) {
+          keyframeIndices.push(i);
+        }
+        if (!keyframeIndices.includes(TOTAL_FRAMES - 1)) {
+          keyframeIndices.push(TOTAL_FRAMES - 1);
+        }
+
+        let kfIndex = 0;
+        const loadKeyframesBatch = () => {
           if (!isMountedRef.current) return;
-          const end = Math.min(TOTAL_FRAMES, streamIndex + 12);
-          for (; streamIndex < end; streamIndex++) {
-            loadSingleImage(streamIndex);
+          const end = Math.min(keyframeIndices.length, kfIndex + 12);
+          for (; kfIndex < end; kfIndex++) {
+            const idx = keyframeIndices[kfIndex];
+            if (typeof idx === "number") {
+              loadSingleImage(idx);
+            }
           }
-          if (streamIndex < TOTAL_FRAMES) {
-            setTimeout(loadNextBatch, 30);
+          if (kfIndex < keyframeIndices.length) {
+            setTimeout(loadKeyframesBatch, 35);
           }
         };
-        setTimeout(loadNextBatch, 40);
+        setTimeout(loadKeyframesBatch, 60);
+
+        // Progressively fill all remaining frames in rapid batches
+        let fillIndex = 21;
+        const loadRemainingBatch = () => {
+          if (!isMountedRef.current) return;
+          const end = Math.min(TOTAL_FRAMES, fillIndex + 10);
+          for (; fillIndex < end; fillIndex++) {
+            if (!imagesCacheRef.current[fillIndex]) {
+              loadSingleImage(fillIndex);
+            }
+          }
+          if (fillIndex < TOTAL_FRAMES) {
+            setTimeout(loadRemainingBatch, 40);
+          }
+        };
+        setTimeout(loadRemainingBatch, 200);
       }
     });
 
@@ -224,76 +285,47 @@ export function ArchitecturalHero() {
       };
     }
 
-    // 3. Silky Smooth 24 FPS Construction Animation Loop:
-    // Autonomous playback showing the entire 200-frame 3D architectural build sequence.
-    // Pauses for 2.2s when the luxury villa completes (frame 199), then seamlessly loops.
-    let currentFrameFloat = 0;
-    let isHoldingAtEnd = false;
-    let holdTimeout: NodeJS.Timeout | null = null;
-    let lastAnimTimestamp = performance.now();
-    const FPS = 24;
-    const FRAME_INTERVAL = 1000 / FPS;
+    // 3. Sticky Scroll Handler:
+    // Hero remains locked sticky top-0 while the 200-frame animation plays.
+    // ONLY AFTER the animation finishes (progress reaches 1.0), the page continues into the next section.
+    const container = containerRef.current;
+    if (!container) return;
 
-    const animLoop = (timestamp: number) => {
-      if (!isMountedRef.current) return;
+    const onScroll = () => {
+      const scrollY = window.scrollY;
+      const scrollableDistance = container.offsetHeight - window.innerHeight;
+      if (scrollableDistance <= 0) return;
 
-      const elapsed = timestamp - lastAnimTimestamp;
-      if (elapsed >= FRAME_INTERVAL && !isHoldingAtEnd) {
-        lastAnimTimestamp = timestamp - (elapsed % FRAME_INTERVAL);
+      const progress = Math.min(1, Math.max(0, scrollY / scrollableDistance));
+      targetProgressRef.current = progress;
 
-        currentFrameFloat += 1;
-        if (currentFrameFloat >= TOTAL_FRAMES - 1) {
-          currentFrameFloat = TOTAL_FRAMES - 1;
-          isHoldingAtEnd = true;
-          targetProgressRef.current = 1;
-          renderFrameAtProgress(1);
-
-          // Hold on the completed villa for 2.2s before replaying
-          holdTimeout = setTimeout(() => {
-            if (isMountedRef.current) {
-              currentFrameFloat = 0;
-              isHoldingAtEnd = false;
-              lastAnimTimestamp = performance.now();
-            }
-          }, 2200);
-        } else {
-          const progress = currentFrameFloat / (TOTAL_FRAMES - 1);
-          targetProgressRef.current = progress;
-          renderFrameAtProgress(progress);
+      // Dynamic proximity preloading: prioritize ±6 frames around current scroll
+      const targetIdx = Math.min(TOTAL_FRAMES - 1, Math.max(0, Math.round(progress * (TOTAL_FRAMES - 1))));
+      for (let offset = -6; offset <= 6; offset++) {
+        const idx = targetIdx + offset;
+        if (idx >= 0 && idx < TOTAL_FRAMES && !imagesCacheRef.current[idx]) {
+          loadSingleImage(idx);
         }
       }
 
-      rafIdRef.current = requestAnimationFrame(animLoop);
-    };
-
-    rafIdRef.current = requestAnimationFrame(animLoop);
-
-    // 4. Natural Fluid Scroll Handler (Zero Lock / Zero Trap):
-    // The user scrolls freely with a single gesture. As the hero scrolls out,
-    // subtle parallax elevates the headline and fades the hint smoothly.
-    const onScroll = () => {
-      const scrollY = window.scrollY;
-      if (contentRef.current) {
-        const translateY = Math.min(scrollY * 0.35, 180);
-        const opacity = Math.max(0, 1 - scrollY / 650);
-        contentRef.current.style.transform = `translate3d(0, -${translateY}px, 0)`;
-        contentRef.current.style.opacity = opacity.toFixed(3);
-      }
-      if (scrollHintRef.current) {
-        const hintOpacity = Math.max(0, 1 - scrollY / 120);
-        scrollHintRef.current.style.opacity = hintOpacity.toFixed(3);
-        scrollHintRef.current.style.pointerEvents = hintOpacity < 0.1 ? "none" : "auto";
+      // Schedule frame render in next animation frame
+      if (rafIdRef.current === null) {
+        rafIdRef.current = requestAnimationFrame(() => {
+          rafIdRef.current = null;
+          renderFrameAtProgress(targetProgressRef.current);
+        });
       }
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
     onScroll();
 
     return () => {
       isMountedRef.current = false;
       resizeObserver.disconnect();
       window.removeEventListener("scroll", onScroll);
-      if (holdTimeout) clearTimeout(holdTimeout);
+      window.removeEventListener("resize", onScroll);
       if (rafIdRef.current !== null) {
         cancelAnimationFrame(rafIdRef.current);
         rafIdRef.current = null;
@@ -305,12 +337,16 @@ export function ArchitecturalHero() {
     <section
       ref={containerRef}
       aria-labelledby="hero-title"
-      className="relative w-full h-screen min-h-[640px] sm:min-h-[720px] overflow-hidden bg-brand-soft"
+      className={`relative w-full ${
+        reducedMotion ? "min-h-[580px] sm:min-h-[640px] lg:h-screen" : "h-[220vh] sm:h-[240vh] lg:h-[250vh]"
+      } bg-brand-soft`}
     >
-      {/* Hero Viewport: Natural single-screen height with zero sticky double-scroll lock */}
+      {/* Sticky Hero Viewport: Stays locked at top while 200-frame animation plays */}
       <div
         ref={stickyRef}
-        className="relative h-full w-full overflow-hidden flex items-center bg-brand-ink select-none"
+        className={`${
+          reducedMotion ? "relative h-full" : "sticky top-0 h-screen"
+        } w-full overflow-hidden flex items-center bg-brand-ink select-none`}
       >
         {/* Instant First-Frame Fallback (visible immediately on HTML parse before JS/canvas mount) */}
         {!firstFrameLoaded && (
@@ -453,21 +489,15 @@ export function ArchitecturalHero() {
           </div>
         </div>
 
-        {/* Interactive Smooth Scroll Cue */}
+        {/* Scroll Hint Cue (Visible at 0 scroll, fades immediately on scroll) */}
         {!reducedMotion && (
-          <button
+          <div
             ref={scrollHintRef}
-            type="button"
-            onClick={() => {
-              const heroHeight = containerRef.current?.offsetHeight || window.innerHeight;
-              window.scrollTo({ top: heroHeight, behavior: "smooth" });
-            }}
-            aria-label="Scroll to explore more sections"
-            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1 text-[0.68rem] font-bold tracking-[0.28em] text-white/90 uppercase transition-all duration-300 hover:text-brand-accent hover:scale-105 cursor-pointer pointer-events-auto drop-shadow-md"
+            aria-hidden="true"
+            className="absolute bottom-7 left-1/2 -translate-x-1/2 z-20 text-[0.68rem] font-medium tracking-[0.3em] text-white/85 uppercase pointer-events-none drop-shadow-sm"
           >
-            <span>Scroll to explore</span>
-            <ChevronDown className="size-4 animate-bounce text-brand-accent" aria-hidden="true" />
-          </button>
+            Scroll to explore
+          </div>
         )}
 
         {/* Bottom Scroll Progress Bar */}
