@@ -6,47 +6,29 @@ import { useMemo, useState, useSyncExternalStore } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowLeft,
-  Box,
-  Building2,
   Camera,
   ChevronLeft,
   ChevronRight,
   Film,
   Folder,
   FolderOpen,
-  HardHat,
-  Home,
-  LayoutGrid,
   MapPin,
   Play,
-  Sofa,
   Video,
   X,
 } from "lucide-react";
-import { GalleryLightbox } from "@/components/gallery/GalleryLightbox";
-import type { GalleryCategory, GalleryItem, GalleryVideo } from "@/data/gallery";
-import { galleryCategories } from "@/data/gallery";
+import type { GalleryItem, GalleryVideo } from "@/data/gallery";
 import { projectFolders, type ProjectFolder, type ProjectMediaFile } from "@/data/projectFolders";
 
-type MediaView = "folders" | "images" | "videos";
-type CategoryFilter = "All" | GalleryCategory;
+type MediaView = "folders" | "videos";
 
 const views: readonly { id: MediaView; label: string; icon: LucideIcon }[] = [
   { id: "folders", label: "Project Folders", icon: Folder },
-  { id: "images", label: "All Photographs", icon: Camera },
   { id: "videos", label: "Video Gallery", icon: Video },
 ];
 
-const categoryIcons: Record<GalleryCategory, LucideIcon> = {
-  Residential: Home,
-  Interiors: Sofa,
-  Construction: HardHat,
-  "Design & Planning": Box,
-  Commercial: Building2,
-};
-
 interface GalleryExplorerProps {
-  items: readonly GalleryItem[];
+  items?: readonly GalleryItem[];
   videos?: readonly GalleryVideo[];
 }
 
@@ -64,9 +46,6 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
   const [chosenView, setChosenView] = useState<MediaView | null>(null);
   const view: MediaView =
     chosenView ?? (hash === "#project-videos" ? "videos" : "folders");
-
-  const [activeCategory, setActiveCategory] = useState<CategoryFilter>("All");
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   // Active folder selection state
   const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
@@ -86,13 +65,6 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
     () => projectFolders.find((f) => f.id === activeFolderId),
     [activeFolderId],
   );
-
-  const filteredPhotos = useMemo(() => {
-    if (activeCategory === "All") return items;
-    return items.filter((item) => item.category === activeCategory);
-  }, [activeCategory, items]);
-
-  const filters: readonly CategoryFilter[] = ["All", ...galleryCategories];
 
   return (
     <div className="flex flex-col gap-12 sm:gap-16">
@@ -692,72 +664,7 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
       )}
 
       {/* ========================================================================= */}
-      {/* 3. ALL PHOTOGRAPHS VIEW                                                   */}
-      {/* ========================================================================= */}
-      {view === "images" && (
-        <section
-          id="photographs"
-          aria-labelledby="photographs-heading"
-          className="scroll-mt-28 flex flex-col gap-8 sm:gap-10"
-        >
-          {/* Category tabs */}
-          <div className="flex flex-wrap items-center justify-center gap-2">
-            {filters.map((filter) => {
-              const active = activeCategory === filter;
-              const Icon = filter !== "All" ? categoryIcons[filter] : LayoutGrid;
-              return (
-                <button
-                  key={filter}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => setActiveCategory(filter)}
-                  className={`inline-flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-xs sm:text-sm font-semibold transition-all duration-200 ${
-                    active
-                      ? "bg-brand-primary text-white shadow-xs"
-                      : "border border-brand-line bg-white text-brand-dark hover:border-brand-primary/50"
-                  }`}
-                >
-                  <Icon aria-hidden="true" className="size-3.5 sm:size-4" />
-                  <span>{filter}</span>
-                </button>
-              );
-            })}
-          </div>
-
-          {filteredPhotos.length === 0 ? (
-            <p className="text-center text-sm text-brand-muted">No photographs in this category yet.</p>
-          ) : (
-            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-              {filteredPhotos.map((item, index) => (
-                <li key={item.id}>
-                  <button
-                    type="button"
-                    onClick={() => setLightboxIndex(index)}
-                    className="group relative block aspect-4/3 w-full overflow-hidden rounded-2xl border border-brand-line/70 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-card cursor-pointer"
-                  >
-                    <Image
-                      src={item.image.src}
-                      alt={item.image.alt}
-                      fill
-                      sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4 text-white text-left">
-                      <span className="text-[0.68rem] font-bold text-brand-accent uppercase tracking-wider">
-                        {item.category}
-                      </span>
-                      <span className="text-sm font-bold truncate">{item.title}</span>
-                    </div>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      )}
-
-      {/* ========================================================================= */}
-      {/* 4. ALL PROJECT VIDEOS VIEW                                                */}
+      {/* 3. ALL PROJECT VIDEOS VIEW                                                */}
       {/* ========================================================================= */}
       {view === "videos" && (
         <section
@@ -812,17 +719,7 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
       )}
 
       {/* ========================================================================= */}
-      {/* 5. Fullscreen Photo Viewer Lightbox                                       */}
-      {/* ========================================================================= */}
-      <GalleryLightbox
-        items={filteredPhotos}
-        index={lightboxIndex}
-        onIndexChange={setLightboxIndex}
-        onClose={() => setLightboxIndex(null)}
-      />
-
-      {/* ========================================================================= */}
-      {/* 6. In-Place Video Player / Photo Viewer Modal                             */}
+      {/* 4. In-Place Video Player / Photo Viewer Modal                             */}
       {/* ========================================================================= */}
       {activeVideoModal && (
         <div
