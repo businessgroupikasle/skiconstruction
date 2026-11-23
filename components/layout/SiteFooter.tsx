@@ -69,52 +69,59 @@ export function SiteFooter() {
 
 
       {/* =========================================================
-          MAIN 4-COLUMN FOOTER CONTENT
+          MAIN 4-COLUMN FOOTER CONTENT (EQUAL 4 COLUMNS)
          ========================================================= */}
       <Container className="py-12 sm:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-8 xl:gap-10 items-start">
           {/* -------------------------------------------------------
-              COL 1: Brand & Engineer Authority (4 cols on lg)
+              COL 1: Brand & Engineer Authority (Equal 1 col)
              ------------------------------------------------------- */}
-          <div className="lg:col-span-4 flex flex-col gap-6">
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-2">
+              <span className="size-2 rounded-full bg-emerald-400" />
+              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
+                About SKI
+              </h4>
+            </div>
+
             {/* Logo in bright card */}
             <div>
-              <div className="inline-flex items-center rounded-2xl bg-white px-4 py-2.5 shadow-md shadow-black/20 border border-white/20">
-                <SkiLogo imageClassName="h-12 sm:h-14 w-auto object-contain" />
+              <div className="inline-flex items-center rounded-2xl bg-white px-3.5 py-2 shadow-md shadow-black/20 border border-white/20">
+                <SkiLogo imageClassName="h-10 sm:h-12 w-auto object-contain" />
               </div>
             </div>
 
             {/* Founder Registered Credential Card */}
-            <div className="flex items-start gap-3 p-3.5 rounded-2xl bg-white/5 border border-emerald-500/20 backdrop-blur-xs">
-              <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary/20 text-brand-accent border border-brand-primary/30 mt-0.5">
-                <Award className="size-5" />
+            <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/5 border border-emerald-500/20 backdrop-blur-xs">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-brand-primary/20 text-brand-accent border border-brand-primary/30 mt-0.5">
+                <Award className="size-4.5" />
               </div>
               <div className="flex flex-col">
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400">
                   Registered LBS Engineer
                 </span>
-                <span className="text-sm font-bold text-white leading-tight">
+                <span className="text-xs sm:text-sm font-bold text-white leading-tight">
                   {founder.name}, {founder.credentials}
                 </span>
-                <span className="text-xs text-gray-300 leading-snug mt-0.5">
-                  Coimbatore Corporation & Local Bodies Approved
+                <span className="text-[11px] text-gray-300 leading-snug mt-0.5">
+                  Coimbatore Corporation Approved
                 </span>
               </div>
             </div>
 
-            <p className="text-xs sm:text-sm text-gray-300 leading-relaxed max-w-sm">
+            <p className="text-xs text-gray-300 leading-relaxed !text-left">
               Delivering turnkey residential & commercial construction, realistic 3D
               elevation designs, and statutory LBS/DTCP plan approvals across
               Coimbatore, Kinathukadavu, and surrounding areas.
             </p>
 
             {/* Social & Direct Contact Icons */}
-            <div className="flex items-center gap-2.5 pt-1">
+            <div className="flex flex-wrap items-center gap-2 pt-1">
               <a
                 href={consultationWhatsAppUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex size-10 items-center justify-center rounded-xl bg-white/8 hover:bg-brand-primary text-gray-300 hover:text-white border border-white/10 hover:border-brand-primary transition-all duration-200 shadow-xs"
+                className="flex size-9 items-center justify-center rounded-xl bg-white/8 hover:bg-brand-primary text-gray-300 hover:text-white border border-white/10 hover:border-brand-primary transition-all duration-200 shadow-xs"
                 aria-label="WhatsApp SKI Construction"
               >
                 <WhatsAppIcon className="size-4" />
@@ -122,7 +129,7 @@ export function SiteFooter() {
 
               <a
                 href={telHref}
-                className="flex size-10 items-center justify-center rounded-xl bg-white/8 hover:bg-brand-primary text-gray-300 hover:text-white border border-white/10 hover:border-brand-primary transition-all duration-200 shadow-xs"
+                className="flex size-9 items-center justify-center rounded-xl bg-white/8 hover:bg-brand-primary text-gray-300 hover:text-white border border-white/10 hover:border-brand-primary transition-all duration-200 shadow-xs"
                 aria-label={`Call ${contact.phoneDisplay}`}
               >
                 <Phone className="size-4" />
@@ -130,7 +137,7 @@ export function SiteFooter() {
 
               <a
                 href={mailtoHref}
-                className="flex size-10 items-center justify-center rounded-xl bg-white/8 hover:bg-brand-primary text-gray-300 hover:text-white border border-white/10 hover:border-brand-primary transition-all duration-200 shadow-xs"
+                className="flex size-9 items-center justify-center rounded-xl bg-white/8 hover:bg-brand-primary text-gray-300 hover:text-white border border-white/10 hover:border-brand-primary transition-all duration-200 shadow-xs"
                 aria-label={`Email ${contact.email}`}
               >
                 <Mail className="size-4" />
@@ -140,7 +147,7 @@ export function SiteFooter() {
                 href={mapsDirectionsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex size-10 items-center justify-center rounded-xl bg-white/8 hover:bg-brand-primary text-gray-300 hover:text-white border border-white/10 hover:border-brand-primary transition-all duration-200 shadow-xs"
+                className="flex size-9 items-center justify-center rounded-xl bg-white/8 hover:bg-brand-primary text-gray-300 hover:text-white border border-white/10 hover:border-brand-primary transition-all duration-200 shadow-xs"
                 aria-label="Find us on Google Maps"
               >
                 <MapPin className="size-4" />
@@ -156,7 +163,7 @@ export function SiteFooter() {
                     href={profile.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex size-10 items-center justify-center rounded-xl bg-white/8 hover:bg-brand-primary text-gray-300 hover:text-white border border-white/10 hover:border-brand-primary transition-all duration-200 shadow-xs"
+                    className="flex size-9 items-center justify-center rounded-xl bg-white/8 hover:bg-brand-primary text-gray-300 hover:text-white border border-white/10 hover:border-brand-primary transition-all duration-200 shadow-xs"
                     aria-label={profile.label}
                   >
                     {isInstagram ? (
@@ -175,9 +182,9 @@ export function SiteFooter() {
           </div>
 
           {/* -------------------------------------------------------
-              COL 2: Core Engineering Services (3 cols on lg)
+              COL 2: Core Engineering Services (Equal 1 col)
              ------------------------------------------------------- */}
-          <div className="lg:col-span-3 flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-emerald-400" />
               <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
@@ -201,9 +208,9 @@ export function SiteFooter() {
           </div>
 
           {/* -------------------------------------------------------
-              COL 3: Quick Navigation & Hours (2 cols on lg)
+              COL 3: Quick Navigation & Legal (Equal 1 col)
              ------------------------------------------------------- */}
-          <div className="lg:col-span-2 flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-emerald-400" />
               <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
@@ -222,45 +229,47 @@ export function SiteFooter() {
                         window.scrollTo({ top: 0, left: 0, behavior: "instant" });
                       }
                     }}
-                    className="group flex items-center gap-1.5 py-1 text-xs sm:text-sm text-gray-300 hover:text-emerald-300 transition-colors duration-150"
+                    className="group flex items-center justify-between py-1 text-xs sm:text-sm text-gray-300 hover:text-emerald-300 transition-colors duration-150"
                   >
                     <span>{link.label}</span>
+                    <ArrowRight className="size-3 text-gray-500 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-emerald-400 transition-all duration-200" />
                   </Link>
                 </li>
               ))}
-              <li className="pt-2 mt-2 border-t border-white/10">
+              <li className="pt-2 mt-1 border-t border-white/10">
                 <Link
                   href="/privacy-policy"
-                  className="group flex items-center gap-1.5 py-0.5 text-xs text-gray-400 hover:text-emerald-300 transition-colors duration-150"
+                  className="group flex items-center justify-between py-1 text-xs sm:text-sm text-gray-300 hover:text-emerald-300 transition-colors duration-150"
                 >
                   <span>Privacy Policy</span>
+                  <ArrowRight className="size-3 text-gray-500 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-emerald-400 transition-all duration-200" />
                 </Link>
               </li>
               <li>
                 <Link
                   href="/terms-and-conditions"
-                  className="group flex items-center gap-1.5 py-0.5 text-xs text-gray-400 hover:text-emerald-300 transition-colors duration-150"
+                  className="group flex items-center justify-between py-1 text-xs sm:text-sm text-gray-300 hover:text-emerald-300 transition-colors duration-150"
                 >
                   <span>Terms & Conditions</span>
+                  <ArrowRight className="size-3 text-gray-500 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-emerald-400 transition-all duration-200" />
                 </Link>
               </li>
               <li>
                 <Link
                   href="/sitemap"
-                  className="group flex items-center gap-1.5 py-0.5 text-xs text-gray-400 hover:text-emerald-300 transition-colors duration-150"
+                  className="group flex items-center justify-between py-1 text-xs sm:text-sm text-gray-300 hover:text-emerald-300 transition-colors duration-150"
                 >
                   <span>Sitemap</span>
+                  <ArrowRight className="size-3 text-gray-500 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-emerald-400 transition-all duration-200" />
                 </Link>
               </li>
             </ul>
-
-
           </div>
 
           {/* -------------------------------------------------------
-              COL 4: Visit & Office Coordinates (3 cols on lg)
+              COL 4: Visit & Office Coordinates (Equal 1 col)
              ------------------------------------------------------- */}
-          <div className="lg:col-span-3 flex flex-col gap-4">
+          <div className="flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-emerald-400" />
               <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
@@ -272,7 +281,7 @@ export function SiteFooter() {
             <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex flex-col gap-2">
               <div className="flex items-start gap-2.5">
                 <MapPin className="size-4 shrink-0 text-emerald-400 mt-0.5" />
-                <div className="text-xs text-gray-300 leading-relaxed">
+                <div className="text-xs text-gray-300 leading-relaxed !text-left">
                   <span className="font-semibold text-white block">
                     SKI Construction Office
                   </span>
