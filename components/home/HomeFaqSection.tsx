@@ -18,7 +18,9 @@ export function HomeFaqSection() {
       className="bg-[#fbfdf9] py-16 sm:py-20 lg:py-24 border-t border-brand-line/60"
     >
       <Container>
-        <div className="mx-auto flex max-w-3xl flex-col items-center text-center">
+        <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-14">
+        {/* Left: sticky section header */}
+        <div className="flex flex-col items-start text-left lg:col-span-5 lg:sticky lg:top-[calc(var(--header-height,76px)+2rem)]">
           <div className="inline-flex items-center gap-2 rounded-full border border-brand-primary/20 bg-brand-soft px-3.5 py-1 text-xs font-semibold text-brand-primary">
             <HelpCircle className="size-3.5" aria-hidden="true" />
             <span>Frequently Asked Questions</span>
@@ -31,12 +33,13 @@ export function HomeFaqSection() {
             Got Questions About Building or Approvals?
           </h2>
 
-          <p className="mt-3 text-sm text-brand-muted sm:text-base max-w-2xl">
+          <p className="mt-3 text-sm text-brand-muted sm:text-base max-w-md">
             Find clear, honest answers about our construction process, registered LBS plan approvals, Vastu plans, and engineering consulting services in Kinathukadavu and Coimbatore.
           </p>
         </div>
 
-        <div className="mx-auto mt-10 max-w-3xl divide-y divide-brand-line/70 rounded-2xl border border-brand-line/70 bg-white p-4 sm:p-8 shadow-xs">
+        {/* Right: accordion list */}
+        <div className="lg:col-span-7 divide-y divide-brand-line/70 rounded-2xl border border-brand-line/70 bg-white p-4 sm:p-8 shadow-xs">
           {homeFaqs.map((faq, index) => {
             const isOpen = openIndex === index;
             return (
@@ -66,6 +69,7 @@ export function HomeFaqSection() {
               </div>
             );
           })}
+        </div>
         </div>
       </Container>
     </section>

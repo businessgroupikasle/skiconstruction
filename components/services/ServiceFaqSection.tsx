@@ -47,11 +47,11 @@ export function ServiceFaqSection({ faqs }: ServiceFaqSectionProps) {
   };
 
   return (
-    <section aria-labelledby="faq-heading" className="bg-[#fbfdf9] py-14 sm:py-20 relative overflow-hidden">
+    <section aria-labelledby="faq-heading" className="bg-[#fbfdf9] py-14 sm:py-20 relative overflow-x-clip">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start relative">
           {/* Left Column: Heading + Wireframe Sketch Watermark */}
-          <div className="lg:col-span-5 relative flex flex-col justify-between min-h-[300px]">
+          <div className="lg:col-span-5 relative flex flex-col justify-between min-h-[300px] lg:sticky lg:top-[calc(var(--header-height,76px)+2rem)]">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <span className="h-0.5 w-6 bg-[#d4972a] rounded-full inline-block" />
