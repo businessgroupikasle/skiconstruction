@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Minus, HelpCircle } from "lucide-react";
+import { Plus, Minus } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import type { ServiceFaq } from "@/data/types";
 
@@ -55,14 +55,14 @@ export function BrickFaqSection({ customFaqs }: BrickFaqSectionProps) {
   return (
     <section aria-labelledby="faq-heading" className="bg-[#fcfdfa] py-14 sm:py-20 border-b border-brand-line/60">
       <Container>
-        {/* Section Header with "Quality & Efficiency" eyebrow */}
-        <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+        <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-14">
+        {/* Left: sticky section header with "Quality & Efficiency" eyebrow */}
+        <div className="flex flex-col items-start text-left lg:col-span-5 lg:sticky lg:top-[calc(var(--header-height,76px)+2rem)]">
           <div className="flex items-center gap-3 mb-2.5">
             <span className="h-0.5 w-8 bg-brand-accent rounded-full inline-block" />
             <span className="text-xs font-mono font-bold uppercase tracking-[0.2em] text-brand-primary">
               Quality & Efficiency
             </span>
-            <span className="h-0.5 w-8 bg-brand-accent rounded-full inline-block" />
           </div>
 
           <h2
@@ -72,13 +72,13 @@ export function BrickFaqSection({ customFaqs }: BrickFaqSectionProps) {
             Frequently ask questions
           </h2>
 
-          <p className="mt-3 text-sm sm:text-base text-brand-muted leading-relaxed">
+          <p className="mt-3 max-w-md text-sm sm:text-base text-brand-muted leading-relaxed">
             Find clear answers about our commercial and residential construction workflows, materials, and approvals in Coimbatore.
           </p>
         </div>
 
-        {/* Accordion List */}
-        <div className="max-w-3xl mx-auto flex flex-col gap-3.5">
+        {/* Right: accordion list */}
+        <div className="flex flex-col gap-3.5 lg:col-span-7">
           {items.map((faq, idx) => {
             const isOpen = openIndex === idx;
             return (
@@ -106,6 +106,7 @@ export function BrickFaqSection({ customFaqs }: BrickFaqSectionProps) {
               </div>
             );
           })}
+        </div>
         </div>
       </Container>
     </section>

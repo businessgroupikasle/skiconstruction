@@ -21,8 +21,9 @@ export function AboutFaqs() {
   return (
     <section aria-labelledby="about-faq-heading" className="bg-[#fcfdfa] py-14 sm:py-20 border-b border-brand-line/60">
       <Container>
-        {/* Section Header */}
-        <div className="flex flex-col items-center text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+        <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-12 lg:gap-14">
+        {/* Left: sticky section header */}
+        <div className="flex flex-col items-start text-left lg:col-span-5 lg:sticky lg:top-[calc(var(--header-height,76px)+2rem)]">
           <div className="inline-flex items-center gap-2 rounded-full bg-brand-primary/10 border border-brand-primary/20 px-3.5 py-1 text-xs font-mono font-bold text-brand-primary uppercase tracking-widest mb-3">
             <HelpCircle className="size-3.5" />
             <span>Company FAQs</span>
@@ -35,13 +36,13 @@ export function AboutFaqs() {
             Frequently Asked Questions About SKI Construction
           </h2>
 
-          <p className="mt-3.5 text-sm sm:text-base text-brand-muted leading-relaxed">
+          <p className="mt-3.5 max-w-md text-sm sm:text-base text-brand-muted leading-relaxed">
             Direct answers to common questions about our leadership, service coverage in Coimbatore, approval credentials, and billing policies.
           </p>
         </div>
 
-        {/* Accordion List */}
-        <div className="max-w-3xl mx-auto flex flex-col gap-3.5">
+        {/* Right: accordion list */}
+        <div className="flex flex-col gap-3.5 lg:col-span-7">
           {aboutFaqs.map((faq, idx) => {
             const isOpen = openIndex === idx;
             return (
@@ -69,6 +70,7 @@ export function AboutFaqs() {
               </div>
             );
           })}
+        </div>
         </div>
       </Container>
     </section>

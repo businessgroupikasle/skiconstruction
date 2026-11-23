@@ -120,27 +120,28 @@ export function HomeJourneySection() {
 
   const handleSelectStep = (idx: number) => {
     setActiveStep(idx);
-    const el = cardItemRefs.current[idx];
-    if (el && typeof window !== "undefined" && window.innerWidth < 1024) {
-      el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-    }
   };
 
   // Auto-advance through the steps every 6s unless paused by user interaction
   useEffect(() => {
     if (isPaused) return;
     const timer = setInterval(() => {
-      setActiveStep((prev) => {
-        const next = (prev + 1) % journeySteps.length;
-        const el = cardItemRefs.current[next];
-        if (el && typeof window !== "undefined" && window.innerWidth < 1024) {
-          el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-        }
-        return next;
-      });
+      setActiveStep((prev) => (prev + 1) % journeySteps.length);
     }, 6000);
     return () => clearInterval(timer);
   }, [isPaused]);
+
+  // On narrow screens, centre the active card inside the horizontal strip.
+  // Scrolls only the strip itself (never the page), so the auto-advance can't
+  // drag the viewport to this section while the user is reading elsewhere.
+  useEffect(() => {
+    const container = cardContainerRef.current;
+    const el = cardItemRefs.current[activeStep];
+    if (!container || !el || window.innerWidth >= 1024) return;
+    const offset = el.getBoundingClientRect().left - container.getBoundingClientRect().left;
+    const left = container.scrollLeft + offset - (container.clientWidth - el.clientWidth) / 2;
+    container.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+  }, [activeStep]);
 
   return (
     <section
