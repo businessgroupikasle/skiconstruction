@@ -34,7 +34,7 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--header-height) + 16px);
   -webkit-text-size-adjust: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100%;
 }
 
@@ -50,7 +50,7 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100%;
   width: 100%;
   -webkit-overflow-scrolling: touch;

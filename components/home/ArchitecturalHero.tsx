@@ -23,7 +23,6 @@ export function ArchitecturalHero() {
   const stickyRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const progressBarRef = useRef<HTMLSpanElement>(null);
 
   const [firstFrameLoaded, setFirstFrameLoaded] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
@@ -90,13 +89,6 @@ export function ArchitecturalHero() {
 
       const ctx = canvas.getContext("2d", { alpha: false });
       if (!ctx) return;
-
-      const progress = Math.min(1, Math.max(0, index / (TOTAL_FRAMES - 1)));
-
-      // Update bottom progress bar
-      if (progressBarRef.current) {
-        progressBarRef.current.style.transform = `scaleX(${progress.toFixed(4)})`;
-      }
 
       if (canvas.width > 0 && canvas.height > 0) {
         const frame = getBestLoadedFrame(index);
@@ -167,35 +159,21 @@ export function ArchitecturalHero() {
   useEffect(() => {
     isMountedRef.current = true;
 
-    // 1. Immediately preload frame 0 and set initial canvas size
+    // Preload frame 0 and final completed frame
     updateCanvasSize();
-    loadSingleImage(0).then((firstImg) => {
-      if (firstImg && isMountedRef.current) {
+    loadSingleImage(TOTAL_FRAMES - 1).then((finalImg) => {
+      if (finalImg && isMountedRef.current) {
         setFirstFrameLoaded(true);
         updateCanvasSize();
-        renderFrameAtIndex(0);
-      }
-
-      // 2. High-Priority Preload Pipeline:
-      // Load key landmark frames first for instant scrub responsiveness across all 5 stages
-      const landmarkFrames = [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 199];
-      landmarkFrames.forEach((idx) => loadSingleImage(idx));
-
-      // Load remaining frames in fast sequential batches
-      if (!reducedMotion) {
-        let currentBatchStart = 1;
-        const loadBatches = () => {
-          if (!isMountedRef.current) return;
-          const end = Math.min(TOTAL_FRAMES, currentBatchStart + 16);
-          for (let i = currentBatchStart; i < end; i++) {
-            loadSingleImage(i);
+        renderFrameAtIndex(TOTAL_FRAMES - 1);
+      } else {
+        loadSingleImage(0).then((firstImg) => {
+          if (firstImg && isMountedRef.current) {
+            setFirstFrameLoaded(true);
+            updateCanvasSize();
+            renderFrameAtIndex(0);
           }
-          currentBatchStart = end;
-          if (currentBatchStart < TOTAL_FRAMES) {
-            setTimeout(loadBatches, 30);
-          }
-        };
-        setTimeout(loadBatches, 60);
+        });
       }
     });
 
@@ -203,24 +181,15 @@ export function ArchitecturalHero() {
     const resizeObserver = new ResizeObserver(() => {
       updateCanvasSize();
       lastDrawnFrameRef.current = null;
-      renderFrameAtIndex(currentFrameIndexRef.current);
+      renderFrameAtIndex(currentFrameIndexRef.current || TOTAL_FRAMES - 1);
     });
     if (stickyRef.current) {
       resizeObserver.observe(stickyRef.current);
     }
 
-    if (reducedMotion) {
-      renderFrameAtIndex(TOTAL_FRAMES - 1);
-      return () => {
-        isMountedRef.current = false;
-        resizeObserver.disconnect();
-      };
-    }
-
-    // 3. Mouse Scroll Animation Scrubbing Engine:
-    // User scrolling smoothly drives the frame from 0 (empty site) -> 199 (completed villa)
+    // Scroll effect: gently fades out the editorial text layer as user scrolls down
     const handleScroll = () => {
-      if (!isMountedRef.current || !containerRef.current || !stickyRef.current) return;
+      if (!isMountedRef.current || !containerRef.current) return;
 
       if (rafScrollIdRef.current !== null) {
         cancelAnimationFrame(rafScrollIdRef.current);
@@ -231,37 +200,19 @@ export function ArchitecturalHero() {
         if (!container) return;
 
         const rect = container.getBoundingClientRect();
-        const scrollDistance = rect.height - window.innerHeight;
+        if (contentRef.current && rect.top < 0) {
+          const progress = Math.min(1, Math.max(0, -rect.top / (rect.height * 0.75)));
+          const textOpacity = Math.max(0, 1 - progress * 1.2);
+          const textTranslateY = progress * 40;
 
-        if (scrollDistance > 0) {
-          // Calculate exact scroll progress through the runway (0.0 to 1.0)
-          const currentScroll = Math.max(0, -rect.top);
-          const progress = Math.min(1, Math.max(0, currentScroll / scrollDistance));
-          const targetIndex = Math.min(TOTAL_FRAMES - 1, Math.floor(progress * (TOTAL_FRAMES - 1)));
-
-          if (targetIndex !== currentFrameIndexRef.current) {
-            currentFrameIndexRef.current = targetIndex;
-            renderFrameAtIndex(targetIndex);
-          }
-
-          // Editorial Text Layer: Smoothly fades out and lifts during the initial 26% of scroll
-          if (contentRef.current) {
-            const fadeThreshold = 0.26;
-            const textProgress = Math.min(1, progress / fadeThreshold);
-            const textOpacity = Math.max(0, 1 - textProgress * 1.15);
-            const textTranslateY = textProgress * 50;
-
-            contentRef.current.style.opacity = textOpacity.toFixed(3);
-            contentRef.current.style.transform = `translate3d(0, -${textTranslateY}px, 0)`;
-            contentRef.current.style.pointerEvents = textOpacity < 0.1 ? "none" : "auto";
-          }
+          contentRef.current.style.opacity = textOpacity.toFixed(3);
+          contentRef.current.style.transform = `translate3d(0, -${textTranslateY}px, 0)`;
+          contentRef.current.style.pointerEvents = textOpacity < 0.1 ? "none" : "auto";
         }
       });
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    // Initial sync
-    handleScroll();
 
     return () => {
       isMountedRef.current = false;
@@ -277,19 +228,17 @@ export function ArchitecturalHero() {
     <section
       ref={containerRef}
       aria-labelledby="hero-title"
-      className={`relative w-full bg-brand-ink select-none ${
-        reducedMotion ? "h-[92vh] sm:h-[95vh] lg:h-screen" : "h-[160vh] sm:h-[240vh] lg:h-[300vh]"
-      }`}
+      className="relative w-full bg-brand-ink select-none h-[92vh] sm:h-[95vh] lg:h-screen min-h-[620px] overflow-hidden"
     >
-      {/* Sticky Viewport Container: Locks to screen while user scrubs the villa construction */}
+      {/* Hero Viewport Container */}
       <div
         ref={stickyRef}
-        className="sticky top-0 h-screen w-full overflow-hidden flex items-center"
+        className="relative h-full w-full overflow-hidden flex items-center"
       >
-        {/* Instant First-Frame Fallback (visible immediately on HTML parse before JS/canvas mount) */}
+        {/* Instant Frame Fallback */}
         {!firstFrameLoaded && (
           <img
-            src={getFrameUrl(0)}
+            src={getFrameUrl(TOTAL_FRAMES - 1)}
             alt="SKI Construction Architectural Project Hero"
             fetchPriority="high"
             className="absolute inset-0 h-full w-full object-cover pointer-events-none contrast-[1.04] saturate-[1.03] scale-[1.05] origin-[44%_45%]"
@@ -420,14 +369,6 @@ export function ArchitecturalHero() {
               </Link>
             </div>
           </div>
-        </div>
-
-        {/* Bottom Interactive Progress Bar */}
-        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-1.5 bg-black/40 z-30">
-          <span
-            ref={progressBarRef}
-            className="block h-full origin-left scale-x-0 bg-gradient-to-r from-brand-primary via-brand-accent to-emerald-400 will-change-transform transition-transform duration-75"
-          />
         </div>
       </div>
     </section>
