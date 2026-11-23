@@ -391,64 +391,151 @@ export function ProjectArc({ projects }: ProjectArcProps = {}) {
         </div>
 
         {/* ========================================================================= */}
-        {/* MOBILE & TABLET RESPONSIVE CAROUSEL (< lg screens)                        */}
+        {/* MOBILE & TABLET CIRCULAR ARC (< lg screens)                               */}
+        {/* Exact same semicircular fan of 9 project cards, ticks, and centered CTA   */}
         {/* ========================================================================= */}
-        <div className="lg:hidden flex flex-col items-center text-center">
-          {/* Tag Pill */}
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-line/80 bg-white px-3.5 py-1 text-xs font-semibold text-brand-dark shadow-xs mb-3">
-            <Sparkles className="size-3.5 text-brand-primary" />
-            About SKI Construction
-          </span>
-
-          {/* Headline */}
-          <h2 className="text-2xl xs:text-3xl sm:text-4xl font-extrabold uppercase tracking-tight text-brand-ink leading-tight max-w-md mb-3">
-            <span>BUILDING HOMES WITH</span>{" "}
-            <span className="block">
-              CARE, CLARITY AND <span className="text-brand-primary">CRAFT</span>
-            </span>
-          </h2>
-
-          {/* Subtext */}
-          <p className="text-sm leading-relaxed text-brand-muted max-w-sm mb-6">
-            SKI Construction is a design-and-build team from Kinathukadavu, Coimbatore. We listen first, design in 3D,
-            quote every item clearly and build with updates you can see.
-          </p>
-
-          {/* Mobile Horizontal Swipeable Cards Ribbon */}
-          <div className="w-full overflow-x-auto no-scrollbar py-4 -mx-4 px-4 flex gap-4 snap-x snap-mandatory">
-            {arcCards.map((card, idx) => (
-              <div
-                key={`${card.id}-mobile`}
-                className="shrink-0 w-[160px] h-[220px] rounded-2xl overflow-hidden bg-white shadow-card border-2 border-white snap-center relative"
-              >
-                <Image
-                  src={card.src}
-                  alt={card.title}
-                  fill
-                  sizes="160px"
-                  className="size-full object-cover"
+        <div className="lg:hidden relative w-full h-[450px] xs:h-[480px] sm:h-[520px] overflow-hidden select-none mb-2">
+          {/* Mobile Radial Gauge Tick Marks SVG Layer */}
+          <svg
+            aria-hidden="true"
+            className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 w-[420px] h-[340px] z-0"
+            viewBox="0 0 420 340"
+            fill="none"
+          >
+            {/* Left Arc Radial Ticks */}
+            {Array.from({ length: 14 }).map((_, i) => {
+              const deg = -74 + i * 2.0;
+              const rad = (deg * Math.PI) / 180;
+              const x1 = 210 + 225 * Math.sin(rad);
+              const y1 = 285 - 225 * Math.cos(rad);
+              const x2 = 210 + 242 * Math.sin(rad);
+              const y2 = 285 - 242 * Math.cos(rad);
+              return (
+                <line
+                  key={`m-left-tick-${deg}`}
+                  x1={x1}
+                  y1={y1}
+                  x2={x2}
+                  y2={y2}
+                  stroke="#cfd8c4"
+                  strokeWidth={i % 2 === 0 ? "1.5" : "1"}
+                  strokeLinecap="round"
+                  opacity={0.35 + (i / 14) * 0.5}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-2.5 text-white">
-                  <span className="text-[0.6rem] font-bold text-brand-accent uppercase">
-                    {card.category}
-                  </span>
-                  <p className="text-xs font-bold leading-tight line-clamp-1">{card.title}</p>
+              );
+            })}
+
+            {/* Right Arc Radial Ticks */}
+            {Array.from({ length: 14 }).map((_, i) => {
+              const deg = 48 + i * 2.0;
+              const rad = (deg * Math.PI) / 180;
+              const x1 = 210 + 225 * Math.sin(rad);
+              const y1 = 285 - 225 * Math.cos(rad);
+              const x2 = 210 + 242 * Math.sin(rad);
+              const y2 = 285 - 242 * Math.cos(rad);
+              return (
+                <line
+                  key={`m-right-tick-${deg}`}
+                  x1={x1}
+                  y1={y1}
+                  x2={x2}
+                  y2={y2}
+                  stroke="#cfd8c4"
+                  strokeWidth={i % 2 === 0 ? "1.5" : "1"}
+                  strokeLinecap="round"
+                  opacity={0.85 - (i / 14) * 0.5}
+                />
+              );
+            })}
+
+            {/* Subtle Dashed Outer & Inner Arc Lines */}
+            <path
+              d="M 60 160 A 240 240 0 0 1 360 160"
+              stroke="#cbd6be"
+              strokeWidth="1"
+              strokeDasharray="4 4"
+              className="opacity-40"
+            />
+            <path
+              d="M 72 170 A 225 225 0 0 1 348 170"
+              stroke="#cbd6be"
+              strokeWidth="0.8"
+              strokeDasharray="3 3"
+              className="opacity-30"
+            />
+          </svg>
+
+          {/* 9 Tangential Project Cards along the Arc on Mobile */}
+          <div className="absolute inset-0 z-10">
+            {arcCards.map((card) => {
+              return (
+                <div
+                  key={`mobile-${card.id}`}
+                  className="absolute left-1/2 top-[285px] -ml-[30px] xs:-ml-[34px] -mt-[43px] xs:-mt-[48px] w-[60px] xs:w-[68px] h-[86px] xs:h-[96px] group"
+                  style={{
+                    transform: `rotate(${card.angle}deg) translateY(-240px)`,
+                    transformOrigin: "center center",
+                  }}
+                >
+                  <Link
+                    href="/gallery"
+                    aria-label={`View ${card.title}`}
+                    className="relative block size-full overflow-hidden rounded-xl bg-white shadow-md border-2 border-white transition-all duration-300 active:scale-95"
+                  >
+                    <Image
+                      src={card.src}
+                      alt={card.title}
+                      fill
+                      sizes="80px"
+                      className="size-full object-cover"
+                    />
+                  </Link>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
-          {/* Button */}
-          <div className="mt-6 mb-8">
+          {/* Center Content Inside the Arc on Mobile */}
+          <div className="absolute inset-x-0 top-[110px] xs:top-[118px] sm:top-[135px] z-20 flex flex-col items-center text-center px-4">
+            {/* Tag Pill */}
+            <span className="inline-flex items-center gap-1 rounded-full border border-brand-line/80 bg-white/95 backdrop-blur-xs px-2.5 py-0.5 text-[10px] xs:text-[11px] font-semibold text-brand-dark shadow-xs mb-2">
+              <Sparkles className="size-3 text-brand-primary" />
+              About SKI Construction
+            </span>
+
+            {/* Main Headline */}
+            <h2
+              className="text-base xs:text-lg sm:text-2xl font-extrabold uppercase tracking-tight text-brand-ink leading-[1.15] max-w-[270px] xs:max-w-[300px] sm:max-w-md mb-2"
+            >
+              <span>BUILDING HOMES WITH</span>{" "}
+              <span className="block">
+                CARE, CLARITY AND <span className="text-brand-primary">CRAFT</span>
+              </span>
+            </h2>
+
+            {/* Subtext Paragraph */}
+            <p className="text-[11px] xs:text-xs sm:text-sm leading-relaxed text-brand-muted max-w-[260px] xs:max-w-[290px] sm:max-w-sm mb-3.5 line-clamp-3 sm:line-clamp-none">
+              SKI Construction is a design-and-build team from Kinathukadavu, Coimbatore. We listen first, design in 3D,
+              quote every item clearly and build with updates you can see.
+            </p>
+
+            {/* Lime Pill CTA Button */}
             <Link
               href="/services"
-              className="inline-flex items-center gap-3 rounded-full bg-[#84cc16] hover:bg-[#74b810] pl-6 pr-2 py-2 text-sm font-bold text-[#142310] shadow-md"
+              className="group inline-flex items-center gap-2.5 rounded-full bg-[#84cc16] hover:bg-[#74b810] pl-4 pr-1.5 py-1 text-xs font-bold text-[#142310] shadow-md transition-all duration-300 active:scale-95"
             >
               <span>What we do</span>
-              <span className="flex size-7 items-center justify-center rounded-full bg-[#1b2a1a] text-white">
-                <ChevronRight className="size-4" strokeWidth={2.8} />
+              <span className="flex size-6 items-center justify-center rounded-full bg-[#1b2a1a] text-white transition-transform duration-300 group-hover:translate-x-0.5">
+                <ChevronRight className="size-3.5" strokeWidth={2.8} />
               </span>
             </Link>
+
+            {/* Center Dial Indicator Dot on Arc Track */}
+            <div className="mt-3 flex items-center justify-center">
+              <div className="size-3.5 rounded-full border-2 border-brand-ink/80 bg-white flex items-center justify-center shadow-xs">
+                <div className="size-1 rounded-full bg-brand-ink" />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -456,7 +543,7 @@ export function ProjectArc({ projects }: ProjectArcProps = {}) {
         {/* BOTTOM 4-COLUMN VALUE PILLARS                                             */}
         {/* ========================================================================= */}
         <Container className="pt-2 sm:pt-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 border-t border-brand-line/60 pt-6 sm:pt-8">
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 border-t border-brand-line/60 pt-6 sm:pt-8">
             {pillars.map((pillar) => (
               <div key={pillar.title} className="flex flex-col gap-1.5 text-center sm:text-left">
                 <h3 className="text-lg sm:text-xl font-bold tracking-tight text-brand-ink">
