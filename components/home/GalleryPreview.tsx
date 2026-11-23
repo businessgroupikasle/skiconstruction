@@ -194,7 +194,7 @@ function CarouselCard({
       onClick={onClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="group absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[26px] sm:rounded-[32px] bg-brand-dark shadow-2xl border border-black/10 transition-all duration-300 cursor-pointer select-none"
+      className="group absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl sm:rounded-[32px] bg-brand-dark shadow-2xl border border-black/10 transition-all duration-300 cursor-pointer select-none"
       style={{
         width: `${dimensions.cardWidth}px`,
         height: `${dimensions.cardHeight}px`,
@@ -208,7 +208,7 @@ function CarouselCard({
         src={item.poster}
         alt={item.title}
         fill
-        sizes="(min-width: 1024px) 300px, 250px"
+        sizes="(min-width: 1024px) 300px, 200px"
         className={`object-cover object-center transition-all duration-700 ${
           isPlaying ? "opacity-0" : "opacity-100 group-hover:scale-108"
         }`}
@@ -234,19 +234,19 @@ function CarouselCard({
       <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/95 via-black/30 to-black/35 pointer-events-none transition-opacity duration-300" />
 
       {/* Top Badges: Category & Media Type / Duration */}
-      <div className="absolute top-4 inset-x-4 flex items-center justify-between z-10 pointer-events-none">
-        <span className="rounded-full bg-black/60 backdrop-blur-md px-2.5 py-1 text-[0.68rem] font-bold tracking-wider text-white uppercase border border-white/15">
+      <div className="absolute top-2.5 sm:top-4 inset-x-2.5 sm:inset-x-4 flex items-center justify-between z-10 pointer-events-none">
+        <span className="rounded-full bg-black/60 backdrop-blur-md px-2 py-0.5 sm:px-2.5 sm:py-1 text-[0.58rem] sm:text-[0.68rem] font-bold tracking-wider text-white uppercase border border-white/15">
           {item.category}
         </span>
 
         {isVideo ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-black/60 backdrop-blur-md px-2.5 py-1 text-[0.68rem] font-medium text-white/95 border border-white/15 font-mono">
-            <Film className="size-3 text-brand-accent" />
+          <span className="inline-flex items-center gap-1 rounded-full bg-black/60 backdrop-blur-md px-2 py-0.5 sm:px-2.5 sm:py-1 text-[0.58rem] sm:text-[0.68rem] font-medium text-white/95 border border-white/15 font-mono">
+            <Film className="size-2.5 sm:size-3 text-brand-accent" />
             <span>{item.duration ?? "Video"}</span>
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1 rounded-full bg-black/60 backdrop-blur-md px-2.5 py-1 text-[0.68rem] font-medium text-white/95 border border-white/15">
-            <Camera className="size-3 text-brand-accent" />
+          <span className="inline-flex items-center gap-1 rounded-full bg-black/60 backdrop-blur-md px-2 py-0.5 sm:px-2.5 sm:py-1 text-[0.58rem] sm:text-[0.68rem] font-medium text-white/95 border border-white/15">
+            <Camera className="size-2.5 sm:size-3 text-brand-accent" />
             <span>Photo</span>
           </span>
         )}
@@ -256,27 +256,27 @@ function CarouselCard({
       <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
         {isVideo ? (
           <div
-            className={`flex size-14 sm:size-16 items-center justify-center rounded-full bg-white/95 text-brand-primary shadow-[0_8px_30px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-all duration-300 ${
+            className={`flex size-10 sm:size-16 items-center justify-center rounded-full bg-white/95 text-brand-primary shadow-[0_8px_30px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-all duration-300 ${
               isPlaying
                 ? "scale-90 opacity-70 bg-brand-primary text-white"
                 : "group-hover:scale-115 group-hover:bg-brand-primary group-hover:text-white"
             }`}
           >
-            <Play className="ml-1 size-6 sm:size-7 fill-current transition-colors" />
+            <Play className="ml-0.5 sm:ml-1 size-4.5 sm:size-7 fill-current transition-colors" />
           </div>
         ) : (
-          <div className="flex size-14 sm:size-16 items-center justify-center rounded-full bg-white/90 text-brand-primary shadow-[0_8px_30px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:scale-110 group-hover:bg-brand-primary group-hover:text-white">
-            <Maximize2 className="size-6 sm:size-7 transition-colors" />
+          <div className="flex size-10 sm:size-16 items-center justify-center rounded-full bg-white/90 text-brand-primary shadow-[0_8px_30px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:scale-110 group-hover:bg-brand-primary group-hover:text-white">
+            <Maximize2 className="size-4.5 sm:size-7 transition-colors" />
           </div>
         )}
       </div>
 
       {/* Bottom Title & Action Label */}
-      <div className="absolute bottom-0 inset-x-0 p-4 sm:p-5 z-10 flex flex-col gap-1 text-white pointer-events-none">
-        <span className="text-[0.68rem] font-bold tracking-widest text-brand-accent uppercase">
-          {isVideo ? (isPlaying ? "PLAYING PREVIEW" : "HOVER TO PLAY • CLICK FOR SOUND") : "VIEW PHOTO"}
+      <div className="absolute bottom-0 inset-x-0 p-2.5 sm:p-5 z-10 flex flex-col gap-0.5 sm:gap-1 text-white pointer-events-none">
+        <span className="text-[0.58rem] sm:text-[0.68rem] font-bold tracking-widest text-brand-accent uppercase">
+          {isVideo ? (isPlaying ? "PLAYING PREVIEW" : "CLICK TO PLAY") : "VIEW PHOTO"}
         </span>
-        <h3 className="text-xs sm:text-sm font-bold leading-snug line-clamp-2 text-white drop-shadow-md">
+        <h3 className="text-[0.68rem] sm:text-xs md:text-sm font-bold leading-snug line-clamp-2 text-white drop-shadow-md">
           {item.title}
         </h3>
       </div>
@@ -302,6 +302,7 @@ export function GalleryPreview() {
   const startXRef = useRef<number>(0);
   const lastPointerXRef = useRef<number>(0);
   const movedRef = useRef<boolean>(false);
+  const hasCapturedRef = useRef<boolean>(false);
   const modalVideoRef = useRef<HTMLVideoElement>(null);
 
   const reducedMotion = usePrefersReducedMotion();
@@ -312,22 +313,29 @@ export function GalleryPreview() {
       ? curatedMediaItems
       : curatedMediaItems.filter((item) => item.type === filterMode);
 
-  // Responsive 3D cylinder dimensions
+  // Responsive 3D cylinder dimensions - Preserves identical curved cylindrical design across all viewports
   useEffect(() => {
     const updateDimensions = () => {
       const w = window.innerWidth;
-      if (w < 640) {
+      if (w < 400) {
         setDimensions({
-          radius: 440,
-          cardWidth: 210,
-          cardHeight: 310,
-          perspective: 550,
+          radius: 260,
+          cardWidth: 130,
+          cardHeight: 195,
+          perspective: 480,
+        });
+      } else if (w < 640) {
+        setDimensions({
+          radius: 320,
+          cardWidth: 155,
+          cardHeight: 230,
+          perspective: 560,
         });
       } else if (w < 1024) {
         setDimensions({
-          radius: 580,
-          cardWidth: 250,
-          cardHeight: 360,
+          radius: 540,
+          cardWidth: 230,
+          cardHeight: 330,
           perspective: 700,
         });
       } else {
@@ -380,7 +388,7 @@ export function GalleryPreview() {
     lastPointerXRef.current = e.clientX;
     velocityRef.current = 0;
     movedRef.current = false;
-    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    hasCapturedRef.current = false;
   }, []);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
@@ -389,26 +397,39 @@ export function GalleryPreview() {
     const deltaX = currentX - lastPointerXRef.current;
     lastPointerXRef.current = currentX;
 
-    if (Math.abs(currentX - startXRef.current) > 5) {
+    if (Math.abs(currentX - startXRef.current) > 10) {
       movedRef.current = true;
+      if (!hasCapturedRef.current) {
+        try {
+          (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+          hasCapturedRef.current = true;
+        } catch {
+          // Ignore
+        }
+      }
     }
 
-    const sensitivity = 0.18;
-    rotationRef.current = (rotationRef.current + deltaX * sensitivity) % 360;
-    velocityRef.current = deltaX * sensitivity;
+    if (movedRef.current) {
+      const sensitivity = 0.18;
+      rotationRef.current = (rotationRef.current + deltaX * sensitivity) % 360;
+      velocityRef.current = deltaX * sensitivity;
 
-    if (turntableRef.current) {
-      turntableRef.current.style.transform = `rotateY(${rotationRef.current}deg)`;
+      if (turntableRef.current) {
+        turntableRef.current.style.transform = `rotateY(${rotationRef.current}deg)`;
+      }
     }
   }, []);
 
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
     if (!isDraggingRef.current) return;
     isDraggingRef.current = false;
-    try {
-      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-    } catch {
-      // Ignore
+    if (hasCapturedRef.current) {
+      try {
+        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+      } catch {
+        // Ignore
+      }
+      hasCapturedRef.current = false;
     }
   }, []);
 
@@ -440,6 +461,22 @@ export function GalleryPreview() {
   }, [selectedItemIndex, displayedItems.length]);
 
   const activeItem = selectedItemIndex !== null ? displayedItems[selectedItemIndex] : null;
+
+  // Autoplay video immediately when modal opens or active item switches
+  useEffect(() => {
+    if (activeItem?.type === "video" && modalVideoRef.current) {
+      const v = modalVideoRef.current;
+      v.currentTime = 0;
+      const playPromise = v.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Fallback to muted playback if browser policy restricts unmuted autoplay
+          v.muted = true;
+          v.play().catch(() => {});
+        });
+      }
+    }
+  }, [activeItem]);
 
   return (
     <section
@@ -473,11 +510,11 @@ export function GalleryPreview() {
         </p>
 
         {/* Media Filter Tabs: All, Videos, Photos */}
-        <div className="mt-6 flex items-center justify-center gap-2 p-1 rounded-full bg-brand-soft border border-brand-line shadow-2xs">
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 p-1 rounded-2xl sm:rounded-full bg-brand-soft border border-brand-line shadow-2xs">
           <button
             type="button"
             onClick={() => setFilterMode("all")}
-            className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${
+            className={`px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-[0.72rem] sm:text-xs font-bold transition-all duration-200 cursor-pointer ${
               filterMode === "all"
                 ? "bg-brand-primary text-white shadow-xs"
                 : "text-brand-dark hover:text-brand-primary"
@@ -488,25 +525,25 @@ export function GalleryPreview() {
           <button
             type="button"
             onClick={() => setFilterMode("video")}
-            className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-[0.72rem] sm:text-xs font-bold transition-all duration-200 cursor-pointer ${
               filterMode === "video"
                 ? "bg-brand-primary text-white shadow-xs"
                 : "text-brand-dark hover:text-brand-primary"
             }`}
           >
-            <Film className="size-3.5" />
+            <Film className="size-3 sm:size-3.5" />
             Project Videos ({curatedMediaItems.filter((i) => i.type === "video").length})
           </button>
           <button
             type="button"
             onClick={() => setFilterMode("image")}
-            className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-bold transition-all duration-200 cursor-pointer ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-[0.72rem] sm:text-xs font-bold transition-all duration-200 cursor-pointer ${
               filterMode === "image"
                 ? "bg-brand-primary text-white shadow-xs"
                 : "text-brand-dark hover:text-brand-primary"
             }`}
           >
-            <Camera className="size-3.5" />
+            <Camera className="size-3 sm:size-3.5" />
             Photo Gallery ({curatedMediaItems.filter((i) => i.type === "image").length})
           </button>
         </div>
@@ -527,7 +564,7 @@ export function GalleryPreview() {
       {/* 2. 3D Panoramic Curved Cylinder Carousel (Supports Photos & Videos)      */}
       {/* ========================================================================= */}
       <div
-        className="relative w-full h-[380px] sm:h-[460px] lg:h-[520px] select-none touch-pan-y overflow-hidden cursor-grab active:cursor-grabbing"
+        className="relative w-full h-[270px] xs:h-[310px] sm:h-[460px] lg:h-[520px] select-none touch-pan-y overflow-hidden cursor-grab active:cursor-grabbing"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -542,13 +579,13 @@ export function GalleryPreview() {
         {/* Left Soft Vignette Edge Gradient */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute left-0 inset-y-0 w-24 sm:w-44 lg:w-72 bg-gradient-to-r from-white via-white/80 to-transparent z-20"
+          className="pointer-events-none absolute left-0 inset-y-0 w-6 xs:w-10 sm:w-28 lg:w-72 bg-gradient-to-r from-white via-white/80 to-transparent z-20"
         />
 
         {/* Right Soft Vignette Edge Gradient */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute right-0 inset-y-0 w-24 sm:w-44 lg:w-72 bg-gradient-to-l from-white via-white/80 to-transparent z-20"
+          className="pointer-events-none absolute right-0 inset-y-0 w-6 xs:w-10 sm:w-28 lg:w-72 bg-gradient-to-l from-white via-white/80 to-transparent z-20"
         />
 
         {/* 3D Perspective Stage Container */}
@@ -590,8 +627,8 @@ export function GalleryPreview() {
       {/* ========================================================================= */}
       {/* 3. Bottom 4 Value Steps in Theme Colors (#01 - #04)                       */}
       {/* ========================================================================= */}
-      <div className="w-full max-w-5xl mx-auto px-6 mt-12 sm:mt-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 text-center">
+      <div className="w-full max-w-5xl mx-auto px-6 mt-8 sm:mt-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 text-center">
           {processSteps.map((step) => (
             <div key={step.step} className="flex flex-col items-center">
               <span className="text-base sm:text-lg font-extrabold text-brand-primary tracking-wider mb-1">
@@ -648,6 +685,7 @@ export function GalleryPreview() {
               {activeItem.type === "video" ? (
                 <video
                   ref={modalVideoRef}
+                  key={activeItem.src}
                   src={activeItem.src}
                   poster={activeItem.poster}
                   controls
