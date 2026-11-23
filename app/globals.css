@@ -74,14 +74,31 @@ p:not([class*="uppercase"]):not([class*="font-mono"]):not([class*="tracking-"]):
   font-family: var(--font-sans) !important;
 }
 
-/* Clean, natural left alignment and uniform word spacing on both mobile and desktop */
-p:not([class*="text-center"]):not([class*="text-right"]) {
-  text-align: left !important;
-  text-align-last: left !important;
-  word-spacing: normal !important;
-  letter-spacing: -0.008em;
-  text-wrap: pretty;
-  overflow-wrap: break-word;
+/* Paragraph alignment for desktop */
+@media (min-width: 768px) {
+  p:not([class*="text-center"]):not([class*="text-right"]):not([class*="text-justify"]) {
+    text-align: left;
+    text-align-last: left;
+    word-spacing: normal;
+    letter-spacing: -0.008em;
+    text-wrap: pretty;
+    overflow-wrap: break-word;
+  }
+}
+
+/* Responsive Mobile Typography: Justify Paragraph Text in Mobile View */
+@media (max-width: 767.98px) {
+  p:not([class*="uppercase"]):not([class*="font-mono"]):not([class*="tracking-"]):not([role="status"]):not(button *):not(a *) {
+    text-align: justify !important;
+    text-align-last: left !important;
+    -webkit-text-align-last: left !important;
+    -moz-text-align-last: left !important;
+    hyphens: auto !important;
+    -webkit-hyphens: auto !important;
+    -ms-hyphens: auto !important;
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+  }
 }
 
 /* Default light-mode body paragraph color consistency */
