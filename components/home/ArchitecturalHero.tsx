@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
-import { ShieldCheck, HardHat, PhoneCall, ArrowRight, Compass } from "lucide-react";
+import { ShieldCheck, PhoneCall, ArrowRight, Compass } from "lucide-react";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 
 const TOTAL_FRAMES = 102;
@@ -355,10 +355,6 @@ export function ArchitecturalHero() {
               <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-primary/95 px-3 py-1 text-[0.68rem] sm:text-xs font-bold tracking-wider text-white uppercase shadow-sm">
                 <ShieldCheck className="size-3" aria-hidden="true" />
                 SKI Construction
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[0.68rem] sm:text-xs font-semibold text-white backdrop-blur-sm">
-                <HardHat className="size-3 text-white" aria-hidden="true" />
-                Er. D. Satheeshkumar, DCE., BE.
               </span>
             </div>
 
