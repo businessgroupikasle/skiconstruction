@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ShieldCheck, PhoneCall, ArrowRight, Compass } from "lucide-react";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 
-const TOTAL_FRAMES = 102;
+const TOTAL_FRAMES = 200;
 const FRAME_DIRECTORY = "/images/bannerimages";
 
 /**
@@ -35,6 +35,42 @@ export function ArchitecturalHero() {
   const currentFrameIndexRef = useRef<number>(0);
   const isMountedRef = useRef(false);
   const rafScrollIdRef = useRef<number | null>(null);
+
+  // Touch swipe scrubbing support for mobile users to rotate the building horizontally
+  const touchStartXRef = useRef<number>(0);
+  const touchStartFrameRef = useRef<number>(0);
+  const isTouchSwipingRef = useRef<boolean>(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (e.touches.length === 1 && touch) {
+      touchStartXRef.current = touch.clientX;
+      touchStartFrameRef.current = currentFrameIndexRef.current;
+      isTouchSwipingRef.current = true;
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    if (!isTouchSwipingRef.current || e.touches.length !== 1 || !touch) return;
+    const currentX = touch.clientX;
+    const deltaX = currentX - touchStartXRef.current;
+
+    if (Math.abs(deltaX) > 6) {
+      const frameDelta = -Math.round(deltaX * 0.4);
+      const newFrame =
+        (((touchStartFrameRef.current + frameDelta) % TOTAL_FRAMES) + TOTAL_FRAMES) %
+        TOTAL_FRAMES;
+      if (newFrame !== currentFrameIndexRef.current) {
+        currentFrameIndexRef.current = newFrame;
+        renderFrameAtIndex(newFrame);
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    isTouchSwipingRef.current = false;
+  };
 
   /**
    * Retrieves the closest loaded frame to the requested target index.
@@ -105,12 +141,15 @@ export function ArchitecturalHero() {
           const iw = frame.naturalWidth || 2560;
           const ih = frame.naturalHeight || 1440;
 
-          // Cinematic 1.05x framing optimization: subtly shifts edge foliage to eliminate corner watermark blur
-          const scale = Math.max(cw / iw, ch / ih) * 1.05;
+          // Responsive framing: center the rotating building on mobile portrait screens
+          const isMobile = cw < 800;
+          const scale = isMobile
+            ? Math.max(cw / iw, ch / ih) * 1.08
+            : Math.max(cw / iw, ch / ih) * 1.05;
           const dw = iw * scale;
           const dh = ih * scale;
-          const dx = (cw - dw) * 0.44;
-          const dy = (ch - dh) * 0.45;
+          const dx = isMobile ? (cw - dw) * 0.5 : (cw - dw) * 0.44;
+          const dy = isMobile ? (ch - dh) * 0.5 : (ch - dh) * 0.45;
 
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = "high";
@@ -189,8 +228,8 @@ export function ArchitecturalHero() {
       }
 
       // 2. High-Priority Preload Pipeline:
-      // Load key landmark frames first for instant scrub responsiveness
-      const landmarkFrames = [0, 15, 30, 45, 60, 75, 90, 101];
+      // Load key landmark frames across all 200 frames for instant scrub responsiveness
+      const landmarkFrames = [0, 25, 50, 75, 100, 125, 150, 175, 199];
       landmarkFrames.forEach((idx) => loadSingleImage(idx));
 
       // Load remaining frames in fast sequential batches
@@ -198,16 +237,16 @@ export function ArchitecturalHero() {
         let currentBatchStart = 1;
         const loadBatches = () => {
           if (!isMountedRef.current) return;
-          const end = Math.min(TOTAL_FRAMES, currentBatchStart + 16);
+          const end = Math.min(TOTAL_FRAMES, currentBatchStart + 20);
           for (let i = currentBatchStart; i < end; i++) {
             loadSingleImage(i);
           }
           currentBatchStart = end;
           if (currentBatchStart < TOTAL_FRAMES) {
-            setTimeout(loadBatches, 30);
+            setTimeout(loadBatches, 25);
           }
         };
-        setTimeout(loadBatches, 60);
+        setTimeout(loadBatches, 40);
       }
     });
 
@@ -290,13 +329,16 @@ export function ArchitecturalHero() {
       ref={containerRef}
       aria-labelledby="hero-title"
       className={`relative w-full bg-brand-ink select-none ${
-        reducedMotion ? "h-[92vh] sm:h-[95vh] lg:h-screen" : "h-[220vh] sm:h-[250vh]"
+        reducedMotion ? "h-[92vh] sm:h-[95vh] lg:h-screen" : "h-[320vh] sm:h-[350vh] lg:h-[380vh]"
       }`}
     >
       {/* Sticky Viewport Container: Locks to screen while user scrubs the villa construction */}
       <div
         ref={stickyRef}
-        className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-start"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-start touch-pan-y"
       >
         {/* Instant First-Frame Fallback (visible immediately on HTML parse before JS/canvas mount) */}
         {!firstFrameLoaded && (
@@ -358,14 +400,14 @@ export function ArchitecturalHero() {
         </div>
 
         {/* Hero Editorial Content Layer */}
-        <div className="relative z-10 flex flex-1 w-full flex-col justify-start px-6 sm:px-10 lg:pl-[12vw] lg:pr-10 pt-[calc(var(--header-height,76px)+1.5rem)] sm:pt-[calc(var(--header-height,76px)+2rem)] lg:pt-[calc(var(--header-height,76px)+2.5rem)] pb-10 sm:pb-14 lg:pb-16">
+        <div className="relative z-10 flex flex-1 w-full flex-col justify-start px-5 sm:px-10 lg:pl-[12vw] lg:pr-10 pt-[calc(var(--header-height,76px)+0.75rem)] sm:pt-[calc(var(--header-height,76px)+2rem)] lg:pt-[calc(var(--header-height,76px)+2.5rem)] pb-8 sm:pb-14 lg:pb-16">
           <div
             ref={contentRef}
-            className="my-auto flex w-full max-w-[880px] flex-col gap-4 sm:gap-5 lg:gap-6 text-white will-change-transform transition-[opacity,transform] duration-75"
+            className="my-auto flex w-full max-w-[880px] flex-col gap-3 sm:gap-5 lg:gap-6 text-white will-change-transform transition-[opacity,transform] duration-75"
           >
             {/* Eyebrow & Credential Badges */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-primary/95 px-3 py-1 text-[0.68rem] sm:text-xs font-bold tracking-wider text-white uppercase shadow-sm">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-primary/95 px-2.5 sm:px-3 py-0.5 sm:py-1 text-[0.65rem] sm:text-xs font-bold tracking-wider text-white uppercase shadow-sm">
                 <ShieldCheck className="size-3" aria-hidden="true" />
                 SKI Construction
               </span>
@@ -374,7 +416,7 @@ export function ArchitecturalHero() {
             {/* Main Headline */}
             <h1
               id="hero-title"
-              className="font-serif text-[2.25rem] xs:text-[2.65rem] sm:text-[3.5rem] md:text-[4rem] lg:text-[4.5rem] xl:text-[5rem] leading-[1.05] font-normal tracking-[-0.02em] !text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]"
+              className="font-serif text-[1.85rem] xs:text-[2.2rem] sm:text-[3.5rem] md:text-[4rem] lg:text-[4.5rem] xl:text-[5rem] leading-[1.08] font-normal tracking-[-0.02em] !text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]"
               style={{ color: "#ffffff" }}
             >
               <span className="block !text-white" style={{ color: "#ffffff" }}>We don&apos;t just</span>
@@ -391,44 +433,44 @@ export function ArchitecturalHero() {
             </h1>
 
             {/* Brand Tagline Divider */}
-            <div className="flex items-center gap-2.5" aria-hidden="true">
-              <span className="h-0.5 w-8 bg-brand-accent shadow-sm" />
+            <div className="flex items-center gap-2" aria-hidden="true">
+              <span className="h-0.5 w-6 sm:w-8 bg-brand-accent shadow-sm" />
               <span
-                className="text-[0.68rem] sm:text-[0.72rem] font-bold tracking-[0.28em] !text-white uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+                className="text-[0.65rem] sm:text-[0.72rem] font-bold tracking-[0.25em] sm:tracking-[0.28em] !text-white uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
                 style={{ color: "#ffffff" }}
               >
                 BUILD WITH QUALITY
               </span>
-              <span className="h-px flex-1 max-w-[120px] bg-white/40" />
+              <span className="h-px flex-1 max-w-[100px] sm:max-w-[120px] bg-white/40" />
             </div>
 
             {/* Lead Paragraph */}
             <p
-              className="max-w-[560px] text-[0.95rem] sm:text-base lg:text-[1.05rem] leading-relaxed !text-white/95 font-normal drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)]"
+              className="max-w-[560px] text-xs sm:text-base lg:text-[1.05rem] leading-relaxed !text-white/95 font-normal drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)]"
               style={{ color: "#f3f4f6" }}
             >
               3D elevation design, DTCP/LBS approvals and turnkey construction across Coimbatore and Kinathukadavu.
             </p>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap items-center gap-3 pt-2">
+            <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-1 sm:pt-2">
               <Link
                 href="/services"
-                className="group inline-flex items-center gap-3 rounded-full bg-white py-1.5 pl-6 pr-1.5 text-[0.95rem] font-semibold text-brand-ink shadow-soft transition-all duration-300 hover:bg-brand-soft hover:shadow-lg"
+                className="group inline-flex items-center gap-2 sm:gap-3 rounded-full bg-white py-1 sm:py-1.5 pl-4 sm:pl-6 pr-1 sm:pr-1.5 text-xs sm:text-[0.95rem] font-semibold text-brand-ink shadow-soft transition-all duration-300 hover:bg-brand-soft hover:shadow-lg"
               >
-                Explore Our Services
-                <span className="flex size-10 items-center justify-center rounded-full bg-brand-ink text-white transition-transform duration-300 group-hover:translate-x-0.5">
-                  <ArrowRight className="size-4" aria-hidden="true" />
+                <span>Explore Our Services</span>
+                <span className="flex size-7 sm:size-10 items-center justify-center rounded-full bg-brand-ink text-white transition-transform duration-300 group-hover:translate-x-0.5">
+                  <ArrowRight className="size-3.5 sm:size-4" aria-hidden="true" />
                 </span>
               </Link>
               <Link
                 href="/contact"
-                className="group inline-flex items-center gap-3 rounded-full border border-white/50 bg-white/10 py-1.5 pl-1.5 pr-6 text-[0.95rem] font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20"
+                className="group inline-flex items-center gap-2 sm:gap-3 rounded-full border border-white/50 bg-white/10 py-1 sm:py-1.5 pl-1 sm:pl-1.5 pr-4 sm:pr-6 text-xs sm:text-[0.95rem] font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20"
               >
-                <span className="flex size-10 items-center justify-center rounded-full bg-brand-primary text-white">
-                  <PhoneCall className="size-4" aria-hidden="true" />
+                <span className="flex size-7 sm:size-10 items-center justify-center rounded-full bg-brand-primary text-white">
+                  <PhoneCall className="size-3.5 sm:size-4" aria-hidden="true" />
                 </span>
-                Get a Free Quote
+                <span>Get a Free Quote</span>
               </Link>
             </div>
           </div>
