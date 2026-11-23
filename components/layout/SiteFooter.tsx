@@ -77,13 +77,6 @@ export function SiteFooter() {
               COL 1: Brand & Engineer Authority (Equal 1 col)
              ------------------------------------------------------- */}
           <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-2">
-              <span className="size-2 rounded-full bg-emerald-400" />
-              <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
-                About SKI
-              </h4>
-            </div>
-
             {/* Logo in bright card */}
             <div>
               <div className="inline-flex items-center rounded-2xl bg-white px-3.5 py-2 shadow-md shadow-black/20 border border-white/20">
