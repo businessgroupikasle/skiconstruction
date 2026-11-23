@@ -63,6 +63,7 @@ p {
   line-height: 1.65;
   font-weight: 400;
   letter-spacing: -0.008em;
+  word-spacing: normal !important;
   text-align: left;
 }
 
@@ -73,39 +74,14 @@ p:not([class*="uppercase"]):not([class*="font-mono"]):not([class*="tracking-"]):
   font-family: var(--font-sans) !important;
 }
 
-/* Natural paragraph alignment for desktop */
-@media (min-width: 768px) {
-  p:not([class*="text-center"]):not([class*="text-right"]):not([class*="text-justify"]) {
-    text-align: left;
-  }
-}
-
-/* Responsive Mobile Typography: Justified Paragraph Content with Balanced Word Spacing */
-@media (max-width: 767.98px) {
-  p:not([class*="uppercase"]):not([class*="font-mono"]):not([class*="tracking-"]):not([role="status"]):not(button p):not(a.inline-flex p):not(button *):not(a.rounded-full *) {
-    text-align: justify !important;
-    text-justify: inter-word !important;
-    text-align-last: left !important;
-    -webkit-text-align-last: left !important;
-    -moz-text-align-last: left !important;
-    hyphens: auto !important;
-    -webkit-hyphens: auto !important;
-    -ms-hyphens: auto !important;
-    text-wrap: pretty;
-    overflow-wrap: break-word;
-    letter-spacing: -0.005em;
-  }
-}
-
-/* Apply justification utility class */
-.text-justify {
-  text-align: justify;
-  text-justify: inter-word;
-  text-align-last: left;
-  -webkit-text-align-last: left;
-  -moz-text-align-last: left;
-  hyphens: auto;
-  -webkit-hyphens: auto;
+/* Clean, natural left alignment and uniform word spacing on both mobile and desktop */
+p:not([class*="text-center"]):not([class*="text-right"]) {
+  text-align: left !important;
+  text-align-last: left !important;
+  word-spacing: normal !important;
+  letter-spacing: -0.008em;
+  text-wrap: pretty;
+  overflow-wrap: break-word;
 }
 
 /* Default light-mode body paragraph color consistency */
