@@ -120,9 +120,12 @@ export function HomeJourneySection() {
 
   const handleSelectStep = (idx: number) => {
     setActiveStep(idx);
+    const container = cardContainerRef.current;
     const el = cardItemRefs.current[idx];
-    if (el && typeof window !== "undefined" && window.innerWidth < 1024) {
-      el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    if (container && el && typeof window !== "undefined" && window.innerWidth < 1024) {
+      const offset = el.offsetLeft - container.offsetLeft;
+      const left = offset - (container.clientWidth - el.clientWidth) / 2;
+      container.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
     }
   };
 
@@ -130,17 +133,30 @@ export function HomeJourneySection() {
   useEffect(() => {
     if (isPaused) return;
     const timer = setInterval(() => {
-      setActiveStep((prev) => {
-        const next = (prev + 1) % journeySteps.length;
-        const el = cardItemRefs.current[next];
-        if (el && typeof window !== "undefined" && window.innerWidth < 1024) {
-          el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-        }
-        return next;
-      });
+      setActiveStep((prev) => (prev + 1) % journeySteps.length);
     }, 6000);
     return () => clearInterval(timer);
   }, [isPaused]);
+
+  // On mobile, center the active card inside its horizontal strip ONLY if this section is visible in viewport.
+  // Uses container.scrollTo (never el.scrollIntoView) so it can NEVER yank or move the page window.
+  useEffect(() => {
+    if (typeof window === "undefined" || window.innerWidth >= 1024) return;
+    const container = cardContainerRef.current;
+    const el = cardItemRefs.current[activeStep];
+    if (!container || !el) return;
+
+    const section = document.getElementById("how-we-work");
+    if (!section) return;
+
+    const rect = section.getBoundingClientRect();
+    const isSectionVisible = rect.top < window.innerHeight && rect.bottom > 0;
+    if (isSectionVisible) {
+      const offset = el.offsetLeft - container.offsetLeft;
+      const left = offset - (container.clientWidth - el.clientWidth) / 2;
+      container.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+    }
+  }, [activeStep]);
 
   return (
     <section

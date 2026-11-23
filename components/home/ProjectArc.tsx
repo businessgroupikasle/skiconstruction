@@ -145,7 +145,7 @@ export function ProjectArc({ projects }: ProjectArcProps = {}) {
   // Continuous 2-way scrub physics with zero blank states.
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || reducedMotion) return;
+    if (!container || reducedMotion || (typeof window !== "undefined" && window.innerWidth < 1024)) return;
     const elements = cardRefs.current;
 
     const paint = (el: HTMLDivElement, angle: number, opacity: number, scaleVal = 1) => {
