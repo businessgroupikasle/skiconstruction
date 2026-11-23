@@ -56,15 +56,14 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
 }
 
-/* Universal Paragraph Typography Across All Pages */
+/* Universal Paragraph Typography Across All Pages with Natural Word Spacing */
 p {
   font-family: var(--font-sans);
   font-size: 0.95rem; /* Exactly 15.2px standard body text */
   line-height: 1.65;
   font-weight: 400;
   letter-spacing: -0.008em;
-  text-align: justify;
-  text-justify: inter-word;
+  text-align: left;
 }
 
 /* Enforce uniform font size and style for all standard content paragraphs across every page */
@@ -74,8 +73,13 @@ p:not([class*="uppercase"]):not([class*="font-mono"]):not([class*="tracking-"]):
   font-family: var(--font-sans) !important;
 }
 
-/* Ensure justified alignment with natural left-aligned last line for non-centered paragraphs */
-p:not([class*="text-center"]):not([class*="text-right"]):not([class*="text-left"]) {
+/* Natural paragraph alignment with clean, consistent word spacing */
+p:not([class*="text-center"]):not([class*="text-right"]):not([class*="text-justify"]) {
+  text-align: left;
+}
+
+/* Apply justification only where specifically intended */
+.text-justify {
   text-align: justify;
   text-justify: inter-word;
   text-align-last: left;
