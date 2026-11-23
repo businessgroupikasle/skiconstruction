@@ -100,9 +100,6 @@ export default function SitemapPage() {
                       {page.description}
                     </p>
                   </div>
-                  <span className="text-[11px] font-mono text-emerald-600/80 mt-4 block">
-                    {page.href}
-                  </span>
                 </Link>
               ))}
             </div>
@@ -132,9 +129,6 @@ export default function SitemapPage() {
                       {service.summary}
                     </p>
                   </div>
-                  <span className="text-[11px] font-mono text-emerald-600/80 mt-3 block truncate">
-                    /services/{service.slug}
-                  </span>
                 </Link>
               ))}
             </div>
@@ -164,9 +158,6 @@ export default function SitemapPage() {
                       {page.description}
                     </p>
                   </div>
-                  <span className="text-[11px] font-mono text-emerald-600/80 mt-4 block">
-                    {page.href}
-                  </span>
                 </Link>
               ))}
             </div>
