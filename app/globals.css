@@ -56,7 +56,7 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.02em;
 }
 
-/* Universal Paragraph Typography Across All Pages with Natural Word Spacing */
+/* Universal Paragraph Typography Across All Pages */
 p {
   font-family: var(--font-sans);
   font-size: 0.95rem; /* Exactly 15.2px standard body text */
@@ -73,16 +73,39 @@ p:not([class*="uppercase"]):not([class*="font-mono"]):not([class*="tracking-"]):
   font-family: var(--font-sans) !important;
 }
 
-/* Natural paragraph alignment with clean, consistent word spacing */
-p:not([class*="text-center"]):not([class*="text-right"]):not([class*="text-justify"]) {
-  text-align: left;
+/* Natural paragraph alignment for desktop */
+@media (min-width: 768px) {
+  p:not([class*="text-center"]):not([class*="text-right"]):not([class*="text-justify"]) {
+    text-align: left;
+  }
 }
 
-/* Apply justification only where specifically intended */
+/* Responsive Mobile Typography: Justified Paragraph Content with Balanced Word Spacing */
+@media (max-width: 767.98px) {
+  p:not([class*="uppercase"]):not([class*="font-mono"]):not([class*="tracking-"]):not([role="status"]):not(button p):not(a.inline-flex p):not(button *):not(a.rounded-full *) {
+    text-align: justify !important;
+    text-justify: inter-word !important;
+    text-align-last: left !important;
+    -webkit-text-align-last: left !important;
+    -moz-text-align-last: left !important;
+    hyphens: auto !important;
+    -webkit-hyphens: auto !important;
+    -ms-hyphens: auto !important;
+    text-wrap: pretty;
+    overflow-wrap: break-word;
+    letter-spacing: -0.005em;
+  }
+}
+
+/* Apply justification utility class */
 .text-justify {
   text-align: justify;
   text-justify: inter-word;
   text-align-last: left;
+  -webkit-text-align-last: left;
+  -moz-text-align-last: left;
+  hyphens: auto;
+  -webkit-hyphens: auto;
 }
 
 /* Default light-mode body paragraph color consistency */
