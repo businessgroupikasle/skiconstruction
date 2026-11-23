@@ -216,6 +216,12 @@ export function SiteFooter() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
+                    scroll={true}
+                    onClick={() => {
+                      if (link.href === "/" && typeof window !== "undefined") {
+                        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+                      }
+                    }}
                     className="group flex items-center gap-1.5 py-1 text-xs sm:text-sm text-gray-300 hover:text-emerald-300 transition-colors duration-150"
                   >
                     <span>{link.label}</span>

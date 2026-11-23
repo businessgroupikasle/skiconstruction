@@ -28,9 +28,17 @@ function DesktopNavLink({
   active: boolean;
   isDarkHero: boolean;
 }) {
+  const handleClick = () => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, left: 0, behavior: active ? "smooth" : "instant" });
+    }
+  };
+
   return (
     <Link
       href={item.href}
+      scroll={true}
+      onClick={handleClick}
       aria-current={active ? "page" : undefined}
       className={`relative py-1 text-[0.95rem] font-semibold transition-all duration-200 cursor-pointer ${
         isDarkHero
@@ -151,6 +159,11 @@ export function SiteHeader() {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    // Re-evaluate scroll state on route transition
+    setScrolled(window.scrollY > 20);
+  }, [pathname]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);

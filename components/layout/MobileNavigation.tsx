@@ -73,6 +73,13 @@ export function MobileNavigation() {
                   key={item.href}
                   href={item.href}
                   ref={index === 0 ? firstLinkRef : undefined}
+                  scroll={true}
+                  onClick={() => {
+                    setOpenedOn(null);
+                    if (item.href === "/" && typeof window !== "undefined") {
+                      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+                    }
+                  }}
                   aria-current={isActive ? "page" : undefined}
                   className={`rounded-xl px-4 py-3.5 text-lg font-semibold ${
                     isActive ? "bg-brand-primary text-white" : "text-brand-ink hover:bg-brand-soft"

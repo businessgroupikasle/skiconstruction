@@ -3,6 +3,7 @@ import { Instrument_Serif, Montserrat } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
+import { RouteScrollRestoration } from "@/components/layout/RouteScrollRestoration";
 import { OrganizationJsonLd } from "@/components/seo/OrganizationJsonLd";
 import { brand, brandColors } from "@/lib/brand";
 import { siteUrl } from "@/lib/site";
@@ -59,6 +60,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en" className={`${montserrat.variable} ${instrumentSerif.variable}`}>
       <body className="flex min-h-dvh flex-col">
+        <RouteScrollRestoration />
         <a href="#main-content" className="skip-link">
           Skip to content
         </a>

@@ -166,6 +166,19 @@ export function ArchitecturalHero() {
   useEffect(() => {
     isMountedRef.current = true;
 
+    // Ensure hero always starts from the very top with full text opacity and initial frame
+    if (typeof window !== "undefined") {
+      if (window.scrollY > 0) {
+        window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+      }
+      currentFrameIndexRef.current = 0;
+      if (contentRef.current) {
+        contentRef.current.style.opacity = "1";
+        contentRef.current.style.transform = "translate3d(0, 0, 0)";
+        contentRef.current.style.pointerEvents = "auto";
+      }
+    }
+
     // 1. Immediately preload frame 0 and set initial canvas size
     updateCanvasSize();
     loadSingleImage(0).then((firstImg) => {

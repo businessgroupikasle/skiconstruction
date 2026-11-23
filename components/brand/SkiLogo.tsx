@@ -40,6 +40,12 @@ export function SkiLogo({ className, imageClassName, asLink = true }: SkiLogoPro
   return (
     <Link
       href="/"
+      scroll={true}
+      onClick={() => {
+        if (typeof window !== "undefined") {
+          window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+        }
+      }}
       aria-label={`${brand.name}, go to home page`}
       className="inline-flex items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
     >
