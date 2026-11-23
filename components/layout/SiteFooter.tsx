@@ -236,33 +236,6 @@ export function SiteFooter() {
                   </Link>
                 </li>
               ))}
-              <li className="pt-2 mt-1 border-t border-white/10">
-                <Link
-                  href="/privacy-policy"
-                  className="group flex items-center justify-between py-1 text-xs sm:text-sm text-gray-300 hover:text-emerald-300 transition-colors duration-150"
-                >
-                  <span>Privacy Policy</span>
-                  <ArrowRight className="size-3 text-gray-500 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-emerald-400 transition-all duration-200" />
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/terms-and-conditions"
-                  className="group flex items-center justify-between py-1 text-xs sm:text-sm text-gray-300 hover:text-emerald-300 transition-colors duration-150"
-                >
-                  <span>Terms & Conditions</span>
-                  <ArrowRight className="size-3 text-gray-500 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-emerald-400 transition-all duration-200" />
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/sitemap"
-                  className="group flex items-center justify-between py-1 text-xs sm:text-sm text-gray-300 hover:text-emerald-300 transition-colors duration-150"
-                >
-                  <span>Sitemap</span>
-                  <ArrowRight className="size-3 text-gray-500 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-emerald-400 transition-all duration-200" />
-                </Link>
-              </li>
             </ul>
           </div>
 
