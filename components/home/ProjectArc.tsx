@@ -145,7 +145,7 @@ export function ProjectArc({ projects }: ProjectArcProps = {}) {
   // Continuous 2-way scrub physics with zero blank states.
   useEffect(() => {
     const container = containerRef.current;
-    if (!container || reducedMotion) return;
+    if (!container || reducedMotion || (typeof window !== "undefined" && window.innerWidth < 1024)) return;
     const elements = cardRefs.current;
 
     const paint = (el: HTMLDivElement, angle: number, opacity: number, scaleVal = 1) => {
@@ -415,7 +415,7 @@ export function ProjectArc({ projects }: ProjectArcProps = {}) {
           </p>
 
           {/* Mobile Horizontal Swipeable Cards Ribbon */}
-          <div className="w-full overflow-x-auto no-scrollbar py-4 -mx-4 px-4 flex gap-4 snap-x snap-mandatory">
+          <div className="w-full overflow-x-auto overscroll-x-contain no-scrollbar py-4 -mx-4 px-4 flex gap-4 snap-x snap-mandatory">
             {arcCards.map((card, idx) => (
               <div
                 key={`${card.id}-mobile`}

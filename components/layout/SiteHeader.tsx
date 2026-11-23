@@ -162,9 +162,11 @@ export function SiteHeader() {
 
   return (
     <header
-      className={`sticky top-0 z-40 transition-all duration-300 ${
+      className={`sticky top-0 z-40 transition-colors duration-300 ${
+        isHome ? "-mb-[var(--header-height,76px)]" : ""
+      } ${
         isDarkHero
-          ? "bg-gradient-to-b from-black/80 via-black/45 to-transparent border-b border-white/10 -mb-[var(--header-height,76px)]"
+          ? "bg-gradient-to-b from-black/80 via-black/45 to-transparent border-b border-white/10"
           : "bg-white/95 backdrop-blur-md border-b border-brand-line/70 shadow-soft"
       }`}
     >
@@ -201,7 +203,8 @@ export function SiteHeader() {
         <div className="flex items-center gap-2.5 sm:gap-3">
           <a
             href={telHref}
-            className={`flex items-center gap-2 rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-bold shadow-sm transition-all duration-300 ${
+            aria-label={`Call ${contact.phoneDisplay}`}
+            className={`flex items-center gap-2 rounded-full px-3.5 sm:px-5 py-2 text-xs sm:text-sm font-bold shadow-sm transition-all duration-300 ${
               isDarkHero
                 ? "bg-black/50 hover:bg-black/70 text-white border border-white/25 backdrop-blur-md shadow-md"
                 : "bg-[#0d3822] hover:bg-[#154a30] text-white"
@@ -209,9 +212,10 @@ export function SiteHeader() {
           >
             <Phone
               aria-hidden="true"
-              className={`size-3.5 sm:size-4 ${isDarkHero ? "text-[#8ce034]" : "text-[#c59b27]"}`}
+              className={`size-3.5 sm:size-4 shrink-0 ${isDarkHero ? "text-[#8ce034]" : "text-[#c59b27]"}`}
             />
-            <span className="text-white drop-shadow-sm">{contact.phoneDisplay}</span>
+            <span className="hidden sm:inline text-white drop-shadow-sm">{contact.phoneDisplay}</span>
+            <span className="sm:hidden text-white drop-shadow-sm">Call</span>
           </a>
           <MobileNavigation />
         </div>

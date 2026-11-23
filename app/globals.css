@@ -34,8 +34,14 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--header-height) + 16px);
   -webkit-text-size-adjust: 100%;
-  overflow-x: clip;
+  overflow-x: hidden;
   max-width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 body {
@@ -44,9 +50,10 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  overflow-x: clip;
+  overflow-x: hidden;
   max-width: 100%;
   width: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Global Typography & Font Consistency */
@@ -63,6 +70,8 @@ p {
   line-height: 1.65;
   font-weight: 400;
   letter-spacing: -0.008em;
+  text-align: justify;
+  text-justify: inter-word;
 }
 
 /* Enforce uniform font size and style for all standard content paragraphs across every page */
@@ -70,6 +79,13 @@ p:not([class*="uppercase"]):not([class*="font-mono"]):not([class*="tracking-"]):
   font-size: 0.95rem !important;
   line-height: 1.65 !important;
   font-family: var(--font-sans) !important;
+}
+
+/* Ensure justified alignment with natural left-aligned last line for non-centered paragraphs */
+p:not([class*="text-center"]):not([class*="text-right"]):not([class*="text-left"]) {
+  text-align: justify;
+  text-justify: inter-word;
+  text-align-last: left;
 }
 
 /* Default light-mode body paragraph color consistency */

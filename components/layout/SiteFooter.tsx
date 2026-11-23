@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { SkiLogo } from "@/components/brand/SkiLogo";
 import { Container } from "@/components/ui/Container";
-import { WhatsAppIcon } from "@/components/ui/icons";
+import { WhatsAppIcon, InstagramIcon, FacebookIcon } from "@/components/ui/icons";
 import { footerQuickLinks } from "@/data/content";
 import { brand, contact, founder, socialProfiles } from "@/lib/brand";
 import {
@@ -146,18 +146,31 @@ export function SiteFooter() {
                 <MapPin className="size-4" />
               </a>
 
-              {socialProfiles.map((profile) => (
-                <a
-                  key={profile.href}
-                  href={profile.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex size-10 items-center justify-center rounded-xl bg-white/8 hover:bg-brand-primary text-gray-300 hover:text-white border border-white/10 hover:border-brand-primary transition-all duration-200 shadow-xs text-xs font-bold"
-                  aria-label={profile.label}
-                >
-                  {profile.label.slice(0, 2).toUpperCase()}
-                </a>
-              ))}
+              {socialProfiles.map((profile) => {
+                const isInstagram = profile.label.toLowerCase().includes("instagram");
+                const isFacebook = profile.label.toLowerCase().includes("facebook");
+
+                return (
+                  <a
+                    key={profile.href}
+                    href={profile.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex size-10 items-center justify-center rounded-xl bg-white/8 hover:bg-brand-primary text-gray-300 hover:text-white border border-white/10 hover:border-brand-primary transition-all duration-200 shadow-xs"
+                    aria-label={profile.label}
+                  >
+                    {isInstagram ? (
+                      <InstagramIcon className="size-4" />
+                    ) : isFacebook ? (
+                      <FacebookIcon className="size-4" />
+                    ) : (
+                      <span className="text-xs font-bold">
+                        {profile.label.slice(0, 2).toUpperCase()}
+                      </span>
+                    )}
+                  </a>
+                );
+              })}
             </div>
           </div>
 
@@ -289,12 +302,19 @@ export function SiteFooter() {
         <Container className="flex flex-col sm:flex-row items-center justify-between gap-4 py-5 text-xs text-gray-400">
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
             <p>
-              © {year} <span className="text-white font-medium">{brand.name}</span>.
-              All rights reserved.
+              © {year} <span className="text-white font-medium">{brand.name}</span>. All rights reserved.
             </p>
             <span className="hidden sm:inline text-white/20">|</span>
             <p className="text-gray-400">
-              Kinathukadavu & Coimbatore Registered Civil Engineering Firm
+              Crafted and Maintained by{" "}
+              <a
+                href="https://www.ikasletechnologies.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-emerald-400 font-semibold hover:text-emerald-300 hover:underline transition-colors"
+              >
+                Ikaslé Technologies
+              </a>
             </p>
           </div>
 

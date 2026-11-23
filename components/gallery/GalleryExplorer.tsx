@@ -103,7 +103,7 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
         <div
           role="group"
           aria-label="Choose gallery view"
-          className="inline-flex flex-wrap justify-center gap-1.5 rounded-full border border-brand-line bg-white p-1.5 shadow-soft"
+          className="inline-flex flex-wrap justify-center gap-1.5 rounded-2xl sm:rounded-full border border-brand-line bg-white p-1.5 shadow-soft max-w-full"
         >
           {views.map(({ id, label, icon: Icon }) => {
             const active = view === id;
@@ -117,7 +117,7 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
                   setActiveFolderId(null);
                   setOpenSubFolder(null);
                 }}
-                className={`inline-flex cursor-pointer items-center gap-2 rounded-full px-5 py-2.5 text-xs sm:text-sm font-bold transition-all duration-200 sm:px-7 ${
+                className={`inline-flex cursor-pointer items-center gap-2 rounded-full px-3.5 sm:px-5 py-2 text-xs sm:text-sm font-bold transition-all duration-200 sm:px-7 ${
                   active
                     ? "bg-brand-primary text-white shadow-sm"
                     : "text-brand-dark hover:bg-brand-soft hover:text-brand-primary"

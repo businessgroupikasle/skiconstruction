@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
-import { ShieldCheck, HardHat, PhoneCall, ArrowRight, ChevronDown, Compass, Layers } from "lucide-react";
+import { ShieldCheck, PhoneCall, ArrowRight, Compass } from "lucide-react";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 
 const TOTAL_FRAMES = 200;
@@ -18,25 +18,12 @@ function getFrameUrl(index: number): string {
   return `${FRAME_DIRECTORY}/ezgif-frame-${frameNumber}.jpg`;
 }
 
-/** Construction stages corresponding to video timeline scrub */
-const CONSTRUCTION_STAGES = [
-  { maxProgress: 0.18, title: "Stage 1 · Site Layout & Blueprint Planning", color: "#8ce034" },
-  { maxProgress: 0.42, title: "Stage 2 · Foundation & Reinforced Concrete Columns", color: "#60a5fa" },
-  { maxProgress: 0.70, title: "Stage 3 · Floor Slabs & Brickwork Masonry", color: "#fbbf24" },
-  { maxProgress: 0.90, title: "Stage 4 · Facade Cladding & Glass Installations", color: "#f472b6" },
-  { maxProgress: 1.00, title: "Stage 5 · Luxury Villa Handover Complete", color: "#4ade80" },
-];
-
 export function ArchitecturalHero() {
   const containerRef = useRef<HTMLElement>(null);
   const stickyRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const progressBarRef = useRef<HTMLSpanElement>(null);
-  const scrollHintRef = useRef<HTMLButtonElement>(null);
-  const hudBadgeRef = useRef<HTMLDivElement>(null);
-  const hudTextRef = useRef<HTMLSpanElement>(null);
-  const hudPctRef = useRef<HTMLSpanElement>(null);
 
   const [firstFrameLoaded, setFirstFrameLoaded] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
@@ -79,7 +66,8 @@ export function ArchitecturalHero() {
     const rect = sticky.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return;
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    const isMobile = window.innerWidth < 768;
+    const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
     const targetWidth = Math.round(rect.width * dpr);
     const targetHeight = Math.round(rect.height * dpr);
 
@@ -176,31 +164,6 @@ export function ArchitecturalHero() {
     });
   }, []);
 
-  /**
-   * Updates HUD scrubber stage title and percentage badge as the user scrolls
-   */
-  const updateHUD = useCallback((progress: number) => {
-    if (!hudBadgeRef.current || !hudTextRef.current || !hudPctRef.current) return;
-
-    // Show HUD only after user begins scrubbing (progress > 0.02)
-    if (progress > 0.02) {
-      hudBadgeRef.current.style.opacity = "1";
-      hudBadgeRef.current.style.transform = "translate3d(0, 0, 0)";
-    } else {
-      hudBadgeRef.current.style.opacity = "0";
-      hudBadgeRef.current.style.transform = "translate3d(0, 10px, 0)";
-    }
-
-    const stage =
-      CONSTRUCTION_STAGES.find((s) => progress <= s.maxProgress) ??
-      CONSTRUCTION_STAGES[CONSTRUCTION_STAGES.length - 1];
-
-    if (stage) {
-      hudTextRef.current.textContent = stage.title;
-    }
-    hudPctRef.current.textContent = `${Math.round(progress * 100)}%`;
-  }, []);
-
   useEffect(() => {
     isMountedRef.current = true;
 
@@ -292,16 +255,6 @@ export function ArchitecturalHero() {
             contentRef.current.style.transform = `translate3d(0, -${textTranslateY}px, 0)`;
             contentRef.current.style.pointerEvents = textOpacity < 0.1 ? "none" : "auto";
           }
-
-          // Initial Scroll Cue Button: Fades out as soon as user begins scrolling
-          if (scrollHintRef.current) {
-            const hintOpacity = Math.max(0, 1 - progress * 9);
-            scrollHintRef.current.style.opacity = hintOpacity.toFixed(3);
-            scrollHintRef.current.style.pointerEvents = hintOpacity < 0.05 ? "none" : "auto";
-          }
-
-          // Live HUD Scrubber Badge
-          updateHUD(progress);
         }
       });
     };
@@ -318,14 +271,14 @@ export function ArchitecturalHero() {
         cancelAnimationFrame(rafScrollIdRef.current);
       }
     };
-  }, [reducedMotion, loadSingleImage, updateCanvasSize, renderFrameAtIndex, updateHUD]);
+  }, [reducedMotion, loadSingleImage, updateCanvasSize, renderFrameAtIndex]);
 
   return (
     <section
       ref={containerRef}
       aria-labelledby="hero-title"
       className={`relative w-full bg-brand-ink select-none ${
-        reducedMotion ? "h-[92vh] sm:h-[95vh] lg:h-screen" : "h-[280vh] sm:h-[320vh]"
+        reducedMotion ? "h-[92vh] sm:h-[95vh] lg:h-screen" : "h-[160vh] sm:h-[240vh] lg:h-[300vh]"
       }`}
     >
       {/* Sticky Viewport Container: Locks to screen while user scrubs the villa construction */}
@@ -392,35 +345,8 @@ export function ArchitecturalHero() {
           </div>
         </div>
 
-        {/* Interactive Construction HUD Scrubber Badge (appears as user scrolls mouse) */}
-        {!reducedMotion && (
-          <div
-            ref={hudBadgeRef}
-            aria-live="polite"
-            className="absolute top-24 sm:top-28 right-6 sm:right-10 lg:right-14 z-30 flex items-center gap-2.5 rounded-full bg-black/80 backdrop-blur-md border border-white/25 px-4 py-2 text-white shadow-2xl transition-all duration-200 opacity-0 translate-y-3 pointer-events-none"
-          >
-            <span className="flex size-6 items-center justify-center rounded-full bg-brand-primary text-white text-[0.65rem] font-bold">
-              <Layers className="size-3.5" />
-            </span>
-            <div className="flex items-center gap-2">
-              <span
-                ref={hudTextRef}
-                className="text-xs sm:text-sm font-semibold tracking-wide text-white drop-shadow-sm"
-              >
-                Stage 1 · Site Layout & Blueprint Planning
-              </span>
-              <span
-                ref={hudPctRef}
-                className="rounded-full bg-brand-accent/20 border border-brand-accent/40 px-2 py-0.5 text-[0.68rem] font-bold text-brand-accent"
-              >
-                0%
-              </span>
-            </div>
-          </div>
-        )}
-
         {/* Hero Editorial Content Layer */}
-        <div className="relative z-10 flex w-full items-center px-6 sm:px-10 lg:pl-[12vw] lg:pr-10 pt-[calc(var(--header-height,76px)+1.5rem)] pb-20 sm:pb-24 lg:pb-28">
+        <div className="relative z-10 flex w-full items-center px-4 xs:px-6 sm:px-10 lg:pl-[12vw] lg:pr-10 pt-[calc(var(--header-height,76px)+1.5rem)] pb-16 sm:pb-24 lg:pb-28">
           <div
             ref={contentRef}
             className="flex w-full max-w-[880px] flex-col gap-5 sm:gap-6 text-white will-change-transform transition-[opacity,transform] duration-75"
@@ -431,16 +357,12 @@ export function ArchitecturalHero() {
                 <ShieldCheck className="size-3" aria-hidden="true" />
                 SKI Construction
               </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[0.68rem] sm:text-xs font-semibold text-white backdrop-blur-sm">
-                <HardHat className="size-3 text-white" aria-hidden="true" />
-                Er. D. Satheeshkumar, DCE., BE.
-              </span>
             </div>
 
             {/* Main Headline */}
             <h1
               id="hero-title"
-              className="font-serif text-[2.75rem] sm:text-[3.75rem] lg:text-[4.75rem] xl:text-[5.5rem] leading-[1.03] font-normal tracking-[-0.02em] !text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]"
+              className="font-serif text-[2.35rem] xs:text-[2.75rem] sm:text-[3.75rem] lg:text-[4.75rem] xl:text-[5.5rem] leading-[1.03] font-normal tracking-[-0.02em] !text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]"
               style={{ color: "#ffffff" }}
             >
               <span className="block !text-white" style={{ color: "#ffffff" }}>We don&apos;t just</span>
@@ -499,29 +421,6 @@ export function ArchitecturalHero() {
             </div>
           </div>
         </div>
-
-        {/* Interactive Mouse Scroll Indicator */}
-        {!reducedMotion && (
-          <button
-            ref={scrollHintRef}
-            type="button"
-            onClick={() => {
-              const runway = containerRef.current;
-              if (runway) {
-                const rect = runway.getBoundingClientRect();
-                window.scrollBy({ top: window.innerHeight * 0.85, behavior: "smooth" });
-              }
-            }}
-            aria-label="Scroll mouse down to build villa"
-            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1.5 text-[0.68rem] font-bold tracking-[0.26em] text-white/90 uppercase transition-all duration-300 hover:text-brand-accent hover:scale-105 cursor-pointer pointer-events-auto drop-shadow-md"
-          >
-            <div className="flex items-center gap-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 px-3.5 py-1">
-              <span className="size-2 rounded-full bg-brand-accent animate-ping" />
-              <span>Scroll to build villa</span>
-            </div>
-            <ChevronDown className="size-4 animate-bounce text-brand-accent" aria-hidden="true" />
-          </button>
-        )}
 
         {/* Bottom Interactive Progress Bar */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-1.5 bg-black/40 z-30">
