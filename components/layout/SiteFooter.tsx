@@ -68,14 +68,14 @@ export function SiteFooter() {
 
 
       {/* =========================================================
-          MAIN 4-COLUMN FOOTER CONTENT (EQUAL 4 COLUMNS)
+          MAIN 4-COLUMN FOOTER CONTENT (2 COLS ON MOBILE, 4 ON DESKTOP)
          ========================================================= */}
       <Container className="py-12 sm:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-8 xl:gap-10 items-start">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-4 sm:gap-x-8 gap-y-8 lg:gap-8 xl:gap-10 items-start">
           {/* -------------------------------------------------------
-              COL 1: Brand & Engineer Authority (Equal 1 col)
+              COL 1: Brand & Company Summary
              ------------------------------------------------------- */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 col-span-2 md:col-span-1 lg:col-span-1">
             {/* Logo in bright card */}
             <div>
               <div className="inline-flex items-center rounded-2xl bg-white px-3.5 py-2 shadow-md shadow-black/20 border border-white/20">
@@ -156,9 +156,9 @@ export function SiteFooter() {
           </div>
 
           {/* -------------------------------------------------------
-              COL 2: Core Engineering Services (Equal 1 col)
+              COL 2: Core Engineering Services (Mobile Col 1 of Row 2)
              ------------------------------------------------------- */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 col-span-1">
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-emerald-400" />
               <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
@@ -174,7 +174,7 @@ export function SiteFooter() {
                     className="group flex items-center justify-between py-1 text-xs sm:text-sm text-gray-300 hover:text-emerald-300 transition-colors duration-150"
                   >
                     <span>{service.name}</span>
-                    <ArrowRight className="size-3 text-gray-500 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-emerald-400 transition-all duration-200" />
+                    <ArrowRight className="size-3 text-gray-500 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-emerald-400 transition-all duration-200 hidden sm:inline-block shrink-0" />
                   </Link>
                 </li>
               ))}
@@ -182,9 +182,9 @@ export function SiteFooter() {
           </div>
 
           {/* -------------------------------------------------------
-              COL 3: Quick Navigation & Legal (Equal 1 col)
+              COL 3: Quick Navigation & Legal (Mobile Col 2 of Row 2)
              ------------------------------------------------------- */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 col-span-1">
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-emerald-400" />
               <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
@@ -206,7 +206,7 @@ export function SiteFooter() {
                     className="group flex items-center justify-between py-1 text-xs sm:text-sm text-gray-300 hover:text-emerald-300 transition-colors duration-150"
                   >
                     <span>{link.label}</span>
-                    <ArrowRight className="size-3 text-gray-500 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-emerald-400 transition-all duration-200" />
+                    <ArrowRight className="size-3 text-gray-500 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 group-hover:text-emerald-400 transition-all duration-200 hidden sm:inline-block shrink-0" />
                   </Link>
                 </li>
               ))}
@@ -216,7 +216,7 @@ export function SiteFooter() {
           {/* -------------------------------------------------------
               COL 4: Visit & Office Coordinates (Equal 1 col)
              ------------------------------------------------------- */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 col-span-2 md:col-span-1 lg:col-span-1">
             <div className="flex items-center gap-2">
               <span className="size-2 rounded-full bg-emerald-400" />
               <h4 className="text-xs font-mono font-bold uppercase tracking-wider text-emerald-400">
