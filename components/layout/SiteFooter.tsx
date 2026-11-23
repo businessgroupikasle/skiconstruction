@@ -222,6 +222,30 @@ export function SiteFooter() {
                   </Link>
                 </li>
               ))}
+              <li className="pt-2 mt-2 border-t border-white/10">
+                <Link
+                  href="/privacy-policy"
+                  className="group flex items-center gap-1.5 py-0.5 text-xs text-gray-400 hover:text-emerald-300 transition-colors duration-150"
+                >
+                  <span>Privacy Policy</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/terms-and-conditions"
+                  className="group flex items-center gap-1.5 py-0.5 text-xs text-gray-400 hover:text-emerald-300 transition-colors duration-150"
+                >
+                  <span>Terms & Conditions</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/sitemap"
+                  className="group flex items-center gap-1.5 py-0.5 text-xs text-gray-400 hover:text-emerald-300 transition-colors duration-150"
+                >
+                  <span>Sitemap</span>
+                </Link>
+              </li>
             </ul>
 
 
@@ -299,13 +323,13 @@ export function SiteFooter() {
           CREATIVE BOTTOM BAR
          ========================================================= */}
       <div className="border-t border-white/10 bg-[#030d07]">
-        <Container className="flex flex-col sm:flex-row items-center justify-between gap-4 py-5 text-xs text-gray-400">
+        <Container className="flex flex-col lg:flex-row items-center justify-between gap-4 py-5 text-xs text-gray-400">
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
-            <p>
+            <p className="text-center sm:text-left">
               © {year} <span className="text-white font-medium">{brand.name}</span>. All rights reserved.
             </p>
             <span className="hidden sm:inline text-white/20">|</span>
-            <p className="text-gray-400">
+            <p className="text-gray-400 text-center sm:text-left">
               Crafted and Maintained by{" "}
               <a
                 href="https://www.ikasletechnologies.com/"
@@ -316,6 +340,30 @@ export function SiteFooter() {
                 Ikaslé Technologies
               </a>
             </p>
+          </div>
+
+          {/* Legal & Directory Links */}
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 text-xs text-gray-400">
+            <Link
+              href="/privacy-policy"
+              className="hover:text-emerald-300 transition-colors duration-150"
+            >
+              Privacy Policy
+            </Link>
+            <span className="text-white/20" aria-hidden="true">·</span>
+            <Link
+              href="/terms-and-conditions"
+              className="hover:text-emerald-300 transition-colors duration-150"
+            >
+              Terms & Conditions
+            </Link>
+            <span className="text-white/20" aria-hidden="true">·</span>
+            <Link
+              href="/sitemap"
+              className="hover:text-emerald-300 transition-colors duration-150"
+            >
+              Sitemap
+            </Link>
           </div>
 
           {/* Smooth Back to Top Button */}
