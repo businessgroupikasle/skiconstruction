@@ -120,28 +120,27 @@ export function HomeJourneySection() {
 
   const handleSelectStep = (idx: number) => {
     setActiveStep(idx);
+    const el = cardItemRefs.current[idx];
+    if (el && typeof window !== "undefined" && window.innerWidth < 1024) {
+      el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    }
   };
 
   // Auto-advance through the steps every 6s unless paused by user interaction
   useEffect(() => {
     if (isPaused) return;
     const timer = setInterval(() => {
-      setActiveStep((prev) => (prev + 1) % journeySteps.length);
+      setActiveStep((prev) => {
+        const next = (prev + 1) % journeySteps.length;
+        const el = cardItemRefs.current[next];
+        if (el && typeof window !== "undefined" && window.innerWidth < 1024) {
+          el.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+        }
+        return next;
+      });
     }, 6000);
     return () => clearInterval(timer);
   }, [isPaused]);
-
-  // On narrow screens, centre the active card inside the horizontal strip.
-  // Scrolls only the strip itself (never the page), so the auto-advance can't
-  // drag the viewport to this section while the user is reading elsewhere.
-  useEffect(() => {
-    const container = cardContainerRef.current;
-    const el = cardItemRefs.current[activeStep];
-    if (!container || !el || (typeof window !== "undefined" && window.innerWidth >= 1024)) return;
-    const offset = el.getBoundingClientRect().left - container.getBoundingClientRect().left;
-    const left = container.scrollLeft + offset - (container.clientWidth - el.clientWidth) / 2;
-    container.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
-  }, [activeStep]);
 
   return (
     <section
@@ -191,7 +190,7 @@ export function HomeJourneySection() {
         {/* ========================================================================= */}
         <div
           ref={cardContainerRef}
-          className="flex gap-3 sm:gap-4 w-full h-[460px] sm:h-[480px] overflow-x-auto overscroll-x-contain lg:overflow-visible no-scrollbar py-2 -mx-4 px-4 lg:mx-0 lg:px-0 snap-x snap-mandatory"
+          className="flex gap-3 sm:gap-4 w-full h-[460px] sm:h-[480px] overflow-x-auto lg:overflow-visible no-scrollbar py-2 -mx-4 px-4 lg:mx-0 lg:px-0 snap-x snap-mandatory"
         >
           {journeySteps.map((item, idx) => {
             const isActive = idx === activeStep;

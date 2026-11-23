@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
-import { ShieldCheck, PhoneCall, ArrowRight, Compass } from "lucide-react";
+import { ShieldCheck, HardHat, PhoneCall, ArrowRight, Compass } from "lucide-react";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 
-const TOTAL_FRAMES = 200;
+const TOTAL_FRAMES = 102;
 const FRAME_DIRECTORY = "/images/bannerimages";
 
 /**
@@ -23,6 +23,7 @@ export function ArchitecturalHero() {
   const stickyRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const progressBarRef = useRef<HTMLSpanElement>(null);
 
   const [firstFrameLoaded, setFirstFrameLoaded] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
@@ -65,8 +66,7 @@ export function ArchitecturalHero() {
     const rect = sticky.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return;
 
-    const isMobile = window.innerWidth < 768;
-    const dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.5 : 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
     const targetWidth = Math.round(rect.width * dpr);
     const targetHeight = Math.round(rect.height * dpr);
 
@@ -89,6 +89,13 @@ export function ArchitecturalHero() {
 
       const ctx = canvas.getContext("2d", { alpha: false });
       if (!ctx) return;
+
+      const progress = Math.min(1, Math.max(0, index / (TOTAL_FRAMES - 1)));
+
+      // Update bottom progress bar
+      if (progressBarRef.current) {
+        progressBarRef.current.style.transform = `scaleX(${progress.toFixed(4)})`;
+      }
 
       if (canvas.width > 0 && canvas.height > 0) {
         const frame = getBestLoadedFrame(index);
@@ -159,21 +166,35 @@ export function ArchitecturalHero() {
   useEffect(() => {
     isMountedRef.current = true;
 
-    // Preload frame 0 and final completed frame
+    // 1. Immediately preload frame 0 and set initial canvas size
     updateCanvasSize();
-    loadSingleImage(TOTAL_FRAMES - 1).then((finalImg) => {
-      if (finalImg && isMountedRef.current) {
+    loadSingleImage(0).then((firstImg) => {
+      if (firstImg && isMountedRef.current) {
         setFirstFrameLoaded(true);
         updateCanvasSize();
-        renderFrameAtIndex(TOTAL_FRAMES - 1);
-      } else {
-        loadSingleImage(0).then((firstImg) => {
-          if (firstImg && isMountedRef.current) {
-            setFirstFrameLoaded(true);
-            updateCanvasSize();
-            renderFrameAtIndex(0);
+        renderFrameAtIndex(0);
+      }
+
+      // 2. High-Priority Preload Pipeline:
+      // Load key landmark frames first for instant scrub responsiveness
+      const landmarkFrames = [0, 15, 30, 45, 60, 75, 90, 101];
+      landmarkFrames.forEach((idx) => loadSingleImage(idx));
+
+      // Load remaining frames in fast sequential batches
+      if (!reducedMotion) {
+        let currentBatchStart = 1;
+        const loadBatches = () => {
+          if (!isMountedRef.current) return;
+          const end = Math.min(TOTAL_FRAMES, currentBatchStart + 16);
+          for (let i = currentBatchStart; i < end; i++) {
+            loadSingleImage(i);
           }
-        });
+          currentBatchStart = end;
+          if (currentBatchStart < TOTAL_FRAMES) {
+            setTimeout(loadBatches, 30);
+          }
+        };
+        setTimeout(loadBatches, 60);
       }
     });
 
@@ -181,15 +202,24 @@ export function ArchitecturalHero() {
     const resizeObserver = new ResizeObserver(() => {
       updateCanvasSize();
       lastDrawnFrameRef.current = null;
-      renderFrameAtIndex(currentFrameIndexRef.current || TOTAL_FRAMES - 1);
+      renderFrameAtIndex(currentFrameIndexRef.current);
     });
     if (stickyRef.current) {
       resizeObserver.observe(stickyRef.current);
     }
 
-    // Scroll effect: gently fades out the editorial text layer as user scrolls down
+    if (reducedMotion) {
+      renderFrameAtIndex(TOTAL_FRAMES - 1);
+      return () => {
+        isMountedRef.current = false;
+        resizeObserver.disconnect();
+      };
+    }
+
+    // 3. Mouse Scroll Animation Scrubbing Engine:
+    // User scrolling smoothly drives the frame from 0 (empty site) -> 199 (completed villa)
     const handleScroll = () => {
-      if (!isMountedRef.current || !containerRef.current) return;
+      if (!isMountedRef.current || !containerRef.current || !stickyRef.current) return;
 
       if (rafScrollIdRef.current !== null) {
         cancelAnimationFrame(rafScrollIdRef.current);
@@ -200,19 +230,37 @@ export function ArchitecturalHero() {
         if (!container) return;
 
         const rect = container.getBoundingClientRect();
-        if (contentRef.current && rect.top < 0) {
-          const progress = Math.min(1, Math.max(0, -rect.top / (rect.height * 0.75)));
-          const textOpacity = Math.max(0, 1 - progress * 1.2);
-          const textTranslateY = progress * 40;
+        const scrollDistance = rect.height - window.innerHeight;
 
-          contentRef.current.style.opacity = textOpacity.toFixed(3);
-          contentRef.current.style.transform = `translate3d(0, -${textTranslateY}px, 0)`;
-          contentRef.current.style.pointerEvents = textOpacity < 0.1 ? "none" : "auto";
+        if (scrollDistance > 0) {
+          // Calculate exact scroll progress through the runway (0.0 to 1.0)
+          const currentScroll = Math.max(0, -rect.top);
+          const progress = Math.min(1, Math.max(0, currentScroll / scrollDistance));
+          const targetIndex = Math.min(TOTAL_FRAMES - 1, Math.floor(progress * (TOTAL_FRAMES - 1)));
+
+          if (targetIndex !== currentFrameIndexRef.current) {
+            currentFrameIndexRef.current = targetIndex;
+            renderFrameAtIndex(targetIndex);
+          }
+
+          // Editorial Text Layer: Smoothly fades out and lifts during the initial 26% of scroll
+          if (contentRef.current) {
+            const fadeThreshold = 0.26;
+            const textProgress = Math.min(1, progress / fadeThreshold);
+            const textOpacity = Math.max(0, 1 - textProgress * 1.15);
+            const textTranslateY = textProgress * 50;
+
+            contentRef.current.style.opacity = textOpacity.toFixed(3);
+            contentRef.current.style.transform = `translate3d(0, -${textTranslateY}px, 0)`;
+            contentRef.current.style.pointerEvents = textOpacity < 0.1 ? "none" : "auto";
+          }
         }
       });
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
+    // Initial sync
+    handleScroll();
 
     return () => {
       isMountedRef.current = false;
@@ -228,17 +276,19 @@ export function ArchitecturalHero() {
     <section
       ref={containerRef}
       aria-labelledby="hero-title"
-      className="relative w-full bg-brand-ink select-none h-[92vh] sm:h-[95vh] lg:h-screen min-h-[620px] overflow-hidden"
+      className={`relative w-full bg-brand-ink select-none ${
+        reducedMotion ? "h-[92vh] sm:h-[95vh] lg:h-screen" : "h-[220vh] sm:h-[250vh]"
+      }`}
     >
-      {/* Hero Viewport Container */}
+      {/* Sticky Viewport Container: Locks to screen while user scrubs the villa construction */}
       <div
         ref={stickyRef}
-        className="relative h-full w-full overflow-hidden flex items-center"
+        className="sticky top-0 h-screen w-full overflow-hidden flex items-center"
       >
-        {/* Instant Frame Fallback */}
+        {/* Instant First-Frame Fallback (visible immediately on HTML parse before JS/canvas mount) */}
         {!firstFrameLoaded && (
           <img
-            src={getFrameUrl(TOTAL_FRAMES - 1)}
+            src={getFrameUrl(0)}
             alt="SKI Construction Architectural Project Hero"
             fetchPriority="high"
             className="absolute inset-0 h-full w-full object-cover pointer-events-none contrast-[1.04] saturate-[1.03] scale-[1.05] origin-[44%_45%]"
@@ -295,7 +345,7 @@ export function ArchitecturalHero() {
         </div>
 
         {/* Hero Editorial Content Layer */}
-        <div className="relative z-10 flex w-full items-center px-4 xs:px-6 sm:px-10 lg:pl-[12vw] lg:pr-10 pt-[calc(var(--header-height,76px)+1.5rem)] pb-16 sm:pb-24 lg:pb-28">
+        <div className="relative z-10 flex w-full items-center px-6 sm:px-10 lg:pl-[12vw] lg:pr-10 pt-[calc(var(--header-height,76px)+1.5rem)] pb-20 sm:pb-24 lg:pb-28">
           <div
             ref={contentRef}
             className="flex w-full max-w-[880px] flex-col gap-5 sm:gap-6 text-white will-change-transform transition-[opacity,transform] duration-75"
@@ -306,12 +356,16 @@ export function ArchitecturalHero() {
                 <ShieldCheck className="size-3" aria-hidden="true" />
                 SKI Construction
               </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[0.68rem] sm:text-xs font-semibold text-white backdrop-blur-sm">
+                <HardHat className="size-3 text-white" aria-hidden="true" />
+                Er. D. Satheeshkumar, DCE., BE.
+              </span>
             </div>
 
             {/* Main Headline */}
             <h1
               id="hero-title"
-              className="font-serif text-[2.35rem] xs:text-[2.75rem] sm:text-[3.75rem] lg:text-[4.75rem] xl:text-[5.5rem] leading-[1.03] font-normal tracking-[-0.02em] !text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]"
+              className="font-serif text-[2.75rem] sm:text-[3.75rem] lg:text-[4.75rem] xl:text-[5.5rem] leading-[1.03] font-normal tracking-[-0.02em] !text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]"
               style={{ color: "#ffffff" }}
             >
               <span className="block !text-white" style={{ color: "#ffffff" }}>We don&apos;t just</span>
@@ -369,6 +423,14 @@ export function ArchitecturalHero() {
               </Link>
             </div>
           </div>
+        </div>
+
+        {/* Bottom Interactive Progress Bar */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-1.5 bg-black/40 z-30">
+          <span
+            ref={progressBarRef}
+            className="block h-full origin-left scale-x-0 bg-gradient-to-r from-brand-primary via-brand-accent to-emerald-400 will-change-transform transition-transform duration-75"
+          />
         </div>
       </div>
     </section>
