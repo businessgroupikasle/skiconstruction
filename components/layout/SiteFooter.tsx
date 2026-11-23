@@ -7,7 +7,6 @@ import {
   Phone,
   ArrowRight,
   ArrowUp,
-  Award,
   ShieldCheck,
   Compass,
 } from "lucide-react";
@@ -15,7 +14,7 @@ import { SkiLogo } from "@/components/brand/SkiLogo";
 import { Container } from "@/components/ui/Container";
 import { WhatsAppIcon, InstagramIcon, FacebookIcon } from "@/components/ui/icons";
 import { footerQuickLinks } from "@/data/content";
-import { brand, contact, founder, socialProfiles } from "@/lib/brand";
+import { brand, contact, socialProfiles } from "@/lib/brand";
 import {
   buildWhatsAppUrl,
   defaultWhatsAppMessage,
@@ -81,24 +80,6 @@ export function SiteFooter() {
             <div>
               <div className="inline-flex items-center rounded-2xl bg-white px-3.5 py-2 shadow-md shadow-black/20 border border-white/20">
                 <SkiLogo imageClassName="h-10 sm:h-12 w-auto object-contain" />
-              </div>
-            </div>
-
-            {/* Founder Registered Credential Card */}
-            <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/5 border border-emerald-500/20 backdrop-blur-xs">
-              <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-brand-primary/20 text-brand-accent border border-brand-primary/30 mt-0.5">
-                <Award className="size-4.5" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-400">
-                  Registered LBS Engineer
-                </span>
-                <span className="text-xs sm:text-sm font-bold text-white leading-tight">
-                  {founder.name}, {founder.credentials}
-                </span>
-                <span className="text-[11px] text-gray-300 leading-snug mt-0.5">
-                  Coimbatore Corporation Approved
-                </span>
               </div>
             </div>
 
