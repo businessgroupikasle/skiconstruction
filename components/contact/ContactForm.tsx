@@ -113,6 +113,20 @@ export function ContactForm({ defaultTopic }: ContactFormProps) {
                 id="form-name"
                 type="text"
                 placeholder="Enter your name"
+                pattern="[A-Za-z\s]+"
+                title="Only alphabetic characters and spaces are allowed"
+                onKeyDown={(e) => {
+                  // Prevent typing numbers and symbols directly into the name field
+                  if (
+                    e.key.length === 1 &&
+                    !/[A-Za-z\s]/.test(e.key) &&
+                    !e.ctrlKey &&
+                    !e.metaKey &&
+                    !e.altKey
+                  ) {
+                    e.preventDefault();
+                  }
+                }}
                 className="w-full rounded-xl border border-gray-200 bg-white pl-10 pr-4 py-2.5 text-sm text-[#11231a] placeholder:text-gray-400 focus:border-[#143d2b] focus:outline-none focus:ring-2 focus:ring-[#143d2b]/15 transition-all"
                 {...register("name")}
               />
@@ -147,7 +161,7 @@ export function ContactForm({ defaultTopic }: ContactFormProps) {
           {/* 3. Email Address */}
           <div className="flex flex-col gap-1.5">
             <label htmlFor="form-email" className="text-xs font-bold text-gray-700">
-              Email Address <span className="text-gray-500 text-[0.7rem] font-normal">(Optional)</span>
+              Email Address
             </label>
             <div className="relative">
               <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-gray-400">

@@ -20,3 +20,4 @@ export function RouteScrollRestoration() {
 
   return null;
 }
+

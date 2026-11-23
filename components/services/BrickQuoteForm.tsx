@@ -77,7 +77,12 @@ export function BrickQuoteForm({ serviceName }: BrickQuoteFormProps) {
                   type="text"
                   required
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={(e) => {
+                    const cleaned = e.target.value.replace(/[^A-Za-z\s]/g, "");
+                    setName(cleaned);
+                  }}
+                  pattern="[A-Za-z\s]+"
+                  title="Please enter only alphabetic letters and spaces"
                   placeholder="Your Full Name"
                   className="w-full rounded-xl border border-brand-line bg-[#fcfdfa] px-4 py-3 text-xs sm:text-sm text-brand-dark placeholder:text-brand-muted/50 focus:border-brand-primary focus:outline-none focus:ring-1 focus:ring-brand-primary"
                 />

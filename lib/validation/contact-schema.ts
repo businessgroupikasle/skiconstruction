@@ -6,13 +6,18 @@ export const enquiryTopics = [...services.map((service) => service.name), "Gener
 export type EnquiryTopic = (typeof enquiryTopics)[number];
 
 const indianMobilePattern = /^(\+?91)?[6-9]\d{9}$/;
+const alphabeticNamePattern = /^[A-Za-z\s]+$/;
 
 export const contactSchema = z.object({
   name: z
     .string()
     .trim()
     .min(2, "Please enter your name (at least 2 characters).")
-    .max(80, "Please keep your name under 80 characters."),
+    .max(80, "Please keep your name under 80 characters.")
+    .regex(
+      alphabeticNamePattern,
+      "Name must contain only alphabetic characters and spaces. Numbers and special characters are not allowed."
+    ),
   phone: z
     .string()
     .trim()
