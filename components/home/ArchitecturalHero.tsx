@@ -2,13 +2,11 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
-import { ShieldCheck, HardHat, PhoneCall, ArrowRight, ChevronDown } from "lucide-react";
+import { ShieldCheck, HardHat, PhoneCall, ArrowRight, ChevronDown, Compass, Layers } from "lucide-react";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 
 const TOTAL_FRAMES = 200;
 const FRAME_DIRECTORY = "/images/bannerimages";
-const TARGET_FPS = 26; // Smooth, cinematic building construction playback
-const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
 /**
  * Builds the URL for any 0-based frame index:
@@ -20,12 +18,25 @@ function getFrameUrl(index: number): string {
   return `${FRAME_DIRECTORY}/ezgif-frame-${frameNumber}.jpg`;
 }
 
+/** Construction stages corresponding to video timeline scrub */
+const CONSTRUCTION_STAGES = [
+  { maxProgress: 0.18, title: "Stage 1 · Site Layout & Blueprint Planning", color: "#8ce034" },
+  { maxProgress: 0.42, title: "Stage 2 · Foundation & Reinforced Concrete Columns", color: "#60a5fa" },
+  { maxProgress: 0.70, title: "Stage 3 · Floor Slabs & Brickwork Masonry", color: "#fbbf24" },
+  { maxProgress: 0.90, title: "Stage 4 · Facade Cladding & Glass Installations", color: "#f472b6" },
+  { maxProgress: 1.00, title: "Stage 5 · Luxury Villa Handover Complete", color: "#4ade80" },
+];
+
 export function ArchitecturalHero() {
   const containerRef = useRef<HTMLElement>(null);
+  const stickyRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const progressBarRef = useRef<HTMLSpanElement>(null);
   const scrollHintRef = useRef<HTMLButtonElement>(null);
+  const hudBadgeRef = useRef<HTMLDivElement>(null);
+  const hudTextRef = useRef<HTMLSpanElement>(null);
+  const hudPctRef = useRef<HTMLSpanElement>(null);
 
   const [firstFrameLoaded, setFirstFrameLoaded] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
@@ -34,8 +45,9 @@ export function ArchitecturalHero() {
   const imagesCacheRef = useRef<(HTMLImageElement | null)[]>(new Array(TOTAL_FRAMES).fill(null));
   const inflightRef = useRef<Set<number>>(new Set());
   const lastDrawnFrameRef = useRef<HTMLImageElement | null>(null);
-  const rafIdRef = useRef<number | null>(null);
+  const currentFrameIndexRef = useRef<number>(0);
   const isMountedRef = useRef(false);
+  const rafScrollIdRef = useRef<number | null>(null);
 
   /**
    * Retrieves the closest loaded frame to the requested target index.
@@ -56,15 +68,15 @@ export function ArchitecturalHero() {
   }, []);
 
   /**
-   * Adjusts canvas resolution to match container dimensions and high-DPI displays.
-   * Supports up to 2.5x devicePixelRatio for crisp 4K/Retina rendering.
+   * Adjusts canvas resolution to match viewport dimensions and high-DPI displays.
+   * Uses sticky wrapper or viewport client dimensions (never the 300vh scroll runway).
    */
   const updateCanvasSize = useCallback(() => {
     const canvas = canvasRef.current;
-    const container = containerRef.current;
-    if (!canvas || !container) return;
+    const sticky = stickyRef.current;
+    if (!canvas || !sticky) return;
 
-    const rect = container.getBoundingClientRect();
+    const rect = sticky.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
@@ -106,7 +118,7 @@ export function ArchitecturalHero() {
           const iw = frame.naturalWidth || 2560;
           const ih = frame.naturalHeight || 1440;
 
-          // Cinematic 1.05x framing optimization: subtly shifts edge foliage to eliminate bottom-right watermark blur
+          // Cinematic 1.05x framing optimization: subtly shifts edge foliage to eliminate corner watermark blur
           const scale = Math.max(cw / iw, ch / ih) * 1.05;
           const dw = iw * scale;
           const dh = ih * scale;
@@ -164,6 +176,31 @@ export function ArchitecturalHero() {
     });
   }, []);
 
+  /**
+   * Updates HUD scrubber stage title and percentage badge as the user scrolls
+   */
+  const updateHUD = useCallback((progress: number) => {
+    if (!hudBadgeRef.current || !hudTextRef.current || !hudPctRef.current) return;
+
+    // Show HUD only after user begins scrubbing (progress > 0.02)
+    if (progress > 0.02) {
+      hudBadgeRef.current.style.opacity = "1";
+      hudBadgeRef.current.style.transform = "translate3d(0, 0, 0)";
+    } else {
+      hudBadgeRef.current.style.opacity = "0";
+      hudBadgeRef.current.style.transform = "translate3d(0, 10px, 0)";
+    }
+
+    const stage =
+      CONSTRUCTION_STAGES.find((s) => progress <= s.maxProgress) ??
+      CONSTRUCTION_STAGES[CONSTRUCTION_STAGES.length - 1];
+
+    if (stage) {
+      hudTextRef.current.textContent = stage.title;
+    }
+    hudPctRef.current.textContent = `${Math.round(progress * 100)}%`;
+  }, []);
+
   useEffect(() => {
     isMountedRef.current = true;
 
@@ -176,26 +213,26 @@ export function ArchitecturalHero() {
         renderFrameAtIndex(0);
       }
 
-      // 2. High-Priority Preloading Pipeline:
-      // Sequential preloading batch for smooth forward playback
-      if (!reducedMotion) {
-        for (let i = 1; i <= 24; i++) {
-          loadSingleImage(i);
-        }
+      // 2. High-Priority Preload Pipeline:
+      // Load key landmark frames first for instant scrub responsiveness across all 5 stages
+      const landmarkFrames = [0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 199];
+      landmarkFrames.forEach((idx) => loadSingleImage(idx));
 
-        let currentBatchStart = 25;
+      // Load remaining frames in fast sequential batches
+      if (!reducedMotion) {
+        let currentBatchStart = 1;
         const loadBatches = () => {
           if (!isMountedRef.current) return;
-          const end = Math.min(TOTAL_FRAMES, currentBatchStart + 12);
+          const end = Math.min(TOTAL_FRAMES, currentBatchStart + 16);
           for (let i = currentBatchStart; i < end; i++) {
             loadSingleImage(i);
           }
           currentBatchStart = end;
           if (currentBatchStart < TOTAL_FRAMES) {
-            setTimeout(loadBatches, 40);
+            setTimeout(loadBatches, 30);
           }
         };
-        setTimeout(loadBatches, 80);
+        setTimeout(loadBatches, 60);
       }
     });
 
@@ -203,250 +240,296 @@ export function ArchitecturalHero() {
     const resizeObserver = new ResizeObserver(() => {
       updateCanvasSize();
       lastDrawnFrameRef.current = null;
-      renderFrameAtIndex(0);
+      renderFrameAtIndex(currentFrameIndexRef.current);
     });
-    if (containerRef.current) {
-      resizeObserver.observe(containerRef.current);
+    if (stickyRef.current) {
+      resizeObserver.observe(stickyRef.current);
     }
 
     if (reducedMotion) {
+      renderFrameAtIndex(TOTAL_FRAMES - 1);
       return () => {
         isMountedRef.current = false;
         resizeObserver.disconnect();
       };
     }
 
-    // 3. Smooth Single Playback Loop:
-    // Plays smoothly from frame 0 to frame 199 ONCE, then permanently rests on the completed luxury villa!
-    // Never restarts or loops back to 0, ensuring the banner never repeats twice.
-    let currentFrame = 0;
-    let lastTimestamp = performance.now();
+    // 3. Mouse Scroll Animation Scrubbing Engine:
+    // User scrolling smoothly drives the frame from 0 (empty site) -> 199 (completed villa)
+    const handleScroll = () => {
+      if (!isMountedRef.current || !containerRef.current || !stickyRef.current) return;
 
-    const animLoop = (timestamp: number) => {
-      if (!isMountedRef.current) return;
+      if (rafScrollIdRef.current !== null) {
+        cancelAnimationFrame(rafScrollIdRef.current);
+      }
 
-      const elapsed = timestamp - lastTimestamp;
-      if (elapsed >= FRAME_INTERVAL) {
-        lastTimestamp = timestamp - (elapsed % FRAME_INTERVAL);
+      rafScrollIdRef.current = requestAnimationFrame(() => {
+        const container = containerRef.current;
+        if (!container) return;
 
-        if (currentFrame < TOTAL_FRAMES - 1) {
-          currentFrame += 1;
-          renderFrameAtIndex(currentFrame);
-        } else {
-          // Reached final frame (completed building). Stop animation permanently!
-          renderFrameAtIndex(TOTAL_FRAMES - 1);
-          return;
+        const rect = container.getBoundingClientRect();
+        const scrollDistance = rect.height - window.innerHeight;
+
+        if (scrollDistance > 0) {
+          // Calculate exact scroll progress through the runway (0.0 to 1.0)
+          const currentScroll = Math.max(0, -rect.top);
+          const progress = Math.min(1, Math.max(0, currentScroll / scrollDistance));
+          const targetIndex = Math.min(TOTAL_FRAMES - 1, Math.floor(progress * (TOTAL_FRAMES - 1)));
+
+          if (targetIndex !== currentFrameIndexRef.current) {
+            currentFrameIndexRef.current = targetIndex;
+            renderFrameAtIndex(targetIndex);
+          }
+
+          // Editorial Text Layer: Smoothly fades out and lifts during the initial 26% of scroll
+          if (contentRef.current) {
+            const fadeThreshold = 0.26;
+            const textProgress = Math.min(1, progress / fadeThreshold);
+            const textOpacity = Math.max(0, 1 - textProgress * 1.15);
+            const textTranslateY = textProgress * 50;
+
+            contentRef.current.style.opacity = textOpacity.toFixed(3);
+            contentRef.current.style.transform = `translate3d(0, -${textTranslateY}px, 0)`;
+            contentRef.current.style.pointerEvents = textOpacity < 0.1 ? "none" : "auto";
+          }
+
+          // Initial Scroll Cue Button: Fades out as soon as user begins scrolling
+          if (scrollHintRef.current) {
+            const hintOpacity = Math.max(0, 1 - progress * 9);
+            scrollHintRef.current.style.opacity = hintOpacity.toFixed(3);
+            scrollHintRef.current.style.pointerEvents = hintOpacity < 0.05 ? "none" : "auto";
+          }
+
+          // Live HUD Scrubber Badge
+          updateHUD(progress);
         }
-      }
-
-      rafIdRef.current = requestAnimationFrame(animLoop);
+      });
     };
 
-    // Begin animation after brief initial frame settling
-    const startTimer = setTimeout(() => {
-      if (isMountedRef.current) {
-        rafIdRef.current = requestAnimationFrame(animLoop);
-      }
-    }, 150);
-
-    // 4. Natural Scroll Behavior (Zero Lock / Single Screen):
-    // As user scrolls past the banner into About, apply subtle gentle parallax
-    const onScroll = () => {
-      const scrollY = window.scrollY;
-      if (contentRef.current) {
-        const translateY = Math.min(scrollY * 0.35, 160);
-        contentRef.current.style.transform = `translate3d(0, -${translateY}px, 0)`;
-      }
-      if (scrollHintRef.current) {
-        const hintOpacity = Math.max(0, 1 - scrollY / 140);
-        scrollHintRef.current.style.opacity = hintOpacity.toFixed(3);
-        scrollHintRef.current.style.pointerEvents = hintOpacity < 0.1 ? "none" : "auto";
-      }
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    // Initial sync
+    handleScroll();
 
     return () => {
       isMountedRef.current = false;
-      clearTimeout(startTimer);
       resizeObserver.disconnect();
-      window.removeEventListener("scroll", onScroll);
-      if (rafIdRef.current !== null) {
-        cancelAnimationFrame(rafIdRef.current);
-        rafIdRef.current = null;
+      window.removeEventListener("scroll", handleScroll);
+      if (rafScrollIdRef.current !== null) {
+        cancelAnimationFrame(rafScrollIdRef.current);
       }
     };
-  }, [reducedMotion, loadSingleImage, updateCanvasSize, renderFrameAtIndex]);
+  }, [reducedMotion, loadSingleImage, updateCanvasSize, renderFrameAtIndex, updateHUD]);
 
   return (
     <section
       ref={containerRef}
       aria-labelledby="hero-title"
-      className="relative w-full h-[92vh] sm:h-[95vh] lg:h-screen min-h-[640px] max-h-[1080px] overflow-hidden bg-brand-ink select-none flex items-center"
+      className={`relative w-full bg-brand-ink select-none ${
+        reducedMotion ? "h-[92vh] sm:h-[95vh] lg:h-screen" : "h-[280vh] sm:h-[320vh]"
+      }`}
     >
-      {/* Instant First-Frame Fallback (visible immediately on HTML parse before JS/canvas mount) */}
-      {!firstFrameLoaded && (
-        <img
-          src={getFrameUrl(0)}
-          alt="SKI Construction Architectural Project Hero"
-          fetchPriority="high"
-          className="absolute inset-0 h-full w-full object-cover pointer-events-none contrast-[1.04] saturate-[1.03] scale-[1.05] origin-[44%_45%]"
-        />
-      )}
-
-      {/* High-Performance High-DPI Canvas with Enhanced Contrast and Sharpness */}
-      <canvas
-        ref={canvasRef}
-        aria-hidden="true"
-        className="absolute inset-0 block pointer-events-none contrast-[1.04] saturate-[1.03]"
-        style={{ imageRendering: "auto" }}
-      />
-
-      {/* Balanced Left Gradient Overlay: Cinematic deep scrim that guarantees ultra-sharp contrast for text */}
+      {/* Sticky Viewport Container: Locks to screen while user scrubs the villa construction */}
       <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-transparent pointer-events-none"
-      />
-
-      {/* Bottom Ambient Gradient for Depth */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/50 via-black/20 to-transparent pointer-events-none"
-      />
-
-      {/* Bottom-Right Soft Botanical Vignette (smoothly conceals corner watermark blur) */}
-      <div
-        aria-hidden="true"
-        className="absolute -right-10 -bottom-10 w-[420px] h-80 bg-gradient-to-tl from-black/70 via-black/25 to-transparent blur-2xl pointer-events-none z-10"
-      />
-
-      {/* Bottom-Right Floating Engineering Accreditation Badge */}
-      <div
-        className="absolute right-6 sm:right-10 lg:right-14 bottom-12 sm:bottom-16 lg:bottom-20 z-20 hidden md:flex items-center gap-3.5 rounded-2xl bg-black/65 backdrop-blur-md border border-white/20 p-3.5 sm:p-4 text-white shadow-2xl transition-all duration-300 hover:bg-black/80 hover:border-brand-primary/50"
+        ref={stickyRef}
+        className="sticky top-0 h-screen w-full overflow-hidden flex items-center"
       >
-        <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-white shadow-md">
-          <ShieldCheck className="size-6 text-white" />
-        </div>
-        <div className="pr-1 text-left">
-          <div className="flex items-center gap-1.5 mb-0.5">
-            <span className="size-1.5 rounded-full bg-brand-accent animate-pulse" />
-            <span className="text-[0.62rem] font-bold uppercase tracking-widest text-brand-accent">
-              Registered LBS Engineer
-            </span>
-          </div>
-          <span className="block text-sm sm:text-base font-bold text-white leading-snug">
-            Er. D. Satheeshkumar, DCE., BE.
-          </span>
-          <span className="block text-[0.68rem] text-white/75 font-medium">
-            Kinathukadavu & Coimbatore
-          </span>
-        </div>
-      </div>
+        {/* Instant First-Frame Fallback (visible immediately on HTML parse before JS/canvas mount) */}
+        {!firstFrameLoaded && (
+          <img
+            src={getFrameUrl(0)}
+            alt="SKI Construction Architectural Project Hero"
+            fetchPriority="high"
+            className="absolute inset-0 h-full w-full object-cover pointer-events-none contrast-[1.04] saturate-[1.03] scale-[1.05] origin-[44%_45%]"
+          />
+        )}
 
-      {/* Hero Editorial Content Layer */}
-      <div className="relative z-10 flex w-full items-center px-6 sm:px-10 lg:pl-[12vw] lg:pr-10 pt-[calc(var(--header-height,76px)+1.5rem)] pb-20 sm:pb-24 lg:pb-28">
+        {/* High-Performance High-DPI Canvas with Enhanced Contrast and Sharpness */}
+        <canvas
+          ref={canvasRef}
+          aria-hidden="true"
+          className="absolute inset-0 block pointer-events-none contrast-[1.04] saturate-[1.03]"
+          style={{ imageRendering: "auto" }}
+        />
+
+        {/* Balanced Left Gradient Overlay: Cinematic deep scrim that guarantees ultra-sharp contrast for text */}
         <div
-          ref={contentRef}
-          className="flex w-full max-w-[880px] flex-col gap-5 sm:gap-6 text-white will-change-transform"
+          aria-hidden="true"
+          className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-transparent pointer-events-none"
+        />
+
+        {/* Bottom Ambient Gradient for Depth */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/50 via-black/20 to-transparent pointer-events-none"
+        />
+
+        {/* Bottom-Right Soft Botanical Vignette (smoothly conceals corner watermark blur) */}
+        <div
+          aria-hidden="true"
+          className="absolute -right-10 -bottom-10 w-[420px] h-80 bg-gradient-to-tl from-black/70 via-black/25 to-transparent blur-2xl pointer-events-none z-10"
+        />
+
+        {/* Bottom-Right Floating Engineering Accreditation Badge */}
+        <div
+          className="absolute right-6 sm:right-10 lg:right-14 bottom-12 sm:bottom-16 lg:bottom-20 z-20 hidden md:flex items-center gap-3.5 rounded-2xl bg-black/65 backdrop-blur-md border border-white/20 p-3.5 sm:p-4 text-white shadow-2xl transition-all duration-300 hover:bg-black/80 hover:border-brand-primary/50"
         >
-          {/* Eyebrow & Credential Badges */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-primary/95 px-3 py-1 text-[0.68rem] sm:text-xs font-bold tracking-wider text-white uppercase shadow-sm">
-              <ShieldCheck className="size-3" aria-hidden="true" />
-              SKI Construction
-            </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[0.68rem] sm:text-xs font-semibold text-white backdrop-blur-sm">
-              <HardHat className="size-3 text-white" aria-hidden="true" />
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-white shadow-md">
+            <ShieldCheck className="size-6 text-white" />
+          </div>
+          <div className="pr-1 text-left">
+            <div className="flex items-center gap-1.5 mb-0.5">
+              <span className="size-1.5 rounded-full bg-brand-accent animate-pulse" />
+              <span className="text-[0.62rem] font-bold uppercase tracking-widest text-brand-accent">
+                Registered LBS Engineer
+              </span>
+            </div>
+            <span className="block text-sm sm:text-base font-bold text-white leading-snug">
               Er. D. Satheeshkumar, DCE., BE.
             </span>
-          </div>
-
-          {/* Main Headline */}
-          <h1
-            id="hero-title"
-            className="font-serif text-[2.75rem] sm:text-[3.75rem] lg:text-[4.75rem] xl:text-[5.5rem] leading-[1.03] font-normal tracking-[-0.02em] !text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]"
-            style={{ color: "#ffffff" }}
-          >
-            <span className="block !text-white" style={{ color: "#ffffff" }}>We don&apos;t just</span>
-            <span className="block !text-white" style={{ color: "#ffffff" }}>build structures.</span>
-            <span className="block !text-white" style={{ color: "#ffffff" }}>
-              We build{" "}
-              <span
-                className="italic font-semibold drop-shadow-[0_2px_14px_rgba(0,0,0,0.95)]"
-                style={{ color: "#9df028" }}
-              >
-                your future.
-              </span>
+            <span className="block text-[0.68rem] text-white/75 font-medium">
+              Kinathukadavu & Coimbatore
             </span>
-          </h1>
-
-          {/* Brand Tagline Divider */}
-          <div className="flex items-center gap-2.5" aria-hidden="true">
-            <span className="h-0.5 w-8 bg-brand-accent shadow-sm" />
-            <span
-              className="text-[0.68rem] sm:text-[0.72rem] font-bold tracking-[0.28em] !text-white uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
-              style={{ color: "#ffffff" }}
-            >
-              BUILD WITH QUALITY
-            </span>
-            <span className="h-px flex-1 max-w-[120px] bg-white/40" />
-          </div>
-
-          {/* Lead Paragraph */}
-          <p
-            className="max-w-[560px] text-[0.95rem] sm:text-base lg:text-[1.05rem] leading-relaxed !text-white/95 font-normal drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)]"
-            style={{ color: "#f3f4f6" }}
-          >
-            3D elevation design, DTCP/LBS approvals and turnkey construction across Coimbatore and Kinathukadavu.
-          </p>
-
-          {/* Action Buttons */}
-          <div className="flex flex-wrap items-center gap-3 pt-2">
-            <Link
-              href="/services"
-              className="group inline-flex items-center gap-3 rounded-full bg-white py-1.5 pl-6 pr-1.5 text-[0.95rem] font-semibold text-brand-ink shadow-soft transition-all duration-300 hover:bg-brand-soft hover:shadow-lg"
-            >
-              Explore Our Services
-              <span className="flex size-10 items-center justify-center rounded-full bg-brand-ink text-white transition-transform duration-300 group-hover:translate-x-0.5">
-                <ArrowRight className="size-4" aria-hidden="true" />
-              </span>
-            </Link>
-            <Link
-              href="/contact"
-              className="group inline-flex items-center gap-3 rounded-full border border-white/50 bg-white/10 py-1.5 pl-1.5 pr-6 text-[0.95rem] font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20"
-            >
-              <span className="flex size-10 items-center justify-center rounded-full bg-brand-primary text-white">
-                <PhoneCall className="size-4" aria-hidden="true" />
-              </span>
-              Get a Free Quote
-            </Link>
           </div>
         </div>
-      </div>
 
-      {/* Interactive Smooth Scroll Cue */}
-      {!reducedMotion && (
-        <button
-          ref={scrollHintRef}
-          type="button"
-          onClick={() => {
-            const heroHeight = containerRef.current?.offsetHeight || window.innerHeight;
-            window.scrollTo({ top: heroHeight, behavior: "smooth" });
-          }}
-          aria-label="Scroll to explore more sections"
-          className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1 text-[0.68rem] font-bold tracking-[0.28em] text-white/90 uppercase transition-all duration-300 hover:text-brand-accent hover:scale-105 cursor-pointer pointer-events-auto drop-shadow-md"
-        >
-          <span>Scroll to explore</span>
-          <ChevronDown className="size-4 animate-bounce text-brand-accent" aria-hidden="true" />
-        </button>
-      )}
+        {/* Interactive Construction HUD Scrubber Badge (appears as user scrolls mouse) */}
+        {!reducedMotion && (
+          <div
+            ref={hudBadgeRef}
+            aria-live="polite"
+            className="absolute top-24 sm:top-28 right-6 sm:right-10 lg:right-14 z-30 flex items-center gap-2.5 rounded-full bg-black/80 backdrop-blur-md border border-white/25 px-4 py-2 text-white shadow-2xl transition-all duration-200 opacity-0 translate-y-3 pointer-events-none"
+          >
+            <span className="flex size-6 items-center justify-center rounded-full bg-brand-primary text-white text-[0.65rem] font-bold">
+              <Layers className="size-3.5" />
+            </span>
+            <div className="flex items-center gap-2">
+              <span
+                ref={hudTextRef}
+                className="text-xs sm:text-sm font-semibold tracking-wide text-white drop-shadow-sm"
+              >
+                Stage 1 · Site Layout & Blueprint Planning
+              </span>
+              <span
+                ref={hudPctRef}
+                className="rounded-full bg-brand-accent/20 border border-brand-accent/40 px-2 py-0.5 text-[0.68rem] font-bold text-brand-accent"
+              >
+                0%
+              </span>
+            </div>
+          </div>
+        )}
 
-      {/* Bottom Progress Bar */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-black/20 z-30">
-        <span
-          ref={progressBarRef}
-          className="block h-full origin-left scale-x-0 bg-brand-primary will-change-transform"
-        />
+        {/* Hero Editorial Content Layer */}
+        <div className="relative z-10 flex w-full items-center px-6 sm:px-10 lg:pl-[12vw] lg:pr-10 pt-[calc(var(--header-height,76px)+1.5rem)] pb-20 sm:pb-24 lg:pb-28">
+          <div
+            ref={contentRef}
+            className="flex w-full max-w-[880px] flex-col gap-5 sm:gap-6 text-white will-change-transform transition-[opacity,transform] duration-75"
+          >
+            {/* Eyebrow & Credential Badges */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-primary/95 px-3 py-1 text-[0.68rem] sm:text-xs font-bold tracking-wider text-white uppercase shadow-sm">
+                <ShieldCheck className="size-3" aria-hidden="true" />
+                SKI Construction
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/30 bg-white/10 px-3 py-1 text-[0.68rem] sm:text-xs font-semibold text-white backdrop-blur-sm">
+                <HardHat className="size-3 text-white" aria-hidden="true" />
+                Er. D. Satheeshkumar, DCE., BE.
+              </span>
+            </div>
+
+            {/* Main Headline */}
+            <h1
+              id="hero-title"
+              className="font-serif text-[2.75rem] sm:text-[3.75rem] lg:text-[4.75rem] xl:text-[5.5rem] leading-[1.03] font-normal tracking-[-0.02em] !text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]"
+              style={{ color: "#ffffff" }}
+            >
+              <span className="block !text-white" style={{ color: "#ffffff" }}>We don&apos;t just</span>
+              <span className="block !text-white" style={{ color: "#ffffff" }}>build structures.</span>
+              <span className="block !text-white" style={{ color: "#ffffff" }}>
+                We build{" "}
+                <span
+                  className="italic font-semibold drop-shadow-[0_2px_14px_rgba(0,0,0,0.95)]"
+                  style={{ color: "#9df028" }}
+                >
+                  your future.
+                </span>
+              </span>
+            </h1>
+
+            {/* Brand Tagline Divider */}
+            <div className="flex items-center gap-2.5" aria-hidden="true">
+              <span className="h-0.5 w-8 bg-brand-accent shadow-sm" />
+              <span
+                className="text-[0.68rem] sm:text-[0.72rem] font-bold tracking-[0.28em] !text-white uppercase drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+                style={{ color: "#ffffff" }}
+              >
+                BUILD WITH QUALITY
+              </span>
+              <span className="h-px flex-1 max-w-[120px] bg-white/40" />
+            </div>
+
+            {/* Lead Paragraph */}
+            <p
+              className="max-w-[560px] text-[0.95rem] sm:text-base lg:text-[1.05rem] leading-relaxed !text-white/95 font-normal drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)]"
+              style={{ color: "#f3f4f6" }}
+            >
+              3D elevation design, DTCP/LBS approvals and turnkey construction across Coimbatore and Kinathukadavu.
+            </p>
+
+            {/* Action Buttons */}
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <Link
+                href="/services"
+                className="group inline-flex items-center gap-3 rounded-full bg-white py-1.5 pl-6 pr-1.5 text-[0.95rem] font-semibold text-brand-ink shadow-soft transition-all duration-300 hover:bg-brand-soft hover:shadow-lg"
+              >
+                Explore Our Services
+                <span className="flex size-10 items-center justify-center rounded-full bg-brand-ink text-white transition-transform duration-300 group-hover:translate-x-0.5">
+                  <ArrowRight className="size-4" aria-hidden="true" />
+                </span>
+              </Link>
+              <Link
+                href="/contact"
+                className="group inline-flex items-center gap-3 rounded-full border border-white/50 bg-white/10 py-1.5 pl-1.5 pr-6 text-[0.95rem] font-semibold text-white backdrop-blur-sm transition-all duration-300 hover:bg-white/20"
+              >
+                <span className="flex size-10 items-center justify-center rounded-full bg-brand-primary text-white">
+                  <PhoneCall className="size-4" aria-hidden="true" />
+                </span>
+                Get a Free Quote
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Interactive Mouse Scroll Indicator */}
+        {!reducedMotion && (
+          <button
+            ref={scrollHintRef}
+            type="button"
+            onClick={() => {
+              const runway = containerRef.current;
+              if (runway) {
+                const rect = runway.getBoundingClientRect();
+                window.scrollBy({ top: window.innerHeight * 0.85, behavior: "smooth" });
+              }
+            }}
+            aria-label="Scroll mouse down to build villa"
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-1.5 text-[0.68rem] font-bold tracking-[0.26em] text-white/90 uppercase transition-all duration-300 hover:text-brand-accent hover:scale-105 cursor-pointer pointer-events-auto drop-shadow-md"
+          >
+            <div className="flex items-center gap-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 px-3.5 py-1">
+              <span className="size-2 rounded-full bg-brand-accent animate-ping" />
+              <span>Scroll to build villa</span>
+            </div>
+            <ChevronDown className="size-4 animate-bounce text-brand-accent" aria-hidden="true" />
+          </button>
+        )}
+
+        {/* Bottom Interactive Progress Bar */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 h-1.5 bg-black/40 z-30">
+          <span
+            ref={progressBarRef}
+            className="block h-full origin-left scale-x-0 bg-gradient-to-r from-brand-primary via-brand-accent to-emerald-400 will-change-transform transition-transform duration-75"
+          />
+        </div>
       </div>
     </section>
   );
