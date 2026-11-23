@@ -283,7 +283,7 @@ export function ArchitecturalHero() {
       {/* Sticky Viewport Container: Locks to screen while user scrubs the villa construction */}
       <div
         ref={stickyRef}
-        className="sticky top-0 h-screen w-full overflow-hidden flex items-center"
+        className="sticky top-0 h-screen w-full overflow-hidden flex flex-col justify-start"
       >
         {/* Instant First-Frame Fallback (visible immediately on HTML parse before JS/canvas mount) */}
         {!firstFrameLoaded && (
@@ -323,7 +323,7 @@ export function ArchitecturalHero() {
 
         {/* Bottom-Right Floating Engineering Accreditation Badge */}
         <div
-          className="absolute right-6 sm:right-10 lg:right-14 bottom-12 sm:bottom-16 lg:bottom-20 z-20 hidden md:flex items-center gap-3.5 rounded-2xl bg-black/65 backdrop-blur-md border border-white/20 p-3.5 sm:p-4 text-white shadow-2xl transition-all duration-300 hover:bg-black/80 hover:border-brand-primary/50"
+          className="absolute right-6 sm:right-10 lg:right-14 bottom-8 sm:bottom-10 lg:bottom-14 z-20 hidden md:flex items-center gap-3.5 rounded-2xl bg-black/65 backdrop-blur-md border border-white/20 p-3.5 sm:p-4 text-white shadow-2xl transition-all duration-300 hover:bg-black/80 hover:border-brand-primary/50"
         >
           <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-white shadow-md">
             <ShieldCheck className="size-6 text-white" />
@@ -345,10 +345,10 @@ export function ArchitecturalHero() {
         </div>
 
         {/* Hero Editorial Content Layer */}
-        <div className="relative z-10 flex w-full items-center px-6 sm:px-10 lg:pl-[12vw] lg:pr-10 pt-[calc(var(--header-height,76px)+1.5rem)] pb-20 sm:pb-24 lg:pb-28">
+        <div className="relative z-10 flex flex-1 w-full flex-col justify-start px-6 sm:px-10 lg:pl-[12vw] lg:pr-10 pt-[calc(var(--header-height,76px)+1.5rem)] sm:pt-[calc(var(--header-height,76px)+2rem)] lg:pt-[calc(var(--header-height,76px)+2.5rem)] pb-10 sm:pb-14 lg:pb-16">
           <div
             ref={contentRef}
-            className="flex w-full max-w-[880px] flex-col gap-5 sm:gap-6 text-white will-change-transform transition-[opacity,transform] duration-75"
+            className="my-auto flex w-full max-w-[880px] flex-col gap-4 sm:gap-5 lg:gap-6 text-white will-change-transform transition-[opacity,transform] duration-75"
           >
             {/* Eyebrow & Credential Badges */}
             <div className="flex flex-wrap items-center gap-2">
@@ -365,7 +365,7 @@ export function ArchitecturalHero() {
             {/* Main Headline */}
             <h1
               id="hero-title"
-              className="font-serif text-[2.75rem] sm:text-[3.75rem] lg:text-[4.75rem] xl:text-[5.5rem] leading-[1.03] font-normal tracking-[-0.02em] !text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]"
+              className="font-serif text-[2.25rem] xs:text-[2.65rem] sm:text-[3.5rem] md:text-[4rem] lg:text-[4.5rem] xl:text-[5rem] leading-[1.05] font-normal tracking-[-0.02em] !text-white drop-shadow-[0_4px_24px_rgba(0,0,0,0.9)]"
               style={{ color: "#ffffff" }}
             >
               <span className="block !text-white" style={{ color: "#ffffff" }}>We don&apos;t just</span>
