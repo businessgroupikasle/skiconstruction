@@ -14,8 +14,8 @@ import { mailtoHref, telHref } from "@/lib/links";
  */
 export function ContactDetails() {
   return (
-    <div className="relative flex flex-col justify-between h-full pt-2">
-      <div>
+    <div className="relative flex flex-col justify-between h-full pt-2 overflow-hidden lg:overflow-visible">
+      <div className="relative z-10">
         {/* Eyebrow with gold horizontal accent */}
         <div className="flex items-center gap-2 mb-2">
           <span className="text-[0.72rem] font-bold uppercase tracking-[0.2em] text-[#9a6b1c]">
@@ -35,7 +35,7 @@ export function ContactDetails() {
         </p>
 
         {/* 3 Contact Info Items */}
-        <div className="flex flex-col gap-5 sm:gap-6 relative z-10">
+        <div className="flex flex-col gap-5 sm:gap-6">
           {/* Phone Item */}
           <div className="flex items-start gap-4 group">
             <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-[#143d2b] text-white shadow-md transition-transform duration-300 group-hover:scale-105 group-hover:bg-[#0c2e1f]">
@@ -85,12 +85,12 @@ export function ContactDetails() {
         </div>
       </div>
 
-      {/* Architectural Wireframe Sketch Watermark attached flush to the card and positioned under subtitle */}
+      {/* Architectural Wireframe Sketch Watermark in the background (backside of text) */}
       <div
         aria-hidden="true"
-        className="pointer-events-none lg:absolute lg:right-[-48px] lg:bottom-0 w-full sm:w-[420px] lg:w-[480px] xl:w-[520px] h-[340px] sm:h-[420px] lg:h-[500px] xl:h-[540px] overflow-visible flex items-end justify-end select-none z-0 mt-6 lg:mt-0"
+        className="pointer-events-none absolute right-[-20px] bottom-0 sm:right-[-32px] sm:bottom-0 lg:right-[-48px] lg:bottom-0 w-[260px] xs:w-[300px] sm:w-[380px] lg:w-[480px] xl:w-[520px] h-[280px] xs:h-[320px] sm:h-[400px] lg:h-[500px] xl:h-[540px] select-none z-0"
       >
-        <div className="relative w-full h-full opacity-85">
+        <div className="relative w-full h-full opacity-25 sm:opacity-40 lg:opacity-85">
           <Image
             src="/images/contact/sketch.png"
             alt="Architectural modern building sketch"
