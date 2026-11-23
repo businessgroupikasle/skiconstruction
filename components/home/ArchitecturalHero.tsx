@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ShieldCheck, PhoneCall, ArrowRight, Compass } from "lucide-react";
 import { usePrefersReducedMotion } from "@/lib/hooks";
 
-const TOTAL_FRAMES = 200;
+const TOTAL_FRAMES = 102;
 const FRAME_DIRECTORY = "/images/bannerimages";
 
 /**
@@ -228,8 +228,8 @@ export function ArchitecturalHero() {
       }
 
       // 2. High-Priority Preload Pipeline:
-      // Load key landmark frames across all 200 frames for instant scrub responsiveness
-      const landmarkFrames = [0, 25, 50, 75, 100, 125, 150, 175, 199];
+      // Load key landmark frames for instant scrub responsiveness
+      const landmarkFrames = [0, 15, 30, 45, 60, 75, 90, 101];
       landmarkFrames.forEach((idx) => loadSingleImage(idx));
 
       // Load remaining frames in fast sequential batches
@@ -237,16 +237,16 @@ export function ArchitecturalHero() {
         let currentBatchStart = 1;
         const loadBatches = () => {
           if (!isMountedRef.current) return;
-          const end = Math.min(TOTAL_FRAMES, currentBatchStart + 20);
+          const end = Math.min(TOTAL_FRAMES, currentBatchStart + 16);
           for (let i = currentBatchStart; i < end; i++) {
             loadSingleImage(i);
           }
           currentBatchStart = end;
           if (currentBatchStart < TOTAL_FRAMES) {
-            setTimeout(loadBatches, 25);
+            setTimeout(loadBatches, 30);
           }
         };
-        setTimeout(loadBatches, 40);
+        setTimeout(loadBatches, 60);
       }
     });
 
@@ -329,7 +329,7 @@ export function ArchitecturalHero() {
       ref={containerRef}
       aria-labelledby="hero-title"
       className={`relative w-full bg-brand-ink select-none ${
-        reducedMotion ? "h-[92vh] sm:h-[95vh] lg:h-screen" : "h-[320vh] sm:h-[350vh] lg:h-[380vh]"
+        reducedMotion ? "h-[92vh] sm:h-[95vh] lg:h-screen" : "h-[220vh] sm:h-[250vh]"
       }`}
     >
       {/* Sticky Viewport Container: Locks to screen while user scrubs the villa construction */}
