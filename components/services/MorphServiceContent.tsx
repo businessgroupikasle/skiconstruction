@@ -21,7 +21,7 @@ import { Container } from "@/components/ui/Container";
 import { services } from "@/data/services";
 import type { Service, ServiceDetail } from "@/data/types";
 import { founder, contact } from "@/lib/brand";
-import { telHref, buildServiceEnquiryUrl } from "@/lib/links";
+import { telHref } from "@/lib/links";
 
 interface MorphServiceContentProps {
   service: Service;
@@ -43,8 +43,6 @@ interface MorphServiceContentProps {
  *   3. Services Navigation List (Quick switch between all 9 services)
  */
 export function MorphServiceContent({ service, detail }: MorphServiceContentProps) {
-  const whatsappUrl = buildServiceEnquiryUrl(service.name);
-
   // Process / Deliverables for Block 1 (service-specific from detail.included)
   const deliverables =
     detail.included && detail.included.length > 0
@@ -205,7 +203,7 @@ export function MorphServiceContent({ service, detail }: MorphServiceContentProp
                 {/* Right: Tall Vertical Construction Photo (5 cols) */}
                 <div className="md:col-span-5 relative h-[320px] sm:h-[380px] lg:h-[420px] w-full overflow-hidden rounded-2xl bg-brand-soft border border-brand-line shadow-card">
                   <Image
-                    src="/images/about/ref/helmet-blueprint.png"
+                    src="/images/journey/step-4-construction.jpg"
                     alt={`Construction site framework and engineering for ${service.name}`}
                     fill
                     sizes="(min-width: 1024px) 25vw, (min-width: 768px) 40vw, 100vw"
@@ -277,15 +275,13 @@ export function MorphServiceContent({ service, detail }: MorphServiceContentProp
                 </p>
               </div>
 
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/contact"
                 className="shrink-0 inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-button hover:bg-brand-accent transition-all duration-200"
               >
-                <span>Consult Engineer</span>
+                <span>Contact Office</span>
                 <ArrowRight className="size-4" />
-              </a>
+              </Link>
             </div>
           </main>
 
@@ -307,26 +303,22 @@ export function MorphServiceContent({ service, detail }: MorphServiceContentProp
                 Turn your vision into reality with {service.name} by SKI Construction.
               </p>
 
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-2.5">
                 <a
                   href={telHref}
-                  className="inline-flex items-center gap-3 text-xs sm:text-sm font-bold text-white hover:text-emerald-300 transition-colors"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-5 py-3.5 text-xs sm:text-sm font-bold text-white shadow-button hover:bg-brand-accent transition-all duration-200"
                 >
-                  <span className="flex size-9 items-center justify-center rounded-xl bg-brand-primary text-white shadow-xs">
-                    <Phone className="size-4" />
-                  </span>
-                  <span>Contact our team today</span>
+                  <Phone className="size-4" />
+                  <span>Call Now: {contact.phoneDisplay}</span>
                 </a>
 
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-5 py-3 text-xs sm:text-sm font-bold text-white shadow-button hover:bg-brand-accent transition-all duration-200"
+                <Link
+                  href="/contact"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 px-5 py-3 text-xs sm:text-sm font-bold text-white transition-all duration-200"
                 >
-                  <span>Chat with LBS Engineer</span>
+                  <span>Contact Office</span>
                   <ArrowRight className="size-4" />
-                </a>
+                </Link>
               </div>
             </div>
 

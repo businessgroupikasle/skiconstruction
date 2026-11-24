@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRight, Phone, MessageSquare, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { ChevronRight, Phone, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { WhatsAppIcon } from "@/components/ui/icons";
 import { Container } from "@/components/ui/Container";
 import type { Service } from "@/data/types";
 import { founder, contact } from "@/lib/brand";
@@ -130,7 +131,7 @@ export function ServiceDetailHero({ service }: { service: Service }) {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 rounded-xl bg-brand-primary px-5 py-3 text-sm font-bold text-white shadow-button hover:bg-brand-accent transition-all duration-200"
             >
-              <MessageSquare className="size-4" />
+              <WhatsAppIcon className="size-4" />
               <span>Enquire on WhatsApp</span>
             </a>
             <a

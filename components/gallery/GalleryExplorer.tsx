@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useSearchParams } from "next/navigation";
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowLeft,
@@ -38,14 +39,50 @@ function subscribeToHash(onChange: () => void) {
 }
 
 export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
+  const searchParams = useSearchParams();
   const hash = useSyncExternalStore(
     subscribeToHash,
-    () => window.location.hash,
+    () => (typeof window !== "undefined" ? window.location.hash : ""),
     () => "",
   );
   const [chosenView, setChosenView] = useState<MediaView | null>(null);
-  const view: MediaView =
-    chosenView ?? (hash === "#project-videos" ? "videos" : "folders");
+
+  // Sync with URL parameters or hash
+  const urlView = searchParams?.get("view") || searchParams?.get("tab");
+  const isVideoFromUrl =
+    urlView === "videos" ||
+    urlView === "video" ||
+    hash.toLowerCase() === "#project-videos" ||
+    hash.toLowerCase() === "#video-gallery" ||
+    hash.toLowerCase() === "#videos";
+
+  const view: MediaView = chosenView ?? (isVideoFromUrl ? "videos" : "folders");
+
+  useEffect(() => {
+    const handleUrlState = () => {
+      const h = window.location.hash.toLowerCase();
+      const params = new URLSearchParams(window.location.search);
+      const v = params.get("view") || params.get("tab");
+      if (
+        v === "videos" ||
+        v === "video" ||
+        h === "#project-videos" ||
+        h === "#video-gallery" ||
+        h === "#videos"
+      ) {
+        setChosenView("videos");
+      } else if (v === "folders" || h === "#folders" || h === "#project-folders") {
+        setChosenView("folders");
+      }
+    };
+    handleUrlState();
+    window.addEventListener("hashchange", handleUrlState);
+    window.addEventListener("popstate", handleUrlState);
+    return () => {
+      window.removeEventListener("hashchange", handleUrlState);
+      window.removeEventListener("popstate", handleUrlState);
+    };
+  }, []);
 
   // Active folder selection state
   const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
@@ -88,6 +125,10 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
                   setChosenView(id);
                   setActiveFolderId(null);
                   setOpenSubFolder(null);
+                  if (typeof window !== "undefined") {
+                    const newHash = id === "videos" ? "#video-gallery" : "#folders";
+                    window.history.replaceState(null, "", `/gallery?view=${id}${newHash}`);
+                  }
                 }}
                 className={`inline-flex cursor-pointer items-center gap-2 rounded-full px-5 py-2.5 text-xs sm:text-sm font-bold transition-all duration-200 sm:px-7 ${
                   active
@@ -680,9 +721,9 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
             <span aria-hidden="true" className="hidden h-px w-20 bg-brand-accent sm:block" />
           </div>
 
-          <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 w-full min-w-0">
             {videos.map((vid) => (
-              <li key={vid.id}>
+              <li key={vid.id} className="w-full min-w-0">
                 <div
                   onClick={() =>
                     setActiveVideoModal({
@@ -691,7 +732,7 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
                       poster: vid.poster,
                     })
                   }
-                  className="group flex w-full flex-col overflow-hidden rounded-2xl border border-brand-line/80 bg-white text-left shadow-soft transition-all duration-300 hover:shadow-card hover:-translate-y-1 cursor-pointer"
+                  className="group flex w-full min-w-0 flex-col overflow-hidden rounded-2xl border border-brand-line/80 bg-white text-left shadow-soft transition-all duration-300 hover:shadow-card hover:-translate-y-1 cursor-pointer"
                 >
                   <span className="relative block aspect-video w-full overflow-hidden bg-brand-dark">
                     <Image
@@ -707,9 +748,9 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
                       </span>
                     </span>
                   </span>
-                  <span className="flex items-center gap-3 p-4 text-sm font-bold text-brand-ink">
+                  <span className="flex items-center gap-2.5 sm:gap-3 p-3.5 sm:p-4 text-xs sm:text-sm font-bold text-brand-ink min-w-0 w-full">
                     <Film aria-hidden="true" className="size-4 shrink-0 text-brand-primary" />
-                    <span className="truncate">{vid.title}</span>
+                    <span className="min-w-0 flex-1 line-clamp-2 leading-snug break-words">{vid.title}</span>
                   </span>
                 </div>
               </li>
@@ -732,13 +773,28 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
             className="relative flex w-full max-w-4xl flex-col overflow-hidden rounded-3xl bg-neutral-950 border border-brand-line/20 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-white/10 px-5 py-4 text-white">
-              <h3 className="text-sm sm:text-base font-bold text-white truncate max-w-lg">
+            <div className="flex items-center justify-between border-b border-white/10 px-4 sm:px-5 py-3.5 text-white gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveVideoModal(null);
+                  setChosenView("videos");
+                }}
+                aria-label="Back to Video Gallery"
+                className="inline-flex items-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 text-white px-3.5 py-1.5 text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 border border-white/10 hover:border-emerald-400/50"
+              >
+                <ArrowLeft className="size-4 text-emerald-400" />
+                <span>Back</span>
+              </button>
+              <h3 className="text-xs sm:text-base font-bold text-white truncate max-w-lg text-center flex-1">
                 {activeVideoModal.title}
               </h3>
               <button
                 type="button"
-                onClick={() => setActiveVideoModal(null)}
+                onClick={() => {
+                  setActiveVideoModal(null);
+                  setChosenView("videos");
+                }}
                 aria-label="Close"
                 className="flex size-9 items-center justify-center rounded-full bg-white/10 text-white/80 transition-colors hover:bg-white/20 hover:text-white cursor-pointer shrink-0"
               >
@@ -748,6 +804,18 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
 
             {/\.(mp4|webm|mov|m4v|ogg)$/i.test(activeVideoModal.src) ? (
               <div className="relative aspect-video w-full bg-black flex items-center justify-center">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveVideoModal(null);
+                    setChosenView("videos");
+                  }}
+                  aria-label="Back to Video Gallery"
+                  className="absolute top-3 left-3 z-30 inline-flex items-center gap-1.5 rounded-full bg-black/75 hover:bg-black/90 text-white px-3 py-1.5 text-xs font-bold backdrop-blur-md border border-white/25 shadow-lg transition-all cursor-pointer hover:scale-105"
+                >
+                  <ArrowLeft className="size-3.5 text-emerald-400" />
+                  <span>Back to Video Gallery</span>
+                </button>
                 <video
                   src={activeVideoModal.src}
                   poster={activeVideoModal.poster}
@@ -761,6 +829,18 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
               </div>
             ) : (
               <div className="relative flex max-h-[82vh] w-full items-center justify-center bg-black/50 p-2 sm:p-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveVideoModal(null);
+                    setChosenView("videos");
+                  }}
+                  aria-label="Back to Gallery"
+                  className="absolute top-4 left-4 z-30 inline-flex items-center gap-1.5 rounded-full bg-black/75 hover:bg-black/90 text-white px-3 py-1.5 text-xs font-bold backdrop-blur-md border border-white/25 shadow-lg transition-all cursor-pointer hover:scale-105"
+                >
+                  <ArrowLeft className="size-3.5 text-emerald-400" />
+                  <span>Back to Gallery</span>
+                </button>
                 <img
                   src={activeVideoModal.src}
                   alt={activeVideoModal.title}
@@ -768,6 +848,21 @@ export function GalleryExplorer({ items, videos = [] }: GalleryExplorerProps) {
                 />
               </div>
             )}
+
+            <div className="flex items-center justify-between border-t border-white/10 px-4 sm:px-5 py-3 bg-neutral-900/80">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveVideoModal(null);
+                  setChosenView("videos");
+                }}
+                className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-white hover:text-emerald-400 transition-colors cursor-pointer"
+              >
+                <ArrowLeft className="size-4 text-emerald-400" />
+                <span>Back to Video Gallery</span>
+              </button>
+              <span className="text-[11px] font-mono text-gray-400 hidden sm:inline">SKI Construction Verified Site Video</span>
+            </div>
           </div>
         </div>
       )}

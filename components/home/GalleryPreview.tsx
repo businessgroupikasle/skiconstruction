@@ -4,14 +4,22 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  ArrowLeft,
   ArrowRight,
   Camera,
   ChevronLeft,
   ChevronRight,
+  Compass,
   Eye,
   Film,
   Maximize2,
+  Pause,
+  PencilRuler,
   Play,
+  Rocket,
+  ShieldCheck,
+  Volume2,
+  VolumeX,
   X,
 } from "lucide-react";
 import { usePrefersReducedMotion } from "@/lib/hooks";
@@ -31,8 +39,8 @@ export interface CarouselMediaItem {
 /**
  * Curated Architectural Media Collection (Both Videos and Photos)
  * Users can easily add or edit images and videos here:
- * - For images: set type: "image", src: "/images/your-image.jpg", poster: "/images/your-image.jpg"
- * - For videos: set type: "video", src: "/videos/your-video.mp4", poster: "/images/your-thumbnail.jpg"
+ * - For images: set type: "image", src: "<path-to-image>", poster: "<path-to-image>"
+ * - For videos: set type: "video", src: "<path-to-video>", poster: "<path-to-poster>"
  */
 export const curatedMediaItems: readonly CarouselMediaItem[] = [
   {
@@ -66,8 +74,8 @@ export const curatedMediaItems: readonly CarouselMediaItem[] = [
     type: "image",
     title: "Sivaperumal Aishwarya Galaxy - Exterior Masonry & Plastering",
     category: "Turnkey Home",
-    src: "/projects/folders/sivaperumal-aishwarya-galaxy/20260721_115646.jpg",
-    poster: "/projects/folders/sivaperumal-aishwarya-galaxy/20260721_115646.jpg",
+    src: "/projects/folders/sivaperumal-aishwarya-galaxy/20260529_063549.jpg",
+    poster: "/projects/folders/sivaperumal-aishwarya-galaxy/20260529_063549.jpg",
   },
   {
     id: "media-5",
@@ -83,8 +91,8 @@ export const curatedMediaItems: readonly CarouselMediaItem[] = [
     type: "image",
     title: "RS Road Site Kinathukadavu - Modern Residential Structure",
     category: "Kinathukadavu Site",
-    src: "/projects/folders/rs-road-site-kkd/20250829_063645.jpg",
-    poster: "/projects/folders/rs-road-site-kkd/20250829_063645.jpg",
+    src: "/projects/folders/rs-road-site-kkd/20250620_103523.jpg",
+    poster: "/projects/folders/rs-road-site-kkd/20250620_103523.jpg",
   },
   {
     id: "media-7",
@@ -140,60 +148,78 @@ export const curatedMediaItems: readonly CarouselMediaItem[] = [
 ];
 
 const processSteps = [
-  { step: "#01", title: "Strategy & Planning" },
-  { step: "#02", title: "Design & Development" },
-  { step: "#03", title: "Launch & Growth" },
-  { step: "#04", title: "Ongoing Support" },
+  { step: "#01", title: "Strategy & Planning", icon: Compass },
+  { step: "#02", title: "Design & Development", icon: PencilRuler },
+  { step: "#03", title: "Launch & Growth", icon: Rocket },
+  { step: "#04", title: "Ongoing Support", icon: ShieldCheck },
 ] as const;
 
 type FilterMode = "all" | "video" | "image";
 
 /**
- * Individual 3D Carousel Card with Mouse-Hover Autoplay for Videos
+ * Individual 3D Carousel Card with direct in-layout video playback
  */
 function CarouselCard({
   item,
   index,
   itemAngle,
   dimensions,
-  onClick,
+  isPlaying,
+  onTogglePlay,
+  onOpenModal,
 }: {
   item: CarouselMediaItem;
   index: number;
   itemAngle: number;
   dimensions: { radius: number; cardWidth: number; cardHeight: number };
-  onClick: () => void;
+  isPlaying: boolean;
+  onTogglePlay: () => void;
+  onOpenModal: () => void;
 }) {
-  const [isPlaying, setIsPlaying] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-
-  // Mouse Hover: Auto-plays video immediately inside the card
-  const handleMouseEnter = () => {
-    if (item.type === "video" && videoRef.current) {
-      videoRef.current
-        .play()
-        .then(() => setIsPlaying(true))
-        .catch(() => {
-          // Autoplay policy or cancelled
-        });
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (item.type === "video" && videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-      setIsPlaying(false);
-    }
-  };
-
+  const [isMuted, setIsMuted] = useState(false);
   const isVideo = item.type === "video";
+
+  useEffect(() => {
+    if (!isVideo || !videoRef.current) return;
+    const v = videoRef.current;
+    if (isPlaying) {
+      v.muted = isMuted;
+      v.play().catch(() => {
+        v.muted = true;
+        setIsMuted(true);
+        v.play().catch(() => {});
+      });
+    } else {
+      v.pause();
+    }
+  }, [isPlaying, isMuted, isVideo]);
+
+  const handleCardClick = () => {
+    if (isVideo) {
+      onTogglePlay();
+    } else {
+      onOpenModal();
+    }
+  };
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (videoRef.current) {
+      const next = !isMuted;
+      videoRef.current.muted = next;
+      setIsMuted(next);
+    }
+  };
+
+  const handleExpandModal = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onOpenModal();
+  };
 
   return (
     <div
-      onClick={onClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onClick={handleCardClick}
       className="group absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl sm:rounded-[32px] bg-brand-dark shadow-2xl border border-black/10 transition-all duration-300 cursor-pointer select-none"
       style={{
         width: `${dimensions.cardWidth}px`,
@@ -210,20 +236,19 @@ function CarouselCard({
         fill
         sizes="(min-width: 1024px) 300px, 200px"
         className={`object-cover object-center transition-all duration-700 ${
-          isPlaying ? "opacity-0" : "opacity-100 group-hover:scale-108"
+          isPlaying ? "opacity-0 pointer-events-none" : "opacity-100 group-hover:scale-108"
         }`}
         draggable={false}
       />
 
-      {/* HTML5 Video for Instant Mouse Hover Autoplay */}
+      {/* HTML5 Video for Direct In-Layout Playback */}
       {isVideo && (
         <video
           ref={videoRef}
           src={item.src}
-          muted
           loop
           playsInline
-          preload="none"
+          preload="metadata"
           className={`absolute inset-0 size-full object-cover transition-opacity duration-300 pointer-events-none ${
             isPlaying ? "opacity-100" : "opacity-0"
           }`}
@@ -231,39 +256,77 @@ function CarouselCard({
       )}
 
       {/* Dark Vignette Gradient for Depth and Text Contrast */}
-      <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/95 via-black/30 to-black/35 pointer-events-none transition-opacity duration-300" />
+      <div
+        className={`absolute inset-0 bg-gradient-to-t from-brand-dark/95 via-black/30 to-black/35 pointer-events-none transition-opacity duration-300 ${
+          isPlaying ? "opacity-50" : "opacity-100"
+        }`}
+      />
 
-      {/* Top Badges: Category & Media Type / Duration */}
+      {/* Top Badges: Category & Video Actions */}
       <div className="absolute top-2.5 sm:top-4 inset-x-2.5 sm:inset-x-4 flex items-center justify-between z-10 pointer-events-none">
         <span className="rounded-full bg-black/60 backdrop-blur-md px-2 py-0.5 sm:px-2.5 sm:py-1 text-[0.58rem] sm:text-[0.68rem] font-bold tracking-wider text-white uppercase border border-white/15">
           {item.category}
         </span>
 
-        {isVideo ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-black/60 backdrop-blur-md px-2 py-0.5 sm:px-2.5 sm:py-1 text-[0.58rem] sm:text-[0.68rem] font-medium text-white/95 border border-white/15 font-mono">
-            <Film className="size-2.5 sm:size-3 text-brand-accent" />
-            <span>{item.duration ?? "Video"}</span>
-          </span>
-        ) : (
-          <span className="inline-flex items-center gap-1 rounded-full bg-black/60 backdrop-blur-md px-2 py-0.5 sm:px-2.5 sm:py-1 text-[0.58rem] sm:text-[0.68rem] font-medium text-white/95 border border-white/15">
-            <Camera className="size-2.5 sm:size-3 text-brand-accent" />
-            <span>Photo</span>
-          </span>
-        )}
+        <div className="flex items-center gap-1.5 pointer-events-auto">
+          {isVideo ? (
+            <>
+              {isPlaying && (
+                <button
+                  type="button"
+                  onClick={toggleMute}
+                  aria-label={isMuted ? "Unmute audio" : "Mute audio"}
+                  title={isMuted ? "Unmute audio" : "Mute audio"}
+                  className="flex size-6 sm:size-7 items-center justify-center rounded-full bg-black/65 text-white backdrop-blur-md hover:bg-brand-primary border border-white/15 transition-colors cursor-pointer"
+                >
+                  {isMuted ? (
+                    <VolumeX className="size-3 sm:size-3.5" />
+                  ) : (
+                    <Volume2 className="size-3 sm:size-3.5" />
+                  )}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={handleExpandModal}
+                aria-label="Expand video in popup"
+                title="Expand video"
+                className="flex size-6 sm:size-7 items-center justify-center rounded-full bg-black/65 text-white backdrop-blur-md hover:bg-brand-primary border border-white/15 transition-colors cursor-pointer"
+              >
+                <Maximize2 className="size-3 sm:size-3.5" />
+              </button>
+            </>
+          ) : (
+            <span className="inline-flex items-center gap-1 rounded-full bg-black/60 backdrop-blur-md px-2 py-0.5 sm:px-2.5 sm:py-1 text-[0.58rem] sm:text-[0.68rem] font-medium text-white/95 border border-white/15">
+              <Camera className="size-2.5 sm:size-3 text-brand-accent" />
+              <span>Photo</span>
+            </span>
+          )}
+        </div>
       </div>
 
-      {/* Center Action Button (Play for Video, Eye/Zoom for Image) */}
-      <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+      {/* Center Action Button (Play/Pause for Video, Eye/Zoom for Image) */}
+      <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
         {isVideo ? (
-          <div
-            className={`flex size-10 sm:size-16 items-center justify-center rounded-full bg-white/95 text-brand-primary shadow-[0_8px_30px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-all duration-300 ${
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onTogglePlay();
+            }}
+            aria-label={isPlaying ? "Pause video" : "Play video in layout"}
+            className={`pointer-events-auto flex size-11 sm:size-16 items-center justify-center rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-all duration-300 cursor-pointer ${
               isPlaying
-                ? "scale-90 opacity-70 bg-brand-primary text-white"
-                : "group-hover:scale-115 group-hover:bg-brand-primary group-hover:text-white"
+                ? "bg-brand-primary text-white scale-95 opacity-85 hover:opacity-100 hover:scale-105"
+                : "bg-white/95 text-brand-primary group-hover:scale-115 group-hover:bg-brand-primary group-hover:text-white"
             }`}
           >
-            <Play className="ml-0.5 sm:ml-1 size-4.5 sm:size-7 fill-current transition-colors" />
-          </div>
+            {isPlaying ? (
+              <Pause className="size-5 sm:size-7 fill-current" />
+            ) : (
+              <Play className="ml-0.5 sm:ml-1 size-5 sm:size-7 fill-current transition-colors" />
+            )}
+          </button>
         ) : (
           <div className="flex size-10 sm:size-16 items-center justify-center rounded-full bg-white/90 text-brand-primary shadow-[0_8px_30px_rgba(0,0,0,0.5)] backdrop-blur-sm transition-all duration-300 opacity-0 group-hover:opacity-100 group-hover:scale-110 group-hover:bg-brand-primary group-hover:text-white">
             <Maximize2 className="size-4.5 sm:size-7 transition-colors" />
@@ -274,7 +337,7 @@ function CarouselCard({
       {/* Bottom Title & Action Label */}
       <div className="absolute bottom-0 inset-x-0 p-2.5 sm:p-5 z-10 flex flex-col gap-0.5 sm:gap-1 text-white pointer-events-none">
         <span className="text-[0.58rem] sm:text-[0.68rem] font-bold tracking-widest text-brand-accent uppercase">
-          {isVideo ? (isPlaying ? "PLAYING PREVIEW" : "CLICK TO PLAY") : "VIEW PHOTO"}
+          {isVideo ? (isPlaying ? "PLAYING IN LAYOUT" : "CLICK TO PLAY") : "VIEW PHOTO"}
         </span>
         <h3 className="text-[0.68rem] sm:text-xs md:text-sm font-bold leading-snug line-clamp-2 text-white drop-shadow-md">
           {item.title}
@@ -287,15 +350,19 @@ function CarouselCard({
 export function GalleryPreview() {
   const [filterMode, setFilterMode] = useState<FilterMode>("all");
   const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(null);
+  const [activePlayingId, setActivePlayingId] = useState<string | null>(null);
+  const [activeIndex, setActiveIndex] = useState<number>(0);
+  const [isPaused, setIsPaused] = useState<boolean>(false);
   const [dimensions, setDimensions] = useState({
-    radius: 720,
+    radius: 585,
     cardWidth: 280,
     cardHeight: 400,
-    perspective: 850,
+    perspective: 780,
   });
 
   const turntableRef = useRef<HTMLDivElement>(null);
   const rotationRef = useRef<number>(0);
+  const targetRotationRef = useRef<number | null>(null);
   const velocityRef = useRef<number>(0);
   const isDraggingRef = useRef<boolean>(false);
   const isHoveredRef = useRef<boolean>(false);
@@ -303,6 +370,8 @@ export function GalleryPreview() {
   const lastPointerXRef = useRef<number>(0);
   const movedRef = useRef<boolean>(false);
   const hasCapturedRef = useRef<boolean>(false);
+  const pauseAutoRotateUntilRef = useRef<number>(0);
+  const activeIndexRef = useRef<number>(0);
   const modalVideoRef = useRef<HTMLVideoElement>(null);
 
   const reducedMotion = usePrefersReducedMotion();
@@ -313,63 +382,126 @@ export function GalleryPreview() {
       ? curatedMediaItems
       : curatedMediaItems.filter((item) => item.type === filterMode);
 
+  // Reset carousel rotation and active index when filter changes
+  useEffect(() => {
+    rotationRef.current = 0;
+    targetRotationRef.current = null;
+    velocityRef.current = 0;
+    activeIndexRef.current = 0;
+    setActiveIndex(0);
+    if (turntableRef.current) {
+      turntableRef.current.style.transform = "rotateY(0deg)";
+    }
+  }, [filterMode]);
+
   // Responsive 3D cylinder dimensions - Preserves identical curved cylindrical design across all viewports
   useEffect(() => {
     const updateDimensions = () => {
       const w = window.innerWidth;
+      const count = displayedItems.length || 12;
+
+      let cardWidth = 280;
+      let cardHeight = 400;
+      let gap = 24;
+      let perspective = 780;
+
       if (w < 400) {
-        setDimensions({
-          radius: 260,
-          cardWidth: 130,
-          cardHeight: 195,
-          perspective: 480,
-        });
+        cardWidth = 130;
+        cardHeight = 195;
+        gap = 10;
+        perspective = 500;
       } else if (w < 640) {
-        setDimensions({
-          radius: 320,
-          cardWidth: 155,
-          cardHeight: 230,
-          perspective: 560,
-        });
+        cardWidth = 155;
+        cardHeight = 230;
+        gap = 14;
+        perspective = 580;
       } else if (w < 1024) {
-        setDimensions({
-          radius: 540,
-          cardWidth: 230,
-          cardHeight: 330,
-          perspective: 700,
-        });
-      } else {
-        setDimensions({
-          radius: 720,
-          cardWidth: 280,
-          cardHeight: 400,
-          perspective: 850,
-        });
+        cardWidth = 230;
+        cardHeight = 330;
+        gap = 20;
+        perspective = 700;
       }
+
+      // Calculate radius dynamically to ensure uniform, consistent spacing between project cards
+      const targetChord = cardWidth + gap;
+      const radius = Math.round(targetChord / (2 * Math.sin(Math.PI / count)));
+
+      setDimensions({
+        radius,
+        cardWidth,
+        cardHeight,
+        perspective,
+      });
     };
 
     updateDimensions();
     window.addEventListener("resize", updateDimensions);
     return () => window.removeEventListener("resize", updateDimensions);
-  }, []);
+  }, [displayedItems.length]);
 
   // Smooth 60fps/120fps hardware-accelerated 3D turntable animation loop
   useEffect(() => {
     let animationFrameId: number;
 
     const tick = () => {
+      const total = displayedItems.length;
+      const stepAngle = total > 0 ? 360 / total : 30;
+
       if (!isDraggingRef.current && selectedItemIndex === null) {
-        if (Math.abs(velocityRef.current) > 0.01) {
-          rotationRef.current = (rotationRef.current + velocityRef.current) % 360;
+        // 1. Target-based smooth navigation (Next / Prev / Direct Slide Jump)
+        if (targetRotationRef.current !== null) {
+          const diff = targetRotationRef.current - rotationRef.current;
+          if (Math.abs(diff) < 0.15) {
+            rotationRef.current = targetRotationRef.current;
+            targetRotationRef.current = null;
+            velocityRef.current = 0;
+          } else {
+            // Silky smooth lerp spring towards target
+            rotationRef.current += diff * 0.15;
+          }
+          if (turntableRef.current) {
+            turntableRef.current.style.transform = `rotateY(${rotationRef.current}deg)`;
+          }
+        } else if (Math.abs(velocityRef.current) > 0.01) {
+          // 2. Drag momentum inertia
+          rotationRef.current += velocityRef.current;
           velocityRef.current *= 0.94; // Smooth momentum friction
           if (turntableRef.current) {
             turntableRef.current.style.transform = `rotateY(${rotationRef.current}deg)`;
           }
-        } else if (!isHoveredRef.current && !reducedMotion) {
-          // Slow cinematic auto-rotation
-          rotationRef.current = (rotationRef.current + 0.08) % 360;
+        } else if (
+          !isHoveredRef.current &&
+          !isPaused &&
+          !activePlayingId &&
+          !reducedMotion &&
+          Date.now() > pauseAutoRotateUntilRef.current
+        ) {
+          // 3. Gentle cinematic auto-rotation
+          rotationRef.current += 0.08;
           if (turntableRef.current) {
             turntableRef.current.style.transform = `rotateY(${rotationRef.current}deg)`;
+          }
+        }
+
+        // Bounded rotation normalization when idle to avoid numerical overflow
+        if (
+          targetRotationRef.current === null &&
+          Math.abs(velocityRef.current) <= 0.01 &&
+          (rotationRef.current >= 3600 || rotationRef.current <= -3600)
+        ) {
+          rotationRef.current = ((rotationRef.current % 360) + 360) % 360;
+          if (turntableRef.current) {
+            turntableRef.current.style.transform = `rotateY(${rotationRef.current}deg)`;
+          }
+        }
+
+        // Update active index indicator for UI controls
+        if (total > 0) {
+          const currentActive =
+            ((Math.round(rotationRef.current / stepAngle) % total) + total) % total;
+          if (currentActive !== activeIndexRef.current) {
+            activeIndexRef.current = currentActive;
+            setActiveIndex(currentActive);
           }
         }
       }
@@ -379,11 +511,51 @@ export function GalleryPreview() {
 
     animationFrameId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [reducedMotion, selectedItemIndex]);
+  }, [activePlayingId, displayedItems.length, isPaused, reducedMotion, selectedItemIndex]);
+
+  // Next / Previous Navigation Handlers
+  const handleNext = useCallback(() => {
+    pauseAutoRotateUntilRef.current = Date.now() + 5000;
+    const total = displayedItems.length;
+    if (total === 0) return;
+    const stepAngle = 360 / total;
+    const currentBase =
+      targetRotationRef.current !== null
+        ? targetRotationRef.current
+        : Math.round(rotationRef.current / stepAngle) * stepAngle;
+    targetRotationRef.current = currentBase + stepAngle;
+  }, [displayedItems.length]);
+
+  const handlePrev = useCallback(() => {
+    pauseAutoRotateUntilRef.current = Date.now() + 5000;
+    const total = displayedItems.length;
+    if (total === 0) return;
+    const stepAngle = 360 / total;
+    const currentBase =
+      targetRotationRef.current !== null
+        ? targetRotationRef.current
+        : Math.round(rotationRef.current / stepAngle) * stepAngle;
+    targetRotationRef.current = currentBase - stepAngle;
+  }, [displayedItems.length]);
+
+  // Keyboard navigation for the carousel container
+  const handleCarouselKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        handlePrev();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        handleNext();
+      }
+    },
+    [handlePrev, handleNext],
+  );
 
   // Pointer drag handling for rotating the 3D cylinder
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     isDraggingRef.current = true;
+    targetRotationRef.current = null;
     startXRef.current = e.clientX;
     lastPointerXRef.current = e.clientX;
     velocityRef.current = 0;
@@ -411,8 +583,9 @@ export function GalleryPreview() {
 
     if (movedRef.current) {
       const sensitivity = 0.18;
-      rotationRef.current = (rotationRef.current + deltaX * sensitivity) % 360;
-      velocityRef.current = deltaX * sensitivity;
+      // Dragging left pulls the next card into view; dragging right pulls the previous card
+      rotationRef.current -= deltaX * sensitivity;
+      velocityRef.current = -deltaX * sensitivity;
 
       if (turntableRef.current) {
         turntableRef.current.style.transform = `rotateY(${rotationRef.current}deg)`;
@@ -432,11 +605,6 @@ export function GalleryPreview() {
       hasCapturedRef.current = false;
     }
   }, []);
-
-  const handleCardClick = (index: number) => {
-    if (movedRef.current) return; // Ignore drag release
-    setSelectedItemIndex(index);
-  };
 
   // Keyboard controls for modal viewer
   useEffect(() => {
@@ -482,7 +650,7 @@ export function GalleryPreview() {
     <section
       id="gallery"
       aria-label="Architectural Project Gallery (Photos & Videos)"
-      className="relative isolate overflow-hidden bg-gradient-to-b from-brand-soft/40 via-white to-brand-soft/20 py-20 sm:py-28 lg:py-32"
+      className="relative isolate overflow-hidden bg-gradient-to-b from-brand-soft/40 via-white to-brand-soft/20 pt-12 sm:pt-16 lg:pt-20 pb-12 sm:pb-16 lg:pb-20"
     >
       {/* Soft Ambient Radial Light for Theme Depth */}
       <div
@@ -564,7 +732,12 @@ export function GalleryPreview() {
       {/* 2. 3D Panoramic Curved Cylinder Carousel (Supports Photos & Videos)      */}
       {/* ========================================================================= */}
       <div
-        className="relative w-full h-[270px] xs:h-[310px] sm:h-[460px] lg:h-[520px] select-none touch-pan-y overflow-hidden cursor-grab active:cursor-grabbing"
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="Architectural projects carousel"
+        tabIndex={0}
+        onKeyDown={handleCarouselKeyDown}
+        className="relative w-full h-[270px] xs:h-[310px] sm:h-[460px] lg:h-[520px] select-none touch-pan-y overflow-hidden cursor-grab active:cursor-grabbing focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary/40"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -576,16 +749,42 @@ export function GalleryPreview() {
           isHoveredRef.current = false;
         }}
       >
+        {/* Floating Left / Previous Navigation Arrow Button */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            handlePrev();
+          }}
+          aria-label="Previous gallery item"
+          className="group/btn absolute left-2 xs:left-4 sm:left-6 lg:left-10 top-1/2 -translate-y-1/2 z-30 flex size-10 xs:size-11 sm:size-13 lg:size-14 items-center justify-center rounded-full bg-white/95 text-brand-dark shadow-[0_4px_24px_rgba(0,0,0,0.18)] backdrop-blur-md border border-brand-line/60 transition-all duration-300 hover:bg-brand-primary hover:text-white hover:scale-110 hover:shadow-[0_8px_30px_rgba(43,94,43,0.35)] active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+        >
+          <ChevronLeft className="size-5 sm:size-6 lg:size-7 transition-transform group-hover/btn:-translate-x-0.5" />
+        </button>
+
+        {/* Floating Right / Next Navigation Arrow Button */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleNext();
+          }}
+          aria-label="Next gallery item"
+          className="group/btn absolute right-2 xs:right-4 sm:right-6 lg:right-10 top-1/2 -translate-y-1/2 z-30 flex size-10 xs:size-11 sm:size-13 lg:size-14 items-center justify-center rounded-full bg-white/95 text-brand-dark shadow-[0_4px_24px_rgba(0,0,0,0.18)] backdrop-blur-md border border-brand-line/60 transition-all duration-300 hover:bg-brand-primary hover:text-white hover:scale-110 hover:shadow-[0_8px_30px_rgba(43,94,43,0.35)] active:scale-95 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+        >
+          <ChevronRight className="size-5 sm:size-6 lg:size-7 transition-transform group-hover/btn:translate-x-0.5" />
+        </button>
+
         {/* Left Soft Vignette Edge Gradient */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute left-0 inset-y-0 w-6 xs:w-10 sm:w-28 lg:w-72 bg-gradient-to-r from-white via-white/80 to-transparent z-20"
+          className="pointer-events-none absolute left-0 inset-y-0 w-8 xs:w-12 sm:w-28 lg:w-72 bg-gradient-to-r from-white via-white/80 to-transparent z-20"
         />
 
         {/* Right Soft Vignette Edge Gradient */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute right-0 inset-y-0 w-6 xs:w-10 sm:w-28 lg:w-72 bg-gradient-to-l from-white via-white/80 to-transparent z-20"
+          className="pointer-events-none absolute right-0 inset-y-0 w-8 xs:w-12 sm:w-28 lg:w-72 bg-gradient-to-l from-white via-white/80 to-transparent z-20"
         />
 
         {/* 3D Perspective Stage Container */}
@@ -608,7 +807,8 @@ export function GalleryPreview() {
             }}
           >
             {displayedItems.map((item, index) => {
-              const itemAngle = index * (360 / displayedItems.length);
+              const itemAngle = -index * (360 / displayedItems.length);
+              const isPlaying = activePlayingId === item.id;
               return (
                 <CarouselCard
                   key={item.id}
@@ -616,7 +816,16 @@ export function GalleryPreview() {
                   index={index}
                   itemAngle={itemAngle}
                   dimensions={dimensions}
-                  onClick={() => handleCardClick(index)}
+                  isPlaying={isPlaying}
+                  onTogglePlay={() => {
+                    if (movedRef.current) return;
+                    setActivePlayingId((curr) => (curr === item.id ? null : item.id));
+                  }}
+                  onOpenModal={() => {
+                    if (movedRef.current) return;
+                    setActivePlayingId(null);
+                    setSelectedItemIndex(index);
+                  }}
                 />
               );
             })}
@@ -625,20 +834,44 @@ export function GalleryPreview() {
       </div>
 
       {/* ========================================================================= */}
-      {/* 3. Bottom 4 Value Steps in Theme Colors (#01 - #04)                       */}
+      {/* 3. 4-Step Engineering & Delivery Process Cards with Connecting Lines      */}
       {/* ========================================================================= */}
-      <div className="w-full max-w-5xl mx-auto px-6 mt-8 sm:mt-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 text-center">
-          {processSteps.map((step) => (
-            <div key={step.step} className="flex flex-col items-center">
-              <span className="text-base sm:text-lg font-extrabold text-brand-primary tracking-wider mb-1">
-                {step.step}
-              </span>
-              <h3 className="text-sm sm:text-base lg:text-lg font-extrabold text-brand-dark">
-                {step.title}
-              </h3>
-            </div>
-          ))}
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 mt-6 sm:mt-10 lg:mt-12">
+        <div className="relative grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          {processSteps.map((step, index) => {
+            const Icon = step.icon;
+            return (
+              <div
+                key={step.step}
+                className="group relative flex flex-col items-center text-center rounded-2xl bg-white border border-brand-line/80 p-5 sm:p-6 shadow-soft transition-all duration-300 hover:shadow-card hover:-translate-y-1 hover:border-brand-primary/50"
+              >
+                {/* Connecting arrow indicator between cards on desktop */}
+                {index < processSteps.length - 1 && (
+                  <div
+                    aria-hidden="true"
+                    className="hidden lg:flex absolute -right-3.5 top-1/2 -translate-y-1/2 z-20 size-7 items-center justify-center rounded-full bg-white border border-brand-line shadow-2xs text-brand-primary group-hover:border-brand-primary transition-colors"
+                  >
+                    <ArrowRight className="size-3.5" strokeWidth={2.5} />
+                  </div>
+                )}
+
+                {/* Top Badge: Step Number & Icon */}
+                <div className="flex items-center justify-between w-full mb-3.5">
+                  <span className="font-mono text-xs font-extrabold text-brand-primary px-2.5 py-1 rounded-full bg-brand-soft border border-brand-line/60">
+                    {step.step}
+                  </span>
+                  <div className="flex size-9 items-center justify-center rounded-xl bg-brand-soft text-brand-primary border border-brand-line/50 transition-colors duration-300 group-hover:bg-brand-primary group-hover:text-white">
+                    <Icon className="size-4.5" />
+                  </div>
+                </div>
+
+                {/* Step Title */}
+                <h3 className="text-sm sm:text-base font-extrabold text-brand-dark tracking-tight leading-snug w-full text-left sm:text-center mt-1">
+                  {step.title}
+                </h3>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -658,15 +891,21 @@ export function GalleryPreview() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-white/10 px-5 py-4 text-white">
-              <div className="flex items-center gap-3 pr-4">
-                <span className="rounded-full bg-brand-primary px-3 py-1 text-xs font-bold text-white uppercase shadow-sm">
-                  {activeItem.type === "video" ? "Video Walkthrough" : "Architectural Photo"}
+            <div className="flex items-center justify-between border-b border-white/10 px-4 sm:px-5 py-3.5 text-white gap-2">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <button
+                  type="button"
+                  onClick={() => setSelectedItemIndex(null)}
+                  aria-label="Back to gallery"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 text-xs sm:text-sm font-bold transition-all cursor-pointer shrink-0 border border-white/10 hover:border-emerald-400/50"
+                >
+                  <ArrowLeft className="size-4 text-emerald-400" />
+                  <span>Back</span>
+                </button>
+                <span className="rounded-full bg-brand-primary px-2.5 py-1 text-[11px] font-bold text-white uppercase shadow-sm shrink-0">
+                  {activeItem.type === "video" ? "Video" : "Photo"}
                 </span>
-                <span className="text-xs text-brand-accent font-semibold hidden sm:inline">
-                  {activeItem.category}
-                </span>
-                <h3 className="text-sm sm:text-base font-bold text-white truncate max-w-xs sm:max-w-lg">
+                <h3 className="text-xs sm:text-sm font-bold text-white truncate">
                   {activeItem.title}
                 </h3>
               </div>
@@ -674,14 +913,23 @@ export function GalleryPreview() {
                 type="button"
                 onClick={() => setSelectedItemIndex(null)}
                 aria-label="Close modal"
-                className="flex size-9 items-center justify-center rounded-full bg-white/10 text-white/80 transition-colors hover:bg-white/20 hover:text-white cursor-pointer shrink-0"
+                className="flex size-8 sm:size-9 items-center justify-center rounded-full bg-white/10 text-white/80 transition-colors hover:bg-white/20 hover:text-white cursor-pointer shrink-0"
               >
-                <X className="size-5" />
+                <X className="size-4 sm:size-5" />
               </button>
             </div>
 
             {/* Media Viewer: Video Player OR High-Res Photo */}
             <div className="relative aspect-video w-full bg-black flex items-center justify-center">
+              <button
+                type="button"
+                onClick={() => setSelectedItemIndex(null)}
+                aria-label="Back to gallery"
+                className="absolute top-3 left-3 z-30 inline-flex items-center gap-1.5 rounded-full bg-black/75 hover:bg-black/90 text-white px-3 py-1.5 text-xs font-bold backdrop-blur-md border border-white/25 shadow-lg transition-all cursor-pointer hover:scale-105"
+              >
+                <ArrowLeft className="size-3.5 text-emerald-400" />
+                <span>Back</span>
+              </button>
               {activeItem.type === "video" ? (
                 <video
                   ref={modalVideoRef}

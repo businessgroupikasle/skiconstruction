@@ -1,8 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
-import { MessageSquare, Phone, ArrowRight, ShieldCheck } from "lucide-react";
+import { Phone, ArrowRight, ShieldCheck } from "lucide-react";
 import { buildServiceContactHref, buildServiceEnquiryUrl, telHref } from "@/lib/links";
 import { contact, founder } from "@/lib/brand";
+import { WhatsAppIcon } from "@/components/ui/icons";
 
 interface ServiceCtaBannerProps {
   serviceName?: string;
@@ -60,7 +61,7 @@ export function ServiceCtaBanner({ serviceName = "Building Construction" }: Serv
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-6 py-3.5 text-sm font-bold text-white shadow-button hover:bg-brand-accent transition-all duration-200"
               >
-                <MessageSquare className="size-4.5" />
+                <WhatsAppIcon className="size-4.5" />
                 <span>WhatsApp Quote</span>
               </a>
 

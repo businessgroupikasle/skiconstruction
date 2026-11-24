@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import { GreenCTAButton } from "@/components/ui/GreenCTAButton";
 import { navigationItems } from "@/data/content";
 import { services } from "@/data/services";
@@ -22,6 +22,7 @@ export function MobileNavigation() {
   // without an effect that sets state.
   const [openedOn, setOpenedOn] = useState<string | null>(null);
   const isOpen = openedOn === pathname;
+  const [servicesOpen, setServicesOpen] = useState(true);
   const firstLinkRef = useRef<HTMLAnchorElement | null>(null);
   const toggleRef = useRef<HTMLButtonElement | null>(null);
 
@@ -67,7 +68,74 @@ export function MobileNavigation() {
         >
           <nav aria-label="Mobile" className="mx-auto flex max-w-[640px] flex-col gap-1 px-5 py-6">
             {navigationItems.map((item, index) => {
-              const isActive = item.href === pathname;
+              const isServicesItem = item.label === "Services";
+              const isServicesSection = pathname === "/services" || pathname.startsWith("/services/");
+              const isActive = isServicesItem ? isServicesSection : item.href === pathname;
+
+              if (isServicesItem) {
+                return (
+                  <div key={item.href} className="flex flex-col">
+                    <div className="flex items-center justify-between rounded-xl">
+                      <Link
+                        href={item.href}
+                        scroll={true}
+                        onClick={() => setOpenedOn(null)}
+                        aria-current={pathname === "/services" ? "page" : undefined}
+                        className={`flex-1 rounded-xl px-4 py-3.5 text-lg font-semibold transition-colors ${
+                          pathname === "/services"
+                            ? "bg-brand-primary text-white"
+                            : isServicesSection
+                              ? "bg-brand-soft text-brand-primary font-bold"
+                              : "text-brand-ink hover:bg-brand-soft"
+                        }`}
+                      >
+                        {item.label}
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => setServicesOpen((prev) => !prev)}
+                        aria-expanded={servicesOpen}
+                        aria-label={servicesOpen ? "Collapse services menu" : "Expand services menu"}
+                        className="flex size-12 items-center justify-center rounded-xl text-brand-dark/70 hover:bg-brand-soft hover:text-brand-primary transition-colors"
+                      >
+                        <ChevronDown
+                          aria-hidden="true"
+                          className={`size-5 transition-transform duration-200 ${
+                            servicesOpen ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    {servicesOpen ? (
+                      <ul className="ml-4 mt-1 flex flex-col gap-1 border-l-2 border-brand-line/70 pl-3 py-1">
+                        {services.map((service) => {
+                          const serviceHref = `/services/${service.slug}`;
+                          const isServiceActive =
+                            pathname === serviceHref || pathname.startsWith(`${serviceHref}/`);
+                          return (
+                            <li key={service.slug}>
+                              <Link
+                                href={serviceHref}
+                                onClick={() => setOpenedOn(null)}
+                                aria-current={isServiceActive ? "page" : undefined}
+                                className={`block rounded-lg px-3.5 py-2 text-[0.95rem] transition-colors ${
+                                  isServiceActive
+                                    ? "bg-brand-primary text-white font-semibold shadow-xs"
+                                    : "text-brand-ink hover:bg-brand-soft hover:text-brand-primary font-medium"
+                                }`}
+                              >
+                                {service.name}
+                              </Link>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    ) : null}
+                  </div>
+                );
+              }
+
               return (
                 <Link
                   key={item.href}
@@ -81,7 +149,7 @@ export function MobileNavigation() {
                     }
                   }}
                   aria-current={isActive ? "page" : undefined}
-                  className={`rounded-xl px-4 py-3.5 text-lg font-semibold ${
+                  className={`rounded-xl px-4 py-3.5 text-lg font-semibold transition-colors ${
                     isActive ? "bg-brand-primary text-white" : "text-brand-ink hover:bg-brand-soft"
                   }`}
                 >
@@ -89,17 +157,6 @@ export function MobileNavigation() {
                 </Link>
               );
             })}
-
-            <p className="mt-4 px-4 text-xs font-bold tracking-[0.2em] text-brand-accent uppercase">Our services</p>
-            <ul className="grid gap-1 sm:grid-cols-2">
-              {services.map((service) => (
-                <li key={service.slug}>
-                  <Link href={`/services/${service.slug}`} className="block rounded-lg px-4 py-2.5 text-[0.95rem] text-brand-ink hover:bg-brand-soft">
-                    {service.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
 
             <div className="mt-8 flex flex-col gap-3">
               <a

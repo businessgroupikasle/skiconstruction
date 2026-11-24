@@ -19,6 +19,7 @@ import {
 import { Container } from "@/components/ui/Container";
 import { PageHero } from "@/components/ui/PageHero";
 import { FlowingServicesShowcase } from "@/components/services/FlowingServicesShowcase";
+import { WhatsAppIcon } from "@/components/ui/icons";
 import { services } from "@/data/services";
 import type { ServiceSlug } from "@/data/types";
 import { contact, founder } from "@/lib/brand";
@@ -128,7 +129,7 @@ export default function ServicesPage() {
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-6 py-3.5 text-sm font-bold text-white shadow-button hover:bg-brand-accent transition-all duration-200"
                 >
-                  <MessageSquare className="size-4" />
+                  <WhatsAppIcon className="size-4.5" />
                   <span>Enquire on WhatsApp</span>
                 </a>
 

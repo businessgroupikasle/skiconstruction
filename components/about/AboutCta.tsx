@@ -1,18 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
-import { MessageSquare, Phone, ArrowRight, ShieldCheck, MapPin } from "lucide-react";
+import { Phone, ArrowRight, ShieldCheck, MapPin } from "lucide-react";
 import { founder, contact } from "@/lib/brand";
-import { buildWhatsAppUrl, telHref } from "@/lib/links";
+import { telHref } from "@/lib/links";
 
 /**
  * About Page Bottom Call to Action Banner
  * Direct line to Er. D. Satheeshkumar, Registered LBS Engineer.
  */
 export function AboutCta() {
-  const whatsappUrl = buildWhatsAppUrl(
-    "Hello SKI Construction, I would like to schedule a consultation with Er. D. Satheeshkumar regarding my project.",
-  );
-
   return (
     <section aria-label="Connect with leadership" className="bg-[#fcfdfa] py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -56,26 +52,16 @@ export function AboutCta() {
             {/* Right Column: High-Intent Action Buttons */}
             <div className="flex flex-col sm:flex-row lg:flex-col xl:flex-row items-stretch sm:items-center gap-3.5 w-full lg:w-auto shrink-0">
               <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-6 py-3.5 text-sm font-bold text-white shadow-button hover:bg-brand-accent transition-all duration-200"
-              >
-                <MessageSquare className="size-4.5" />
-                <span>Chat on WhatsApp</span>
-              </a>
-
-              <a
                 href={telHref}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 px-5 py-3.5 text-sm font-bold text-white backdrop-blur-xs transition-all duration-200"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary hover:bg-brand-accent px-6 py-3.5 text-sm font-bold text-white shadow-button transition-all duration-200"
               >
-                <Phone className="size-4 text-emerald-400" />
-                <span>{contact.phoneDisplay}</span>
+                <Phone className="size-4.5" />
+                <span>Call Now: {contact.phoneDisplay}</span>
               </a>
 
               <Link
                 href="/contact"
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white text-brand-dark px-5 py-3.5 text-sm font-bold hover:bg-emerald-50 transition-all duration-200"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-white text-brand-dark px-6 py-3.5 text-sm font-bold hover:bg-emerald-50 transition-all duration-200"
               >
                 <span>Contact Office</span>
                 <ArrowRight className="size-4 text-brand-primary" />

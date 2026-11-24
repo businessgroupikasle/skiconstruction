@@ -86,9 +86,9 @@ p:not([class*="uppercase"]):not([class*="font-mono"]):not([class*="tracking-"]):
   }
 }
 
-/* Responsive Mobile Typography: Justify Paragraph Text in Mobile View */
+/* Responsive Mobile Typography: Justify Paragraph Text in Mobile View (excluding footer, navigation, and explicit alignments) */
 @media (max-width: 767.98px) {
-  p:not([class*="uppercase"]):not([class*="font-mono"]):not([class*="tracking-"]):not([role="status"]):not(button *):not(a *) {
+  p:not(footer *):not([class*="text-left"]):not([class*="text-center"]):not([class*="text-right"]):not([class*="uppercase"]):not([class*="font-mono"]):not([class*="tracking-"]):not([role="status"]):not(button *):not(a *) {
     text-align: justify !important;
     text-align-last: left !important;
     -webkit-text-align-last: left !important;
@@ -99,6 +99,21 @@ p:not([class*="uppercase"]):not([class*="font-mono"]):not([class*="tracking-"]):
     word-break: break-word !important;
     overflow-wrap: break-word !important;
   }
+}
+
+/* Footer typography: enforce consistent word spacing, proper alignment, and prevent justification */
+footer,
+footer p,
+footer span,
+footer a,
+footer div {
+  word-spacing: normal !important;
+  hyphens: none !important;
+  -webkit-hyphens: none !important;
+}
+
+footer p {
+  word-spacing: normal !important;
 }
 
 /* Default light-mode body paragraph color consistency */

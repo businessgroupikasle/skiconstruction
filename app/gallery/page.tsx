@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { PageHero } from "@/components/ui/PageHero";
 import { GalleryExplorer } from "@/components/gallery/GalleryExplorer";
 import { ContactBanner } from "@/components/home/ContactBanner";
@@ -26,7 +27,9 @@ export default function GalleryPage() {
 
       <section aria-label="Gallery" className="py-12 sm:py-16">
         <Container>
-          <GalleryExplorer items={galleryItems} videos={galleryVideos} />
+          <Suspense fallback={<div className="min-h-[400px]" />}>
+            <GalleryExplorer items={galleryItems} videos={galleryVideos} />
+          </Suspense>
         </Container>
       </section>
 

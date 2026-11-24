@@ -68,7 +68,7 @@ export function ContactHero() {
               {/* Luxury Modern Villa Image */}
               <div className="relative size-full">
                 <Image
-                  src="/images/contact/hero-villa.jpg"
+                  src="/images/about/ref/hero-villa.png"
                   alt="Modern Luxury Villa designed and built with quality"
                   fill
                   priority

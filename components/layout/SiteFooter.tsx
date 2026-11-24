@@ -225,9 +225,11 @@ export function SiteFooter() {
             </div>
 
             {/* Address box */}
-            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex flex-col gap-2">
+            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 flex flex-col gap-2.5">
               <div className="flex items-start gap-2.5">
-                <MapPin className="size-4 shrink-0 text-emerald-400 mt-0.5" />
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-emerald-500/20 text-emerald-400 mt-0.5">
+                  <MapPin className="size-3.5" />
+                </span>
                 <div className="text-xs text-gray-300 leading-relaxed !text-left">
                   <span className="font-semibold text-white block">
                     SKI Construction Office
@@ -242,9 +244,11 @@ export function SiteFooter() {
                 href={mapsDirectionsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-1 inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
+                className="group inline-flex items-center gap-2.5 text-xs font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
               >
-                <Compass className="size-3.5" />
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500/30 transition-colors">
+                  <Compass className="size-3.5" />
+                </span>
                 <span>Open in Google Maps</span>
               </a>
             </div>
@@ -253,28 +257,30 @@ export function SiteFooter() {
             <div className="flex flex-col gap-2 text-xs">
               <a
                 href={telHref}
-                className="flex items-center gap-2.5 text-gray-300 hover:text-white transition-colors py-1"
+                className="group flex items-center gap-2.5 text-gray-300 hover:text-white transition-colors py-0.5"
               >
-                <span className="flex size-6 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400">
-                  <Phone className="size-3" />
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500/30 transition-colors">
+                  <Phone className="size-3.5" />
                 </span>
                 <span>{contact.phoneDisplay}</span>
               </a>
 
               <a
                 href={mailtoHref}
-                className="flex items-center gap-2.5 break-all text-gray-300 hover:text-white transition-colors py-1"
+                className="group flex items-center gap-2.5 break-all text-gray-300 hover:text-white transition-colors py-0.5"
               >
-                <span className="flex size-6 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400">
-                  <Mail className="size-3" />
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-emerald-500/20 text-emerald-400 group-hover:bg-emerald-500/30 transition-colors">
+                  <Mail className="size-3.5" />
                 </span>
                 <span>{contact.email}</span>
               </a>
             </div>
 
             {/* Verified Compliance Badge */}
-            <div className="flex items-center gap-2 pt-1 text-[11px] text-gray-400">
-              <ShieldCheck className="size-4 text-emerald-400 shrink-0" />
+            <div className="flex items-center gap-2.5 pt-0.5 text-xs text-gray-400">
+              <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-emerald-500/20 text-emerald-400">
+                <ShieldCheck className="size-3.5" />
+              </span>
               <span>GSTIN: {contact.gstin}</span>
             </div>
           </div>
@@ -287,11 +293,11 @@ export function SiteFooter() {
       <div className="border-t border-white/10 bg-[#030d07]">
         <Container className="flex flex-col lg:flex-row items-center justify-between gap-4 py-5 text-xs text-gray-400">
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 text-center sm:text-left">
-            <p className="text-center sm:text-left">
+            <p className="!text-center sm:!text-left text-xs leading-relaxed text-gray-400 [text-align-last:center] sm:[text-align-last:left] [word-spacing:normal]">
               © {year} <span className="text-white font-medium">{brand.name}</span>. All rights reserved.
             </p>
             <span className="hidden sm:inline text-white/20">|</span>
-            <p className="text-gray-400 text-center sm:text-left">
+            <p className="text-gray-400 !text-center sm:!text-left text-xs leading-relaxed [text-align-last:center] sm:[text-align-last:left] [word-spacing:normal]">
               Crafted and Maintained by{" "}
               <a
                 href="https://www.ikasletechnologies.com/"

@@ -29,21 +29,21 @@ const arcCards = [
     id: "card-2",
     title: "Warm Contemporary Villa",
     category: "Residential",
-    src: "/images/about/villa-exterior.jpg",
+    src: "/projects/folders/sivaperumal-aishwarya-galaxy/20260529_063549.jpg",
     angle: -36,
   },
   {
     id: "card-3",
     title: "Luxury Modern Residence",
     category: "Turnkey Villa",
-    src: "/images/projects/luxury-villa.jpg",
+    src: "/projects/folders/aj-avenue-krishnan/20250711_101802.jpg",
     angle: -24,
   },
   {
     id: "card-4",
     title: "Timber & Glass Villa",
     category: "Residential",
-    src: "/images/projects/contemporary-villa.jpg",
+    src: "/projects/folders/sadhasivam-site-muthugoundanur/IMG-20241130-WA0056.jpg",
     angle: -12,
   },
   {
@@ -57,21 +57,21 @@ const arcCards = [
     id: "card-6",
     title: "Modern Minimalist Home",
     category: "Residential",
-    src: "/images/projects/modern-residence.jpg",
+    src: "/projects/folders/senthor-garden-49/20251112_175306.jpg",
     angle: 12,
   },
   {
     id: "card-7",
     title: "Coastal Terrace Residence",
     category: "Villa Design",
-    src: "/images/projects/coastal-residence.jpg",
+    src: "/projects/folders/site-no-27-senthor-kkd/20260526_105333.jpg",
     angle: 24,
   },
   {
     id: "card-8",
     title: "Hillside Stone Villa",
     category: "Turnkey Villa",
-    src: "/images/projects/hillside-house.jpg",
+    src: "/projects/folders/rs-road-site-kkd/20250620_103523.jpg",
     angle: 36,
   },
   {
@@ -379,13 +379,6 @@ export function ProjectArc({ projects }: ProjectArcProps = {}) {
                   <ChevronRight className="size-4" strokeWidth={2.8} />
                 </span>
               </Link>
-
-              {/* Center Dial Indicator Dot on Arc Track */}
-              <div className="mt-5 flex items-center justify-center">
-                <div className="size-4 rounded-full border-2 border-brand-ink/80 bg-white flex items-center justify-center shadow-xs">
-                  <div className="size-1.5 rounded-full bg-brand-ink" />
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -529,13 +522,6 @@ export function ProjectArc({ projects }: ProjectArcProps = {}) {
                 <ChevronRight className="size-3.5" strokeWidth={2.8} />
               </span>
             </Link>
-
-            {/* Center Dial Indicator Dot on Arc Track */}
-            <div className="mt-3 flex items-center justify-center">
-              <div className="size-3.5 rounded-full border-2 border-brand-ink/80 bg-white flex items-center justify-center shadow-xs">
-                <div className="size-1 rounded-full bg-brand-ink" />
-              </div>
-            </div>
           </div>
         </div>
 

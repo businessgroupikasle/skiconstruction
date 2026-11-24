@@ -140,75 +140,55 @@ export function MissionVision() {
           </div>
 
           {/* 2. Ribbon Tabs with Brand Theme Styling */}
-          <div className="flex items-end gap-2.5 sm:gap-3 pb-2">
+          <div
+            role="tablist"
+            aria-label="Mission, Vision and Values Tabs"
+            className="flex flex-wrap items-center gap-2.5 sm:gap-3"
+          >
             {/* Tab 1: OUR MISSION */}
-            <div className="relative inline-block">
-              <button
-                type="button"
-                onClick={() => setActiveTab("mission")}
-                className={`relative px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 cursor-pointer rounded-t-lg ${
-                  activeTab === "mission"
-                    ? "bg-brand-primary text-white shadow-button"
-                    : "bg-brand-soft text-brand-dark hover:bg-brand-mist/70 border border-brand-line/60"
-                }`}
-              >
-                OUR MISSION
-              </button>
-              {/* Ribbon fold triangle */}
-              <div
-                className={`absolute top-full right-0 w-0 h-0 border-t-[7px] border-r-[7px] border-r-transparent ${
-                  activeTab === "mission"
-                    ? "border-t-brand-dark"
-                    : "border-t-brand-line"
-                }`}
-              />
-            </div>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "mission"}
+              onClick={() => setActiveTab("mission")}
+              className={`px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 cursor-pointer rounded-xl ${
+                activeTab === "mission"
+                  ? "bg-brand-primary text-white shadow-button"
+                  : "bg-brand-soft text-brand-dark hover:bg-brand-mist/70 border border-brand-line/60"
+              }`}
+            >
+              OUR MISSION
+            </button>
 
             {/* Tab 2: OUR VISION */}
-            <div className="relative inline-block">
-              <button
-                type="button"
-                onClick={() => setActiveTab("vision")}
-                className={`relative px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 cursor-pointer rounded-t-lg ${
-                  activeTab === "vision"
-                    ? "bg-brand-primary text-white shadow-button"
-                    : "bg-brand-soft text-brand-dark hover:bg-brand-mist/70 border border-brand-line/60"
-                }`}
-              >
-                OUR VISION
-              </button>
-              {/* Ribbon fold triangle */}
-              <div
-                className={`absolute top-full right-0 w-0 h-0 border-t-[7px] border-r-[7px] border-r-transparent ${
-                  activeTab === "vision"
-                    ? "border-t-brand-dark"
-                    : "border-t-brand-line"
-                }`}
-              />
-            </div>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "vision"}
+              onClick={() => setActiveTab("vision")}
+              className={`px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 cursor-pointer rounded-xl ${
+                activeTab === "vision"
+                  ? "bg-brand-primary text-white shadow-button"
+                  : "bg-brand-soft text-brand-dark hover:bg-brand-mist/70 border border-brand-line/60"
+              }`}
+            >
+              OUR VISION
+            </button>
 
             {/* Tab 3: OUR VALUES */}
-            <div className="relative inline-block">
-              <button
-                type="button"
-                onClick={() => setActiveTab("values")}
-                className={`relative px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 cursor-pointer rounded-t-lg ${
-                  activeTab === "values"
-                    ? "bg-brand-primary text-white shadow-button"
-                    : "bg-brand-soft text-brand-dark hover:bg-brand-mist/70 border border-brand-line/60"
-                }`}
-              >
-                OUR VALUES
-              </button>
-              {/* Ribbon fold triangle */}
-              <div
-                className={`absolute top-full right-0 w-0 h-0 border-t-[7px] border-r-[7px] border-r-transparent ${
-                  activeTab === "values"
-                    ? "border-t-brand-dark"
-                    : "border-t-brand-line"
-                }`}
-              />
-            </div>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTab === "values"}
+              onClick={() => setActiveTab("values")}
+              className={`px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-extrabold uppercase tracking-wider transition-all duration-200 cursor-pointer rounded-xl ${
+                activeTab === "values"
+                  ? "bg-brand-primary text-white shadow-button"
+                  : "bg-brand-soft text-brand-dark hover:bg-brand-mist/70 border border-brand-line/60"
+              }`}
+            >
+              OUR VALUES
+            </button>
           </div>
 
           {/* 3. Tab Narrative Paragraph in Brand Typography */}

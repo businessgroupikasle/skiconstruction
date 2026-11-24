@@ -446,8 +446,8 @@ export function ArchitecturalHero() {
 
             {/* Lead Paragraph */}
             <p
-              className="max-w-[560px] text-xs sm:text-base lg:text-[1.05rem] leading-relaxed !text-white/95 font-normal drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)]"
-              style={{ color: "#f3f4f6" }}
+              className="max-w-[560px] text-xs sm:text-base lg:text-[1.05rem] leading-relaxed text-left !text-left !text-white/95 font-normal drop-shadow-[0_2px_10px_rgba(0,0,0,0.85)]"
+              style={{ color: "#f3f4f6", textAlign: "left", wordSpacing: "normal" }}
             >
               3D elevation design, DTCP/LBS approvals and turnkey construction across Coimbatore and Kinathukadavu.
             </p>

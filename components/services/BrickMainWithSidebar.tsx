@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { CheckCircle2, Phone, MessageSquare, ArrowRight, ShieldCheck } from "lucide-react";
+import { CheckCircle2, Phone, ArrowRight, ShieldCheck } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { WhatsAppIcon } from "@/components/ui/icons";
 import { services } from "@/data/services";
 import type { Service, ServiceDetail, ServiceSlug } from "@/data/types";
 import { founder, contact } from "@/lib/brand";
@@ -156,7 +157,7 @@ export function BrickMainWithSidebar({ service, detail }: BrickMainWithSidebarPr
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-primary px-4 py-3 text-xs sm:text-sm font-bold text-white shadow-button hover:bg-brand-accent transition-all duration-200"
                 >
-                  <MessageSquare className="size-4" />
+                  <WhatsAppIcon className="size-4" />
                   <span>Chat on WhatsApp</span>
                 </a>
                 <a

@@ -44,8 +44,18 @@ export default async function GalleryVideoPage({ params }: VideoPageProps) {
     <>
       <PageHero eyebrow="Project video" title={video.title} breadcrumb="Gallery" backgroundImage={video.poster} />
 
-      <section aria-label="Video player" className="bg-white py-16 sm:py-20">
+      <section aria-label="Video player" className="bg-white py-12 sm:py-16">
         <Container className="flex flex-col gap-6">
+          <div>
+            <Link
+              href="/gallery?view=videos#project-videos"
+              className="inline-flex items-center gap-2 rounded-full border border-brand-line bg-white px-5 py-2.5 text-sm font-bold text-brand-ink transition-colors hover:border-brand-primary hover:text-brand-primary shadow-xs"
+            >
+              <ArrowLeft aria-hidden="true" className="size-4" />
+              Back to video gallery
+            </Link>
+          </div>
+
           <div className="relative aspect-video w-full overflow-hidden rounded-3xl bg-black shadow-card">
             <video
               src={video.src}
@@ -63,11 +73,11 @@ export default async function GalleryVideoPage({ params }: VideoPageProps) {
               {video.category} Walkthrough
             </span>
             <Link
-              href="/gallery#project-videos"
+              href="/gallery?view=videos#project-videos"
               className="inline-flex items-center gap-2 rounded-full border border-brand-line bg-white px-5 py-2.5 text-sm font-bold text-brand-ink transition-colors hover:border-brand-primary hover:text-brand-primary"
             >
               <ArrowLeft aria-hidden="true" className="size-4" />
-              Back to project videos
+              Back to video gallery
             </Link>
           </div>
         </Container>

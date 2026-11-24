@@ -137,17 +137,25 @@ function ServicesDropdown({
       >
         <div className="rounded-2xl border border-brand-line bg-white/98 p-2.5 shadow-card backdrop-blur-md">
           <ul className="flex flex-col gap-0.5">
-            {(item.children ?? []).map((child) => (
-              <li key={child.href}>
-                <Link
-                  href={child.href}
-                  onClick={() => setIsOpen(false)}
-                  className="block rounded-xl px-3 py-1.5 text-xs text-brand-ink hover:bg-brand-soft hover:text-brand-primary font-medium"
-                >
-                  {child.label}
-                </Link>
-              </li>
-            ))}
+            {(item.children ?? []).map((child) => {
+              const isChildActive = isActiveItem(child, pathname);
+              return (
+                <li key={child.href}>
+                  <Link
+                    href={child.href}
+                    onClick={() => setIsOpen(false)}
+                    aria-current={isChildActive ? "page" : undefined}
+                    className={`block rounded-xl px-3 py-1.5 text-xs font-medium transition-colors ${
+                      isChildActive
+                        ? "bg-brand-primary text-white font-semibold shadow-xs hover:bg-brand-dark"
+                        : "text-brand-ink hover:bg-brand-soft hover:text-brand-primary"
+                    }`}
+                  >
+                    {child.label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>
